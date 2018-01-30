@@ -5,6 +5,7 @@ import './App.css';
 import BarChart from './example/BarChart';
 import SimpleBarChart from './Tutorials/SimpleBarChart/SimpleBarChart';
 import DynamicTable from './Tutorials/DynamicTable/DynamicTable';
+import Grid from './Tutorials/MakeGrid';
 
 
 class App extends Component {
@@ -22,7 +23,8 @@ class App extends Component {
         <BarChart data={[5,10,1,3]} size={[500, 500]} />
 */}
         {/*<SimpleBarChart data={[30, 86, 168, 281, 303, 365]} />*/}
-        <DynamicTable/>
+        {/*<DynamicTable/>*/}
+        <Grid/>
       </div>
     );
   }
