@@ -1,0 +1,30 @@
+body {
+  font: 24px monospace
+}
+
+table {
+  margin: 10px;
+  font-size: 24px;
+}
+
+td {
+  padding: 5px;
+  border-bottom: 1px solid black;
+}
+
+td.update {
+  color: blue;
+}
+
+td.enter {
+  color: green;
+}
+
+td.exit, tr.exit td {
+  color: red;
+}
+
+td.row-header {
+  border-right: 1px solid black;
+  font-weight: bold;
+}
