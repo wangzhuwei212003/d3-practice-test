@@ -6,6 +6,7 @@ import BarChart from './example/BarChart';
 import SimpleBarChart from './Tutorials/SimpleBarChart/SimpleBarChart';
 import DynamicTable from './Tutorials/DynamicTable/DynamicTable';
 import Grid from './Tutorials/MakeGrid';
+import Mower from './Tutorials/mowerDemo';
 
 
 class App extends Component {
@@ -24,7 +25,9 @@ class App extends Component {
 */}
         {/*<SimpleBarChart data={[30, 86, 168, 281, 303, 365]} />*/}
         {/*<DynamicTable/>*/}
-        <Grid/>
+
+        {/*<Grid/>*/}
+        <Mower/>
       </div>
     );
   }
