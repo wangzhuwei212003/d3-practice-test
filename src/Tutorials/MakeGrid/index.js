@@ -57,7 +57,8 @@ class MakeGrid extends Component {
   // }
 
   gridData() {
-    const data = new Array();
+    //const data = new Array();
+    const data = []; // this is preferrable
     let xpos = 1;
     let ypos = 1;
     let click = 0;
@@ -66,7 +67,7 @@ class MakeGrid extends Component {
 
     //iterate for rows
     for (let row = 0; row < 10; row += 1) {
-      data.push(new Array());
+      data.push([]);
 
       for (let column = 0; column < 10; column += 1) {
         click = Math.round(Math.random()*100);

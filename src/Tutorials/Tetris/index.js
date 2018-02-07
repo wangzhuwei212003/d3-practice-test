@@ -30,11 +30,6 @@ import React, {Component} from 'react';
 import * as d3 from 'd3';
 import './index.css';
 
-const squareLength = 40;
-const circleRadius = 15;
-const ratios = {rock: 0.05, lava: 0.05};
-const gridSize = {x: 20, y: 15};
-
 class Tetris extends Component {
   constructor(props) {
     super(props);
@@ -51,7 +46,6 @@ class Tetris extends Component {
     this.shape = {};
     this.nextShape = {};
     this.next = -1;
-    this.interval = 0;
     this.timeInterval = 0;
     this.level = 1;
     this.lines = 0;
@@ -65,6 +59,7 @@ class Tetris extends Component {
     //this.scoreID;
 
     this.tetris = this.tetris.bind(this);
+    this.buildGameData = this.buildGameData.bind(this);
     this.play = this.play.bind(this);
     this.start = this.start.bind(this);
     this.createShape = this.createShape.bind(this);
@@ -87,10 +82,8 @@ class Tetris extends Component {
     console.log('didmount occurred');
     //console.log(this.state);
 
-    // this.tetris();
-    // this.newGame();
-
-    this.buildGameData();
+    this.tetris();
+    this.newGame();
   }
 
   componentDidUpdate() {
@@ -107,7 +100,7 @@ class Tetris extends Component {
         .append('svg');
 
     this.attachKeyListeners();
-    //this.gameOver();
+    this.gameOver();
   }
 
   play() {
@@ -120,7 +113,8 @@ class Tetris extends Component {
         1000
     ); // change time number in the show panel.
 
-    this.interval = setInterval(this.start, 650); // interval to update the data
+    this.start();
+    //this.interval = setInterval(this.start, 650); // interval to update the data
   }
 
   start() {
@@ -129,8 +123,12 @@ class Tetris extends Component {
       // if the shape encounters no obstacle, keep moving down.
       // (还能这样直接链式的调用shape里面的方法的)
       // 处于这一状态的时候，gamedata 除了移动的方块之外，没有在变化，所以直接改变 shape。
+
+      this.timeOut = setTimeout(this.start, 650 - this.level * 50);
     } else {
-      clearInterval(this.interval);  //stop moving the shape down
+      //clearInterval(this.interval);  //stop moving the shape down
+      clearTimeout(this.timeOut);
+
       this.updateGame(); // 更新 gamedata 包括空中移动的方块、消除符合条件的行、根据 gamedata 重画整个网页。
 
       // 生成this.shape / this.nextShape
@@ -138,9 +136,10 @@ class Tetris extends Component {
 
       if (this.gameover) {
         this.gameOver(); // this.gameover 这个 flag 是在 updateGame 方法里设置的。
+        clearTimeout(this.timeOut);
         clearInterval(this.timeInterval);
       } else {
-        this.interval = setInterval(this.start, 650 - this.level * 50);
+        this.timeOut = setTimeout(this.start, 650 - this.level * 50);
         // 这里不算重复注册 setInterval，else 一进来就清除了。
       }
     }
@@ -191,6 +190,8 @@ class Tetris extends Component {
       case 6:
         this.shape = this.createZ2();
         break;
+      default:
+        break;
     }
 
     switch (this.next) {
@@ -214,6 +215,8 @@ class Tetris extends Component {
         break;
       case 6:
         this.nextShape = this.createZ2('next');
+        break;
+      default:
         break;
     }
   }
@@ -297,10 +300,10 @@ class Tetris extends Component {
     bar.left = () => {
       const r = d[0][1] / this.div, c = d[0][0] / this.div;
       if (d[0][0] > 0) {
-        if (o === 0 && this.gamedata[r][c - 1] === 0 ||
-            o === 90 && this.gamedata[r][c - 1] === 0 && this.gamedata[r - 1][c - 1] === 0 &&
-            (this.gamedata[r - 2] === undefined || this.gamedata[r - 2][c - 1] === 0) &&
-            (this.gamedata[r - 3] === undefined || this.gamedata[r - 3][c - 1] === 0)
+        if ((o === 0 && !this.gamedata[r][c - 1].occupy) ||
+            (o === 90 && !this.gamedata[r][c - 1].occupy && !this.gamedata[r - 1][c - 1].occupy &&
+            (this.gamedata[r - 2] === undefined || !this.gamedata[r - 2][c - 1].occupy) &&
+            (this.gamedata[r - 3] === undefined || !this.gamedata[r - 3][c - 1].occupy))
         ) {
           // two situation, allow to change the bar data.
           for (let i = 0; i < d.length; i += 1) {
@@ -313,10 +316,10 @@ class Tetris extends Component {
     bar.right = () => {
       const r = d[0][1] / this.div, c = d[0][0] / this.div;
       if (d[3][0] < this.w - this.div) { // if the orientation is 90, why d[3][0] < w-div is necessary?
-        if (o === 0 && this.gamedata[r][c + 4] === 0 ||
-            o === 90 && this.gamedata[r][c + 1] === 0 && this.gamedata[r - 1][c + 1] === 0 &&
-            (this.gamedata[r - 2] === undefined || this.gamedata[r - 2][c + 1] === 0) &&
-            (this.gamedata[r - 3] === undefined || this.gamedata[r - 3][c + 1] === 0)
+        if ((o === 0 && !this.gamedata[r][c + 4].occupy) ||
+            (o === 90 && !this.gamedata[r][c + 1].occupy && !this.gamedata[r - 1][c + 1].occupy &&
+            (this.gamedata[r - 2] === undefined || !this.gamedata[r - 2][c + 1].occupy) &&
+            (this.gamedata[r - 3] === undefined || !this.gamedata[r - 3][c + 1].occupy))
         ) {
           // two situation, allow to change the bar data.
           for (let i = 0; i < d.length; i += 1) {
@@ -342,7 +345,7 @@ class Tetris extends Component {
         for (i = r; i < this.rows; i += 1) {
           // this.rows is the total rows, r is the current y coordinate
           for (let j = x1; j <= x2; j += 1) {
-            if (this.gamedata[i][j]) {
+            if (this.gamedata[i][j].occupy) {
               done = true; // gamedata 1 means occupied, 0 means empty
               break;
             }
@@ -360,7 +363,7 @@ class Tetris extends Component {
         x1 = d[0][0] / this.div;
 
         for (i = r; i < this.rows; i += 1) {
-          if (this.gamedata[i][x1]) {
+          if (this.gamedata[i][x1].occupy) {
             break;
           }
         }
@@ -376,9 +379,9 @@ class Tetris extends Component {
       const r = d[0][1] / this.div, c = d[0][0] / this.div;
       if (o === 0) {
         if (
-            r + 1 <= this.rows && this.gamedata[r + 1][c + 1] === 0 &&
-            (this.gamedata[r - 1] === undefined || this.gamedata[r - 1][c + 1] === 0) &&
-            (this.gamedata[r - 2] === undefined || this.gamedata[r - 2][c + 1] === 0)
+            r + 1 <= this.rows && !this.gamedata[r + 1][c + 1].occupy &&
+            (this.gamedata[r - 1] === undefined || !this.gamedata[r - 1][c + 1].occupy) &&
+            (this.gamedata[r - 2] === undefined || !this.gamedata[r - 2][c + 1].occupy)
         ) {
           o = 90;
           d[0][0] += this.div;
@@ -390,8 +393,8 @@ class Tetris extends Component {
         }
       } else {
         if (
-            this.gamedata[r - 1][c - 1] === 0 && this.gamedata[r - 1][c + 1] === 0 &&
-            this.gamedata[r - 1][c + 2] === 0
+            !this.gamedata[r - 1][c - 1].occupy && !this.gamedata[r - 1][c + 1].occupy &&
+            !this.gamedata[r - 1][c + 2].occupy
         ) {
           o = 0;
           d[0][0] -= this.div;
@@ -415,7 +418,7 @@ class Tetris extends Component {
           r = d[i][1] / this.div + 1;
           c = d[i][0] / this.div;
 
-          if (this.gamedata[r][c]) {
+          if (this.gamedata[r][c].occupy) {
             animate = false;
             break;
           }
@@ -424,7 +427,7 @@ class Tetris extends Component {
       } else if (o === 90) {
         r = d[0][1] / this.div + 1;
         c = d[0][0] / this.div;
-        return this.gamedata[r][c] === 0;
+        return !this.gamedata[r][c].occupy;
       }
       return bar; // this expression will never execute.
       // animate function will return a boolean value. if there is any obstacle, the animate will return false.
@@ -600,7 +603,8 @@ class Tetris extends Component {
     for (let i = 0; i < 4; i++) {
       r = a[i][1] / this.div; // row number
       c = a[i][0] / this.div; // column number
-      this.gamedata[r][c] = this.shape.f(); // get the fill color
+      this.gamedata[r][c].fill = this.shape.f(); // get the fill color
+      this.gamedata[r][c].occupy = true;
     }
 
     j = this.rows - 1; // this.rows:total rows，从下往上整个查一遍，更改 gamedata 里的信息。
@@ -614,7 +618,7 @@ class Tetris extends Component {
       }
     }
 
-    d3.selectAll("rect.active").remove(); // remove moving rect
+    d3.selectAll("rect.active").remove(); // remove moving rect 删除掉所有的 active 在运动的方块
     this.svg.selectAll("g").data([]).exit().remove(); // remove all in svg
 
     // append g and rects , 这种 enter append attr 里面自带循环.. 但是显然这个后面的 j 不是当前数组的所在的 index
@@ -629,14 +633,14 @@ class Tetris extends Component {
         })
         .enter()
         .append("rect")
-        // .attr("x", (d, i, j) => {
-        //   //console.log(d, i, j); // d is the value , i is the value index, j is the array of the data
-        //   console.log(i * this.div + 1);
-        //   return i * this.div + 1; // 第二个参数是当前元素的 index，
-        // })
-        // .attr("y", (d, i, j) => {
-        //   return j * this.div + 1; // 第三个参数是当前元素上一级的 index ？
-        // })
+        .attr("x", (d, i, j) => {
+          //console.log(d, i, j); // d is the value , i is the value index, j is the array of the data
+          //console.log(i * this.div + 1);
+          return i * this.div + 1; // 第二个参数是当前元素的 index，
+        })
+        .attr("y", (d, i, j) => {
+          return d.row * this.div + 1; // 第三个参数是当前元素上一级的 index ？
+        })
         .attr("rx", 1) // rx and ry round the corner of rectangle.
         .attr("width", (d) => {
           return this.div - 3;
@@ -645,17 +649,14 @@ class Tetris extends Component {
           return this.div - 3;
         })
         .style("fill", (d, i, j) => {
-          console.log(d, i, j);
-          console.log(this.gamedata);
-          //console.log(this.gamedata[j][i]);
-          return d ? 'orange' : "none";
+          return d.fill;
         })
         .style("fill-opacity", function (d, i, j) {
           return d ? 0.7 : "none";
         })
-        // .style("stroke", function (d, i, j) {
-        //   return d ? this.gamedata[j][i] : "none";
-        // })
+        .style("stroke", function (d, i, j) {
+          return d.fill;
+        })
         .style("stroke-width", function (d) {
           return d ? 2 : 0;
         });
@@ -667,11 +668,11 @@ class Tetris extends Component {
 
   buildGameData(){
     // 暂定 18行，10列
-    const mapData = new Array();
+    const mapData = [];
 
     //iterate for rows
     for (let row = 0; row < this.rows; row += 1) {
-      mapData.push(new Array());
+      mapData.push([]);
 
       for (let column = 0; column < this.cols; column += 1) {
         mapData[row].push({
@@ -683,7 +684,7 @@ class Tetris extends Component {
       }
     }
     console.log(mapData);
-    return mapData;
+    this.gamedata = mapData;
   }
 
   // 删除空中移动的方块、下一个提示的方块、网格
@@ -706,7 +707,7 @@ class Tetris extends Component {
         .transition()
         .duration(300)
         .delay(function (d, i, j) {
-          return j * 100;
+          return d.row * 100;
         })
         .style("fill-opacity", 0)
         .style("stroke-opacity", 0);
@@ -716,44 +717,8 @@ class Tetris extends Component {
   }
 
   newGame() {
-    this.gamedata = [
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 0
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 1
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 2
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 3
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 4
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 5
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 6
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 7
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 8
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 9
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 10
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 11
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 12
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 13
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 14
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 15
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // 16
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ];// 17
-    this.interval = 0;
+    this.buildGameData();
+
     this.timeInterval = 0;
     this.gameover = false;
     this.shape = {};
@@ -796,7 +761,7 @@ class Tetris extends Component {
 
   emptyRow(j) {
     for (let i = 0; i < this.cols; i += 1) {
-      if (this.gamedata[j][i])
+      if (this.gamedata[j][i].occupy)
         return false; // any cell is occupied , not 0, means not empty.
     }
     return true;
@@ -804,7 +769,7 @@ class Tetris extends Component {
 
   fullRow(j) {
     for (let i = 0; i < this.cols; i++) {
-      if (this.gamedata[j][i] === 0)
+      if (!this.gamedata[j][i].occupy)
         return false; // any position is 0, means not full, 1 means occupied.
     }
     return true;
@@ -837,7 +802,7 @@ class Tetris extends Component {
     // switch pause statu
     if (this.paused) {
       this.paused = false;
-      this.interval = setInterval(this.start)
+      this.start();
     }
   }
 
@@ -852,7 +817,7 @@ class Tetris extends Component {
         <div className="container" ref={ele => this.container = ele}>
           <div className="svg-container" ref={ele => this.svg_container = ele}>
             <div id="modal">
-              <a href="#" id="new-game" onClick={this.newGame}>New Game</a>
+              <a id="new-game" onClick={this.newGame}>New Game</a>
             </div>
 
             <div id="pause">
