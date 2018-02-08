@@ -83,7 +83,7 @@ class Tetris extends Component {
     //console.log(this.state);
 
     this.tetris();
-    this.newGame();
+    //this.newGame();
   }
 
   componentDidUpdate() {
@@ -100,7 +100,7 @@ class Tetris extends Component {
         .append('svg');
 
     this.attachKeyListeners();
-    this.gameOver();
+    this.gameOver(); // this is necessary, although the first time is not gameover. 这个是需要的，不然看不到 new game 这个按钮选项。
   }
 
   play() {
@@ -516,10 +516,6 @@ class Tetris extends Component {
   }
 
   keyCodeListeners(event) {
-    if (!this.shape.animate()) {
-      console.log(this.shape.animate());
-      return;
-    }
 
     if (d3.event.keyCode === 37) {
       if (!this.paused &&
@@ -546,7 +542,7 @@ class Tetris extends Component {
       if (!this.paused &&
           (this.shape.animate() || this.shape.grace())
       ) {
-        d3.event.preventDefault();
+        // d3.event.preventDefault();
         this.shape.drop().draw();
       }
     } else if (d3.event.keyCode === 38) {
@@ -557,14 +553,16 @@ class Tetris extends Component {
         this.shape.rotate().draw();
       }
     } else if (d3.event.keyCode === 80) {
-      if (this.shape === {}) {
-        alert('you dont even start');
-        return;
-      }
-      console.log(this.shape);
-      if (!this.paused &&
-          ((this.shape.animate()) || (this.shape.grace()))
-      ) {
+      // if (this.shape === {}) {
+      //   alert('you dont even start');
+      //   return;
+      // }
+      //console.log(this.shape);
+
+      // console.log(!this.paused &&
+      //     ((this.shape.animate()) || (this.shape.grace())));
+
+      if (this.timeOut) {
         d3.event.preventDefault();
         this.pause();
       }
@@ -666,7 +664,7 @@ class Tetris extends Component {
     }
   }
 
-  buildGameData(){
+  buildGameData() {
     // 暂定 18行，10列
     const mapData = [];
 
@@ -786,8 +784,11 @@ class Tetris extends Component {
       if (this.emptyRow(k)) {
         break;
       } else {
-        for (let i = 0; i < this.cols; i++)
-          this.gamedata[k][i] = this.gamedata[k - 1][i];
+        for (let i = 0; i < this.cols; i++){
+          //this.gamedata[k][i] = Object.assign({}, this.gamedata[k - 1][i]);
+          this.gamedata[k][i].occupy = this.gamedata[k - 1][i].occupy;
+          this.gamedata[k][i].fill = this.gamedata[k - 1][i].fill;
+        }
       }
     }
 
@@ -799,11 +800,32 @@ class Tetris extends Component {
   }
 
   pause() {
+    //console.log('this.paused', this.paused);
+    console.log(this.container);
     // switch pause statu
     if (this.paused) {
       this.paused = false;
       this.start();
+
+      this.timeInterval = setInterval(
+          () => {
+            this.time++;
+            d3.select("#time").text(this.time);
+          },
+          1000
+      );
+
+      d3.select('#pause').classed('paused', false);
+    }else{
+      // if now is not paused.
+      this.paused = true;
+      clearTimeout(this.timeOut); // timeout for start
+      clearInterval(this.timeInterval);
+
+      d3.select('#pause').classed('paused', true);
     }
+
+
   }
 
   createScore() {
@@ -814,7 +836,7 @@ class Tetris extends Component {
 
   render() {
     return (
-        <div className="container" ref={ele => this.container = ele}>
+        <div className="container" ref={ele => this.container = ele} tabIndex={'0'}>
           <div className="svg-container" ref={ele => this.svg_container = ele}>
             <div id="modal">
               <a id="new-game" onClick={this.newGame}>New Game</a>
