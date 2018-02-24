@@ -228,7 +228,9 @@ class Test extends Component {
     fileName += title.replace(/ /g, "_");
 
     // initialize file format you want csv or xls
-    let uri = 'data:text/csv;charset=utf-8,' + escape(CSV); // 这里为什么会提示 deprecated symbol escape ？
+    //let uri = 'data:text/csv;charset=utf-8,' + escape(CSV); // 这里为什么会提示 deprecated symbol escape ？
+    //let uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(CSV); // 这里为什么会提示 deprecated symbol escape ？
+    let uri = 'data:text/csv;charset=utf-8,' + encodeURI(CSV); // 这里为什么会提示 deprecated symbol escape ？
 
     var link = document.createElement("a");
     link.href = uri;
