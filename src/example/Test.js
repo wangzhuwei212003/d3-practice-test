@@ -20,7 +20,7 @@ const holeGap = 60;
 const pitch = 6.2832;
 
 // 可接受的误差
-const errorAccept = 0.1;
+const errorAccept = 0;
 
 const columns = [{
   title: '首尾间距',
@@ -120,12 +120,16 @@ class Test extends Component {
     console.log('loopHole');
     console.log(this.state.errorAccept);
 
-    let temp = []; // 重新算
+    let temp = []; // 重新算，result 临时数据。
 
     // 600 是以 20 为下界的估计的一个数字。首尾间距范围暂定【20，50】，孔距范围暂定【45，75】
     for(let testHeadTail = 20; testHeadTail < 51; testHeadTail += 1 ){
 
       for(let testHoleGap = 45; testHoleGap < 76; testHoleGap +=1){
+
+        // 往 result 里面添加数据的时候，考虑首先是 headTail 和 holeGap 一样，然后能够达到这4个档的高度。
+        let candidate = [];
+
         for (let i = 0; i < 600; i += 1) {
 
           // 根据孔间距数算出总长
@@ -142,10 +146,17 @@ class Test extends Component {
           const errorNum = (doubleDiv - floorDiv) * pitch; // 总长误差
 
           // 如果符合误差范围内，就添加到 result 里。
-          if (errorNum <= acceptError) {
-            let tableKey = temp.length;
+          if (errorNum <= acceptError &&
+              (
+                  (totalLen > 2200 && totalLen < 2800) ||
+                  (totalLen > 4200 && totalLen < 4800) ||
+                  (totalLen > 6200 && totalLen < 6800) ||
+                  (totalLen > 8200 && totalLen < 8800)
+              )
+          ) {
+            let tableKey = temp.length +'-'+ candidate.length;
 
-            temp.push({
+            candidate.push({
               key: tableKey,
               headTail: testHeadTail,
               holeGap: testHoleGap,
@@ -156,6 +167,10 @@ class Test extends Component {
             });
           }
         } // end of 200 times for loop
+
+        if(candidate.length > 3){
+          temp = temp.concat(candidate);
+        }
       } // end of test holeGap loop
     } // end of test headTail loop
 
