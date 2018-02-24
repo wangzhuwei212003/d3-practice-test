@@ -28,7 +28,7 @@
 
 import React, {Component} from 'react';
 import * as d3 from 'd3';
-import './index.css';
+//import './index.css';
 
 class Tetris extends Component {
   constructor(props) {

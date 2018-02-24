@@ -1,6 +1,5 @@
 /**
- * Created by zhuweiwang on 30/01/2018.
- *
+ * based on http://www.cagrimmett.com/til/2016/08/17/d3-lets-make-a-grid.html
  *
  * think about how an svg grid is structured
  <svg>

@@ -4,7 +4,7 @@
 
 import React, {Component} from 'react';
 import * as d3 from 'd3';
-import './index.css';
+//import './index.css';
 
 class SimpleBarChart extends Component {
   constructor(props) {

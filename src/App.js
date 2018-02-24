@@ -2,12 +2,16 @@ import React, {Component} from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import 'antd/dist/antd.css';
+
 import BarChart from './example/BarChart';
 import SimpleBarChart from './Tutorials/SimpleBarChart/SimpleBarChart';
 import DynamicTable from './Tutorials/DynamicTable/DynamicTable';
 import Grid from './Tutorials/MakeGrid';
 import Mower from './Tutorials/mowerDemo';
 import Tetris from './Tutorials/Tetris';
+
+import Test from './example/Test';
 
 
 class App extends Component {
@@ -33,8 +37,15 @@ class App extends Component {
 //       </div>
 //     );
 
+    // return (
+    //     <Tetris/>
+    // )
+
     return (
-        <Tetris/>
+        <div className="App">
+
+          <Test/>
+        </div>
     )
   }
 }
