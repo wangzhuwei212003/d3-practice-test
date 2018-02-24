@@ -123,36 +123,41 @@ class Test extends Component {
     let temp = []; // 重新算
 
     // 600 是以 20 为下界的估计的一个数字。首尾间距范围暂定【20，50】，孔距范围暂定【45，75】
-    for (let i = 0; i < 600; i += 1) {
+    for(let testHeadTail = 20; testHeadTail < 51; testHeadTail += 1 ){
 
-      // 根据孔间距数算出总长
-      const totalLen = headTail + holeGap * i;
+      for(let testHoleGap = 45; testHoleGap < 76; testHoleGap +=1){
+        for (let i = 0; i < 600; i += 1) {
 
-      // 如果超出了12米的长度，就终止当前运算
-      if (totalLen > 12000) {
-        break;
-      }
+          // 根据孔间距数算出总长
+          const totalLen = testHeadTail + testHoleGap * i;
 
-      // 根据齿距算出齿数，以及总长误差
-      const doubleDiv = totalLen / pitch; // this is supposed to be a double num
-      const floorDiv = Math.floor(doubleDiv); // this is supposed to be an int
-      const errorNum = (doubleDiv - floorDiv) * pitch; // 总长误差
+          // 如果超出了12米的长度，就终止当前运算
+          if (totalLen > 12000) {
+            break;
+          }
 
-      // 如果符合误差范围内，就添加到 result 里。
-      if (errorNum < acceptError) {
-        let tableKey = temp.length;
+          // 根据齿距算出齿数，以及总长误差
+          const doubleDiv = totalLen / pitch; // this is supposed to be a double num
+          const floorDiv = Math.floor(doubleDiv); // this is supposed to be an int
+          const errorNum = (doubleDiv - floorDiv) * pitch; // 总长误差
 
-        temp.push({
-          key: tableKey,
-          headTail: headTail,
-          holeGap: holeGap,
-          holeNum: i,
-          totalLen: totalLen,
-          totalLenDivide: doubleDiv,
-          totalLengthError: errorNum
-        });
-      }
-    } // end of 200 times for loop
+          // 如果符合误差范围内，就添加到 result 里。
+          if (errorNum <= acceptError) {
+            let tableKey = temp.length;
+
+            temp.push({
+              key: tableKey,
+              headTail: testHeadTail,
+              holeGap: testHoleGap,
+              holeNum: i,
+              totalLen: totalLen,
+              totalLenDivide: doubleDiv,
+              totalLengthError: errorNum
+            });
+          }
+        } // end of 200 times for loop
+      } // end of test holeGap loop
+    } // end of test headTail loop
 
     this.setState({
       result:temp
