@@ -184,7 +184,7 @@ class Test extends Component {
 
   // 这个是供下载成 csv Excel文件的功能。
   JSON2CSV(JSONData, title, showLabel) {
-    const arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
+    const arrData = typeof JSONData !== 'object' ? JSON.parse(JSONData) : JSONData;
 
     let CSV = '';
 
@@ -193,11 +193,11 @@ class Test extends Component {
     if (showLabel) {
       let row = '';
 
-      for (let index in arrData[0]) {
-        row += index + ',';
+      for (let property in arrData[0]) {
+        row += property + ',';
       }
 
-      row = row.slice(0, -1);
+      row = row.slice(0, -1); // 最后一个逗号去掉。截取
 
       // append label row with line break
       CSV += row + '\r\n';

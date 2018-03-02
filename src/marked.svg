@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.1 (39012) - http://www.bohemiancoding.com/sketch -->
+    <title>Oval 2</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <radialGradient cx="50%" cy="50%" fx="50%" fy="50%" r="50%" gradientTransform="translate(0.500000,0.500000),scale(1.000000,1.000000),rotate(90.000000),translate(-0.500000,-0.500000)" id="radialGradient-1">
+            <stop stop-color="#FFFFFF" offset="0%"></stop>
+            <stop stop-color="#4990E2" offset="100%"></stop>
+        </radialGradient>
+        <clipPath id="cut-off-bottom">
+            <rect x="0" y="12px" width="48px" height="24px" />
+        </clipPath>
+    </defs>
+    <style type="text/css">
+        @keyframes App-logo-spin {
+        0%   {transform: scale(0.5); opacity: 0}
+        50%  {transform: scale(1); opacity: 1}
+        100% {transform: scale(1.2); opacity: 0}
+        }
+        @keyframes mask-scale {
+        0%   {transform: scale(1.5)}
+        50%  {transform: scale(1)}
+        100% {transform: scale(1)}
+        }
+
+        #mark { animation: App-logo-spin infinite 1s linear; transform-origin: center}
+        #cut-off-bottom { animation: mask-scale infinite 1s linear; transform-origin: center}
+
+    </style>
+    <g id="mark" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" clip-path="url(#cut-off-bottom)">
+        <g id="Artboard" transform="translate(-556.000000, -16.000000)" fill="url(#radialGradient-1)">
+            <g id="Group-2" transform="translate(555.000000, 16.000000)">
+                <ellipse id="Oval-2" cx="25" cy="24" rx="24" ry="24"></ellipse>
+            </g>
+        </g>
+    </g>
+
+</svg>
