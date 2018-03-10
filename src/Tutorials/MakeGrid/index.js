@@ -35,16 +35,6 @@ class MakeGrid extends Component {
   }
 
   componentDidMount() {
-    //console.log(this.state);
-    //this.createBarChart();
-
-    // setTimeout(() => {
-    //   //console.log(this.state)
-    //   this.setState({
-    //     data: [30, 86, 168, 281, 303, 100]
-    //   });
-    //   console.log('change the state')
-    // }, 1000);
 
     console.log('didmount occurred');
     this.drawGrid();

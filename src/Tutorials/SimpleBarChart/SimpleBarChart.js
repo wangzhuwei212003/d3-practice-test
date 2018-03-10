@@ -10,8 +10,12 @@ class SimpleBarChart extends Component {
   constructor(props) {
     super(props);
     const {data} = props;
-    this.state = {data};
 
+    if(!data){
+      this.state = {data: [30, 86, 168, 281, 303, 365]};
+    }else{
+      this.state = {data};
+    }
     this.createBarChart = this.createBarChart.bind(this);
   }
 

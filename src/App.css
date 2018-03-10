@@ -3,7 +3,7 @@
 }
 
 .App-logo {
-  /*animation: App-logo-spin infinite 1s linear;*/
+  animation: ORApp-logo-spin infinite 2s linear;
   transform-origin: center;
   height: 80px;
 }
@@ -54,12 +54,15 @@
 }
 
 @keyframes App-logo-spin {
-  0%   {transform: scale(0.5); opacity: 0}
-  50%  {transform: scale(1); opacity: 1}
-  100% {transform: scale(1.2); opacity: 0}
+  0%   {transform: scale(0.5); transform: rotate(0deg); opacity: 0}
+  50%  {transform: scale(1); transform: rotate(40deg); opacity: 1}
+  100% {transform: scale(1.2); transform: rotate(50deg); opacity: 0}
 }
 
-/*@keyframes App-logo-spin {*/
+@keyframes ORApp-logo-spin {
   /*from { transform: rotate(0deg); }*/
   /*to { transform: rotate(360deg); }*/
-/*}*/
+  0%   {transform: scale(0.5); transform: rotate(0deg); opacity: 0}
+  50%  {transform: scale(1); transform: rotate(200deg); opacity: 1}
+  100% {transform: scale(1.2); transform: rotate(1800deg); opacity: 0.3}
+}
