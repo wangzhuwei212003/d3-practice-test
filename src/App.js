@@ -93,11 +93,11 @@ class App extends Component {
                   </Menu.Item>
                   <Menu.Item key="2">
                     <Icon type="desktop"/>
-                    <span><Link to='/about'>About</Link></span>
+                    <span><Link to='/about'>Basic A star</Link></span>
                   </Menu.Item>
                   <Menu.Item key="3">
                     <Icon type="inbox"/>
-                    <span><Link to='/topics'>Topics</Link></span>
+                    <span><Link to='/topics'>Coop path</Link></span>
                   </Menu.Item>
                   <SubMenu key="sub1" title={<span><Icon type="mail"/><span>D3 example</span></span>}>
                     <Menu.Item key="5"><Link to='/Tutorials/DynamicTable'>DynamicTable</Link></Menu.Item>
