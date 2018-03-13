@@ -151,29 +151,38 @@ class BasicAStar extends Component {
           console.log('mouse down');
           me.isMouseDown = true;
           if (d.click % 6 === 0) {
-            d.click = 1;
-            d3.select(this).style('fill', 'green');
-            console.log('change to green');
-            console.log(d);
-            console.log('x: ', (d.x -1)/25, 'y: ', (d.y - 1)/25); // row = y 这里是包含0的，其实是index的意思
+            // console.log('change to green');
+            // console.log(d);
+            // console.log('x: ', (d.x -1)/25, 'y: ', (d.y - 1)/25); // row = y 这里是包含0的，其实是index的意思
 
             if(!me.inputData.startPoint){
+              d.click = 1;
+              d3.select(this).style('fill', 'green');
               // 如果是已经有 start point 的话，就不会再次去改变了。即是第一次设置 起始点算话，其他都不算。
               me.inputData.startPoint = [(d.y - 1)/25, (d.x -1)/25];
+            }else if(!me.inputData.endPoint){
+              d.click = 2;
+              d3.select(this).style('fill', 'red');
+              // 如果是已经有 start point 的话，就不会再次去改变了。即是第一次设置 起始点算话，其他都不算。
+              me.inputData.endPoint = [(d.y - 1)/25, (d.x -1)/25];
             }else{
-              console.log('已经设置好了起始点。如果需要重新设置，直接刷新界面。')
+              console.log('已经设置好了起始点/end 点。如果需要重新设置，直接刷新界面。')
             }
 
-            console.log(me.inputData);
+            //console.log(me.inputData);
 
           } else if (d.click % 6 === 1) {
-            d.click = 2;
-            d3.select(this).style('fill', 'red');
+            // console.log('change to red');
+            // console.log(d);
 
-            console.log('change to red');
-            console.log(d);
-
-            me.inputData.endPoint = [(d.y - 1)/25, (d.x -1)/25];
+            if(!me.inputData.endPoint){
+              d.click = 2;
+              d3.select(this).style('fill', 'red');
+              // 如果是已经有 start point 的话，就不会再次去改变了。即是第一次设置 起始点算话，其他都不算。
+              me.inputData.endPoint = [(d.y - 1)/25, (d.x -1)/25];
+            }else{
+              console.log('已经设置好了end点。如果需要重新设置，直接刷新界面。')
+            }
 
           } else if (d.click % 6 === 2) {
             d.click = 0;
