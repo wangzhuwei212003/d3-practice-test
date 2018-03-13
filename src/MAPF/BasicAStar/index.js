@@ -4,6 +4,7 @@
 import React, {Component} from 'react';
 import * as d3 from 'd3';
 import {Button} from 'antd';
+import './index.css';
 
 class BasicAStar extends Component {
   constructor(props) {
@@ -13,13 +14,34 @@ class BasicAStar extends Component {
       startPoint: null, //[row, col]
       endPoint: null, //[row, col]
       grid:[], // 是 0-1 矩阵，1代表有障碍
-    }
+    } // 这句话要放在 constructor 里，componentDidMount 里是执行顺序不对，得出 undefined。
+
+    this.nowTimeStep = 0;
   }
 
   componentDidMount() {
     console.log('component did mount');
-    this.drawGridMouseover();
 
+    this.gridMouseover = d3.select(this.grid)
+        .append('svg')
+        .attr('width', '760px')
+        .attr('height', '760px');
+
+    this.scales = {
+      x: d3.scaleLinear().domain([0, 30]).range([0, 760]), // 前面是格子数，后面是实际的 pixel 数。
+      y: d3.scaleLinear().domain([0, 30]).range([0, 760]),
+    };
+
+
+    console.log(this.gridMouseover);
+    this.drawGridMouseover(this.gridMouseover);
+
+    this.groups={
+      path: this.gridMouseover.append('g'),
+      position: this.gridMouseover.append('g')
+    };
+
+    this.movingSpot = this.gridMouseover.append('g');
 
   }
 
@@ -27,6 +49,7 @@ class BasicAStar extends Component {
     console.log('component did update')
   }
 
+  // 生成初始的 matrix，供显示使用以及 input 数据使用。
   gridDataMax = (reactDom) => {
     //const data = new Array();
     console.log(reactDom);
@@ -68,14 +91,12 @@ class BasicAStar extends Component {
     return data;
   };
 
-  drawGridMouseover() {
+  drawGridMouseover(gridMouseover) {
+
+    console.log(gridMouseover);
+
     let me = this;
     const gridRef = this.grid;
-
-    const gridMouseover = d3.select(gridRef)
-        .append('svg')
-        .attr('width', '760px')
-        .attr('height', '760px');
 
 
     const row = gridMouseover.selectAll('.row')
@@ -188,14 +209,112 @@ class BasicAStar extends Component {
     // animate the path moving
   }
 
+  animateMoving() {
+
+  }
+
+  drawPath(groups, scales) {
+    // 首先这个 path 是有顺序的，
+    const path = [[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7]];
+
+    groups.path.selectAll('.path').remove();
+
+    const lineFunction = d3.line()
+        .x(function (d) {return scales.x(d[0] + 0.5);})
+        .y(function (d) {return scales.y(d[1] + 0.5);})
+        .curve(d3.curveLinear);
+
+    const lineGraph = groups.path.append('path')
+        .attr('d', lineFunction(path))
+        .attr('class', 'path')
+        .attr('fill', 'none');
+
+    // position , circle代表一个个位置，
+    const circleData = groups.position.selectAll('circle').data(path);
+    circleData.exit().remove();
+    const circles = circleData.enter().append('circle');
+    const circleAttributes = circles
+        .attr("cx", function (d) { return scales.x(d[0] + 0.5); })
+        .attr("cy", function (d) { return scales.y(d[1] + 0.5); })
+        .attr("r", function (d) { return 10; })
+        .attr("class", "position");
+
+    // position number
+    const textData = groups.position.selectAll("text").data(path);
+    textData.exit().remove();
+
+    const texts = textData.enter().append("text");
+    const textAttributes = texts
+        .attr("x", function (d) { return scales.x(d[0] + 0.5); })
+        .attr("y", function (d) { return scales.y(d[1] + 0.5); })
+        .attr("dy", ".31em")
+        .text(function(d,i) { return i; })
+        .attr("class", "positionNumber");
+  }
+
   getInputData(){
     console.log('get input data');
 
     console.log(this.inputData);
 
+    this.drawPath(this.groups, this.scales);
+
     // const startPoint = d3.select('.instruction svg').selectAll('g').selectAll('rect[style = "fill: #fff;"]');
     // console.log(d3.select(this.grid));
     // console.log(startPoint); 本来是想 通过 style 来选出相对应的格子，但是有点陌生，以后有时间再花在这个上面吧
+  }
+
+  nextStep(nowTimeStep, scales){
+    console.log('next step');
+    // 想了一下，整个的数据应该是一个 三维数组
+    const reservationTable = [
+        [[3,4],[3,5],[3,6]], // 第一辆小车的路径，每次横纵坐标增加一格。
+        [[13,4],[13,5],[13,6]], // 第二辆小车的路径
+    ];
+
+    //判断传进来的参数 timeStep 的合法性
+    if(nowTimeStep >= reservationTable[0].length){
+      console.log('this timeStep is beyond the total timeStep');
+      return;
+    }
+
+    // 首先是画出 several unit，多个小车，当然在这里是一个
+
+    // 然后是根据path，路径来模拟出一步步的动画效果。也就是上面的 reservation table。
+
+    if(nowTimeStep === 0){
+      this.movingSpot.selectAll('circle').data(reservationTable)
+          .enter().append('circle')
+          .attr("cx", function (d) { return scales.x(d[nowTimeStep][0] + 0.5); })
+          .attr("cy", function (d) { return scales.y(d[nowTimeStep][1] + 0.5); })
+          .attr("r", function (d) { return 10; })
+          .attr("class", "movingSpot");
+
+      this.nowTimeStep += 1;
+    }else{
+      this.movingSpot.selectAll('circle').data(reservationTable)
+          .transition()
+          .attr("cx", function (d) { return scales.x(d[nowTimeStep][0] + 0.5); })
+          .attr("cy", function (d) { return scales.y(d[nowTimeStep][1] + 0.5); })
+          .duration(1000);
+
+      this.nowTimeStep += 1;
+    }
+
+  }
+
+  resetTimeStep(scales){
+    const reservationTable = [
+      [[3,4],[3,5],[3,6]], // 第一辆小车的路径，每次横纵坐标增加一格。
+      [[13,4],[13,5],[13,6]], // 第二辆小车的路径
+    ];
+    // reset the time step
+    this.nowTimeStep = 0;
+    this.movingSpot.selectAll('circle').data(reservationTable)
+        .transition()
+        .attr("cx", function (d) { return scales.x(d[0][0] + 0.5); })
+        .attr("cy", function (d) { return scales.y(d[0][1] + 0.5); })
+        .duration(500);
   }
 
   render() {
@@ -207,7 +326,9 @@ class BasicAStar extends Component {
           {/*"white -> click the white cell and drag to draw obstacles\n\n" +*/}
           {/*"Click start button to start the animation."}>*/}
         {/*</textarea>*/}
-          <Button type="primary" onClick={() => this.getInputData()} >START</Button>
+          <Button type="primary" onClick={() => this.getInputData()} >Search And draw path</Button>
+          <Button type="primary" onClick={() => this.nextStep(this.nowTimeStep, this.scales)} >Next Step</Button>
+          <Button type="primary" onClick={() => this.resetTimeStep(this.scales)} >Reset Time Step</Button>
         </div>
 
     );
