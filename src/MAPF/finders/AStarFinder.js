@@ -31,17 +31,19 @@ function AStarFinder(opt) {
  * @return {Array<Array<number>>} The path, including both start and
  *     end positions.
  */
-AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+AStarFinder.prototype.findPath = function(startRow, startCol, endRow, endCol, grid) {
+  console.log(startRow, startCol, endRow, endCol, grid);
+
   const openList = new Heap(function(nodeA, nodeB) {
         return nodeA.f - nodeB.f;
       }),
-      startNode = grid.getNodeAt(startX, startY),
-      endNode = grid.getNodeAt(endX, endY),
+      startNode = grid.getNodeAt(startRow, startCol),
+      endNode = grid.getNodeAt(endRow, endCol),
       heuristic = this.heuristic,
       weight = this.weight, // 这个weight可以说是 g 和 h 的权重
       abs = Math.abs, SQRT2 = Math.SQRT2;
 
-  let node, neighbors, neighbor, i, l, x, y, ng;
+  let node, neighbors, neighbor, i, l, col, row, ng;
 
   // set the `g` and `f` value of the start node to be 0
   startNode.g = 0;
@@ -51,8 +53,16 @@ AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
   openList.push(startNode);
   startNode.opened = true; // 这句话会改变已经 push 到 openList 里面的 startNode 吗？看来是会
 
+
+  //console.log(startNode);
+  //console.log(endNode);
+  //console.log(heuristic);
+  //debugger;
+
   // while the open list is not empty
   while (!openList.empty()) {
+    //console.log('in the while');
+
     // pop the position of node which has the minimum `f` value. 找到 f 值最小的 node。pop是从heap里删除掉最小的 并返回这个最小的元素。
     node = openList.pop();
     node.closed = true;
@@ -62,8 +72,15 @@ AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
       return Util.backtrace(endNode);
     }
 
+    if (node.row === endNode.row && node.col === endNode.col){
+      console.log('find the path'); // 上面写的直接是 node = endnode，这个是直接相等的吗？
+      return
+    }
+
     // get neigbours of the current node
     neighbors = grid.getNeighbors(node);
+    //console.log(neighbors);
+
     for (i = 0, l = neighbors.length; i < l; ++i) {
       neighbor = neighbors[i];
 
@@ -71,18 +88,18 @@ AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
         continue;
       }
 
-      x = neighbor.x;
-      y = neighbor.y;
+      col = neighbor.col;
+      row = neighbor.row;
 
       // get the distance between current node and the neighbor
       // and calculate the next g score
-      ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2); // if the diagonal move is not allowed, neighbors all either same x or y, the next g score will not add SQRT2
+      ng = node.g + ((col - node.col === 0 || row - node.row === 0) ? 1 : SQRT2); // if the diagonal move is not allowed, neighbors all either same x or y, the next g score will not add SQRT2
 
       // check if the neighbor has not been inspected yet, or
       // can be reached with smaller cost from the current node
       if (!neighbor.opened || ng < neighbor.g) {
         neighbor.g = ng;
-        neighbor.h = neighbor.h || weight * heuristic(abs(x - endX), abs(y - endY));
+        neighbor.h = neighbor.h || weight * heuristic(abs(col - endCol), abs(row - endRow));
         neighbor.f = neighbor.g + neighbor.h;
         neighbor.parent = node;
 
@@ -96,11 +113,17 @@ AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
           openList.updateItem(neighbor);
         }
       }
+
+      //debugger;
     } // end for each neighbor
+
+    //debugger;
   } // end while not open list empty
+
+  //console.log(openList);
 
   // fail to find the path
   return [];
 };
 
-module.exports = AStarFinder;
+export default AStarFinder;

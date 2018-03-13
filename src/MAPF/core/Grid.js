@@ -101,7 +101,7 @@ Grid.prototype.getNodeAt = function(row, col) {
  * @return {boolean} - The walkability of the node.
  */
 Grid.prototype.isWalkableAt = function(row, col) {
-  return this.isInside(x, y) && this.nodes[y][x].walkable;
+  return this.isInside(row, col) && this.nodes[row][col].walkable;
 };
 
 
@@ -158,8 +158,8 @@ Grid.prototype.getNeighbors = function(node) {
     neighbors.push(nodes[row][col + 1]);
   }
   // ↓
-  if (this.isWalkableAt(row -1, col)) {
-    neighbors.push(nodes[row -1][col]);
+  if (this.isWalkableAt(row +1, col)) {
+    neighbors.push(nodes[row +1][col]);
   }
   // ←
   if (this.isWalkableAt(row, col-1)) {
@@ -196,4 +196,4 @@ Grid.prototype.clone = function() {
   return newGrid;
 };
 
-module.exports = Grid;
+export default Grid;

@@ -6,6 +6,9 @@ import * as d3 from 'd3';
 import {Button} from 'antd';
 import './index.css';
 
+import AStarFinder from '../finders/AStarFinder';
+import Grid from '../core/Grid';
+
 class BasicAStar extends Component {
   constructor(props) {
     super(props);
@@ -14,7 +17,7 @@ class BasicAStar extends Component {
       startPoint: null, //[row, col]
       endPoint: null, //[row, col]
       grid:[], // 是 0-1 矩阵，1代表有障碍
-    } // 这句话要放在 constructor 里，componentDidMount 里是执行顺序不对，得出 undefined。
+    }; // 这句话要放在 constructor 里，componentDidMount 里是执行顺序不对，得出 undefined。
 
     this.nowTimeStep = 0;
   }
@@ -151,7 +154,12 @@ class BasicAStar extends Component {
             console.log(d);
             console.log('x: ', (d.x -1)/25, 'y: ', (d.y - 1)/25); // row = y 这里是包含0的，其实是index的意思
 
-            me.inputData.startPoint = [(d.y - 1)/25, (d.x -1)/25];
+            if(!me.inputData.startPoint){
+              // 如果是已经有 start point 的话，就不会再次去改变了。即是第一次设置 起始点算话，其他都不算。
+              me.inputData.startPoint = [(d.y - 1)/25, (d.x -1)/25];
+            }else{
+              console.log('已经设置好了起始点。如果需要重新设置，直接刷新界面。')
+            }
 
             console.log(me.inputData);
 
@@ -213,15 +221,16 @@ class BasicAStar extends Component {
 
   }
 
-  drawPath(groups, scales) {
+  drawPath(groups, scales, path) {
     // 首先这个 path 是有顺序的，
-    const path = [[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7]];
+    //const path = [[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7]];
+    //path = [[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7]];
 
     groups.path.selectAll('.path').remove();
 
     const lineFunction = d3.line()
-        .x(function (d) {return scales.x(d[0] + 0.5);})
-        .y(function (d) {return scales.y(d[1] + 0.5);})
+        .x(function (d) {return scales.x(d[1] + 0.5);}) // 这个里面要有一点变化的是，x 对应的是 col，y 对应的是 row。
+        .y(function (d) {return scales.y(d[0] + 0.5);})
         .curve(d3.curveLinear);
 
     const lineGraph = groups.path.append('path')
@@ -234,8 +243,8 @@ class BasicAStar extends Component {
     circleData.exit().remove();
     const circles = circleData.enter().append('circle');
     const circleAttributes = circles
-        .attr("cx", function (d) { return scales.x(d[0] + 0.5); })
-        .attr("cy", function (d) { return scales.y(d[1] + 0.5); })
+        .attr("cx", function (d) { return scales.x(d[1] + 0.5); })
+        .attr("cy", function (d) { return scales.y(d[0] + 0.5); })
         .attr("r", function (d) { return 10; })
         .attr("class", "position");
 
@@ -245,23 +254,50 @@ class BasicAStar extends Component {
 
     const texts = textData.enter().append("text");
     const textAttributes = texts
-        .attr("x", function (d) { return scales.x(d[0] + 0.5); })
-        .attr("y", function (d) { return scales.y(d[1] + 0.5); })
+        .attr("x", function (d) { return scales.x(d[1] + 0.5); })
+        .attr("y", function (d) { return scales.y(d[0] + 0.5); })
         .attr("dy", ".31em")
         .text(function(d,i) { return i; })
         .attr("class", "positionNumber");
   }
 
   getInputData(){
-    console.log('get input data');
+    // console.log('get input data');
+    // console.log(this.inputData);
 
-    console.log(this.inputData);
+    if(!this.inputData.startPoint || !this.inputData.endPoint){
+      //console.log('no start point or end point');
+      return
+    }
+    this.calculatePath();
 
-    this.drawPath(this.groups, this.scales);
+    //this.drawPath(this.groups, this.scales);
 
     // const startPoint = d3.select('.instruction svg').selectAll('g').selectAll('rect[style = "fill: #fff;"]');
     // console.log(d3.select(this.grid));
     // console.log(startPoint); 本来是想 通过 style 来选出相对应的格子，但是有点陌生，以后有时间再花在这个上面吧
+  }
+
+  calculatePath(){
+    // 现在目前来是实现 A star
+    const startRow = this.inputData.startPoint[0],
+        startCol = this.inputData.startPoint[1],
+        endRow = this.inputData.endPoint[0],
+        endCol = this.inputData.endPoint[1];
+
+    const matrix = this.inputData.grid;
+    const height = matrix.length;
+    const width = matrix[0].length;
+
+    const grid = new Grid(width, height, matrix); // 这个 grid 是一个新的 grid，
+    const finder = new AStarFinder();
+
+    const path = finder.findPath(startRow, startCol, endRow, endCol, grid);
+    //console.log('input data is: ', this.inputData);
+    console.log('path result is: ', path);
+
+    // draw path
+    this.drawPath(this.groups, this.scales, path);
   }
 
   nextStep(nowTimeStep, scales){
