@@ -22,6 +22,7 @@ class BasicAStar extends Component {
     this.nowTimeStep = 0;
 
     this.path = [[]];
+
   }
 
   componentDidMount() {
@@ -303,7 +304,7 @@ class BasicAStar extends Component {
     this.drawPath(this.groups, this.scales, path);
   }
 
-  nextStep(nowTimeStep, scales, reservationTable){
+  nextStep(nowTimeStep, scales, reservationTable, duration = 1000){
     console.log('next step');
     // 想了一下，整个的数据应该是一个 三维数组
     // const reservationTable = [
@@ -335,11 +336,23 @@ class BasicAStar extends Component {
           .transition()
           .attr("cx", function (d) { return scales.x(d[nowTimeStep][1] + 0.5); })
           .attr("cy", function (d) { return scales.y(d[nowTimeStep][0] + 0.5); })
-          .duration(1000);
+          .duration(duration);
 
       this.nowTimeStep += 1;
     }
 
+  }
+
+  startAnimate(){
+    this.timer = setTimeout(() => {
+      this.nextStep(this.nowTimeStep, this.scales, [this.path], 500);
+      this.startAnimate();
+
+      if(this.nowTimeStep >= this.path.length){
+        console.log('this timeStep is beyond the total timeStep');
+        window.clearTimeout(this.timer);
+      }
+    }, 500);
   }
 
   resetTimeStep(scales, reservationTable){
@@ -366,6 +379,7 @@ class BasicAStar extends Component {
           {/*"Click start button to start the animation."}>*/}
         {/*</textarea>*/}
           <Button type="primary" onClick={() => this.getInputData()} >Search And draw path</Button>
+          <Button type="primary" onClick={() => this.startAnimate()} >Start Animate</Button>
           <Button type="primary" onClick={() => this.nextStep(this.nowTimeStep, this.scales, [this.path])} >Next Step</Button>
           <Button type="primary" onClick={() => this.resetTimeStep(this.scales, [this.path])} >Reset Time Step</Button>
         </div>
