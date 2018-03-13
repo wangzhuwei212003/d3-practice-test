@@ -20,6 +20,8 @@ class BasicAStar extends Component {
     }; // 这句话要放在 constructor 里，componentDidMount 里是执行顺序不对，得出 undefined。
 
     this.nowTimeStep = 0;
+
+    this.path = [[]];
   }
 
   componentDidMount() {
@@ -295,18 +297,19 @@ class BasicAStar extends Component {
     const path = finder.findPath(startRow, startCol, endRow, endCol, grid);
     //console.log('input data is: ', this.inputData);
     console.log('path result is: ', path);
+    this.path = path;
 
     // draw path
     this.drawPath(this.groups, this.scales, path);
   }
 
-  nextStep(nowTimeStep, scales){
+  nextStep(nowTimeStep, scales, reservationTable){
     console.log('next step');
     // 想了一下，整个的数据应该是一个 三维数组
-    const reservationTable = [
-        [[3,4],[3,5],[3,6]], // 第一辆小车的路径，每次横纵坐标增加一格。
-        [[13,4],[13,5],[13,6]], // 第二辆小车的路径
-    ];
+    // const reservationTable = [
+    //     [[3,4],[3,5],[3,6]], // 第一辆小车的路径，每次横纵坐标增加一格。
+    //     [[13,4],[13,5],[13,6]], // 第二辆小车的路径
+    // ];
 
     //判断传进来的参数 timeStep 的合法性
     if(nowTimeStep >= reservationTable[0].length){
@@ -321,8 +324,8 @@ class BasicAStar extends Component {
     if(nowTimeStep === 0){
       this.movingSpot.selectAll('circle').data(reservationTable)
           .enter().append('circle')
-          .attr("cx", function (d) { return scales.x(d[nowTimeStep][0] + 0.5); })
-          .attr("cy", function (d) { return scales.y(d[nowTimeStep][1] + 0.5); })
+          .attr("cx", function (d) { return scales.x(d[nowTimeStep][1] + 0.5); })
+          .attr("cy", function (d) { return scales.y(d[nowTimeStep][0] + 0.5); })
           .attr("r", function (d) { return 10; })
           .attr("class", "movingSpot");
 
@@ -330,8 +333,8 @@ class BasicAStar extends Component {
     }else{
       this.movingSpot.selectAll('circle').data(reservationTable)
           .transition()
-          .attr("cx", function (d) { return scales.x(d[nowTimeStep][0] + 0.5); })
-          .attr("cy", function (d) { return scales.y(d[nowTimeStep][1] + 0.5); })
+          .attr("cx", function (d) { return scales.x(d[nowTimeStep][1] + 0.5); })
+          .attr("cy", function (d) { return scales.y(d[nowTimeStep][0] + 0.5); })
           .duration(1000);
 
       this.nowTimeStep += 1;
@@ -339,17 +342,17 @@ class BasicAStar extends Component {
 
   }
 
-  resetTimeStep(scales){
-    const reservationTable = [
-      [[3,4],[3,5],[3,6]], // 第一辆小车的路径，每次横纵坐标增加一格。
-      [[13,4],[13,5],[13,6]], // 第二辆小车的路径
-    ];
+  resetTimeStep(scales, reservationTable){
+    // const reservationTable = [
+    //   [[3,4],[3,5],[3,6]], // 第一辆小车的路径，每次横纵坐标增加一格。
+    //   [[13,4],[13,5],[13,6]], // 第二辆小车的路径
+    // ];
     // reset the time step
     this.nowTimeStep = 0;
     this.movingSpot.selectAll('circle').data(reservationTable)
         .transition()
-        .attr("cx", function (d) { return scales.x(d[0][0] + 0.5); })
-        .attr("cy", function (d) { return scales.y(d[0][1] + 0.5); })
+        .attr("cx", function (d) { return scales.x(d[0][1] + 0.5); })
+        .attr("cy", function (d) { return scales.y(d[0][0] + 0.5); })
         .duration(500);
   }
 
@@ -363,8 +366,8 @@ class BasicAStar extends Component {
           {/*"Click start button to start the animation."}>*/}
         {/*</textarea>*/}
           <Button type="primary" onClick={() => this.getInputData()} >Search And draw path</Button>
-          <Button type="primary" onClick={() => this.nextStep(this.nowTimeStep, this.scales)} >Next Step</Button>
-          <Button type="primary" onClick={() => this.resetTimeStep(this.scales)} >Reset Time Step</Button>
+          <Button type="primary" onClick={() => this.nextStep(this.nowTimeStep, this.scales, [this.path])} >Next Step</Button>
+          <Button type="primary" onClick={() => this.resetTimeStep(this.scales, [this.path])} >Reset Time Step</Button>
         </div>
 
     );
