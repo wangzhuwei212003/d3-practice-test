@@ -27,6 +27,8 @@ import Tetris from './Tutorials/Tetris';
 
 import Test from './example/Test';
 
+import BasicAStar from './MAPF/BasicAStar';
+
 const SubMenu = Menu.SubMenu;
 
 const {Header, Footer, Sider, Content} = Layout;
@@ -93,7 +95,7 @@ class App extends Component {
                   </Menu.Item>
                   <Menu.Item key="2">
                     <Icon type="desktop"/>
-                    <span><Link to='/about'>Basic A star</Link></span>
+                    <span><Link to='/MAPF/BasicAStar'>Basic A star</Link></span>
                   </Menu.Item>
                   <Menu.Item key="3">
                     <Icon type="inbox"/>
@@ -120,6 +122,8 @@ class App extends Component {
                 <Route exact path="/" component={Home}/>
                 <Route path="/example/BarChart" component={BarChart}/>
                 <Route path="/example/Test" component={Test}/>
+
+                <Route path="/MAPF/BasicAStar" component={BasicAStar}/>
 
                 <Route path="/Tutorials/DynamicTable" component={DynamicTable}/>
                 <Route path="/Tutorials/MakeGrid" component={Grid}/>
