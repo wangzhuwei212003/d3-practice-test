@@ -48,12 +48,15 @@ CoopAstarFinder.prototype.findPath = function(index, goalTable, searchDeepth, pa
   // 3. 对这些点进行 loop 更新、push、pop 寻路。得到一条路径。
   // 4. 循环对所有的小车执行这样的操作。
 
-  const reservationTable = new Array(searchDeepth);
+  const reservationTable = new Array(searchDeepth * 2);
   for(let index = 0; index <reservationTable.length; index +=1){
     reservationTable[index] = new Grid(30, 30, matrix)
   }
   // 根据 path table 添加相对应的 node 的占位。这里其实我是不用管具体是哪辆车
   let pathNode, reservedNode;
+
+  //console.log(pathTable);
+
   for(let i = 0; i<pathTable.length; i+=1){
     for(let j =0; j<pathTable[i].length; j+=1){
       // 精确到每一条路径中的每一个点了。 j 是一条路径中的 timestep。
@@ -109,17 +112,17 @@ CoopAstarFinder.prototype.findPath = function(index, goalTable, searchDeepth, pa
     node.closed = true;  // 这一步是必须的，没错，这里要标记一下。。 其实这个地方是 close 了，但是下一个 grid 还是有这个点。所以可以说是一个grid全部都没有了。
 
     // 如果反向找到了起始点，那么路径已找到，并返回这个路径
-    if (node.row === endRow && node.col === endCol){
-      console.log('find the path'); // 如果这个是已经找了，前提是我也不知道endpoint是哪个timestep里的，所以只能这样来判断。
-      return Util.backtrace(node);
-    }
+    // if (node.row === endRow && node.col === endCol){
+    //   console.log('find the path'); // 如果这个是已经找了，前提是我也不知道endpoint是哪个timestep里的，所以只能这样来判断。
+    //   return Util.backtrace(node);
+    // } 这段注释是因为，即使是到达了终点，也要继续计算。
 
     if(node.t >= searchDeepth -1){
-      console.log('寻路暂停，beyond the deepth，20');
-      return []
+      console.log(`寻路暂停，beyond the deepth，${searchDeepth}`);
+      //console.log(Util.backtraceNode(node));
+      return Util.backtrace(node);
     }
-
-
+    
     // 根据当前的这个格子找下一个要搜索的点，这些点应该是下一个 timestep 里的，也就是下一个 grid。
     // 这里的点应该是包括自身node + 周围的node。分别对应的就是在原处停止 wait，和其他的 action。
 
@@ -152,7 +155,7 @@ CoopAstarFinder.prototype.findPath = function(index, goalTable, searchDeepth, pa
       col = neighbor.col;
       row = neighbor.row;
 
-      if(neighbor.moveTo.row === node.row && neighbor.moveTo.col === node.col){
+      if(neighbor.moveTo && neighbor.moveTo.row === node.row && neighbor.moveTo.col === node.col){
         // 判断为相对互换位置，不合法，跳过
         continue
       }

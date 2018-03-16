@@ -42,7 +42,7 @@ class BasicAStar extends Component {
     //console.log(this.gridMouseover);
     this.drawGridMouseover(this.gridMouseover);
 
-    this.groups={
+    this.groups= {
       path: this.gridMouseover.append('g'),
       position: this.gridMouseover.append('g')
     };
