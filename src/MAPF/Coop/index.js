@@ -18,9 +18,9 @@ class Coop extends Component {
     this.nowTimeStep = 0;
     this.pathTable = [
       [[3, 4]],
-      [[5, 6],[5, 6]],
-      [[7, 8],[7, 8],[7, 8]],
-      [[9, 10],[9, 10],[9, 10],[9, 10]],
+      [[5, 6], [5, 6]],
+      [[7, 8], [7, 8], [7, 8]],
+      [[9, 10], [9, 10], [9, 10], [9, 10]],
     ];
     this.searchDeepth = 40;
     this.goalTable = [
@@ -49,19 +49,10 @@ class Coop extends Component {
     //component did mount 之后就开始画整个网格的地图
     this.drawGridNotInteractive(this.gridMouseover);
 
-    this.groups= [{
+    this.groups = {
       path: this.gridMouseover.append('g'),
       position: this.gridMouseover.append('g')
-    },{
-      path: this.gridMouseover.append('g'),
-      position: this.gridMouseover.append('g')
-    },{
-      path: this.gridMouseover.append('g'),
-      position: this.gridMouseover.append('g')
-    },{
-      path: this.gridMouseover.append('g'),
-      position: this.gridMouseover.append('g')
-    }];
+    };
 
     this.movingSpot = this.gridMouseover.append('g');
 
@@ -164,8 +155,12 @@ class Coop extends Component {
     groups.path.selectAll('.path').remove();
 
     const lineFunction = d3.line()
-        .x(function (d) {return scales.x(d[1] + 0.5);}) // 这个里面要有一点变化的是，x 对应的是 col，y 对应的是 row。
-        .y(function (d) {return scales.y(d[0] + 0.5);})
+        .x(function (d) {
+          return scales.x(d[1] + 0.5);
+        }) // 这个里面要有一点变化的是，x 对应的是 col，y 对应的是 row。
+        .y(function (d) {
+          return scales.y(d[0] + 0.5);
+        })
         .curve(d3.curveLinear);
 
     const lineGraph = groups.path.append('path')
@@ -178,9 +173,15 @@ class Coop extends Component {
     circleData.exit().remove();
     const circles = circleData.enter().append('circle');
     const circleAttributes = circles
-        .attr("cx", function (d) { return scales.x(d[1] + 0.5); })
-        .attr("cy", function (d) { return scales.y(d[0] + 0.5); })
-        .attr("r", function (d) { return 10; })
+        .attr("cx", function (d) {
+          return scales.x(d[1] + 0.5);
+        })
+        .attr("cy", function (d) {
+          return scales.y(d[0] + 0.5);
+        })
+        .attr("r", function (d) {
+          return 10;
+        })
         .attr("class", "position");
 
     // position number
@@ -189,10 +190,16 @@ class Coop extends Component {
 
     const texts = textData.enter().append("text");
     const textAttributes = texts
-        .attr("x", function (d) { return scales.x(d[1] + 0.5); })
-        .attr("y", function (d) { return scales.y(d[0] + 0.5); })
+        .attr("x", function (d) {
+          return scales.x(d[1] + 0.5);
+        })
+        .attr("y", function (d) {
+          return scales.y(d[0] + 0.5);
+        })
         .attr("dy", ".31em")
-        .text(function(d,i) { return i; })
+        .text(function (d, i) {
+          return i;
+        })
         .attr("class", "positionNumber");
   }
 
@@ -201,47 +208,40 @@ class Coop extends Component {
     //console.log('next step');
 
     //判断传进来的参数 timeStep 的合法性
-    if(nowTimeStep >= pathTable[0].length){
+    if (nowTimeStep >= pathTable[0].length) {
       console.log('this timeStep is beyond the total timeStep');
       return;
     }
+    // 这一句是刚开始添加圆圈的时候，其他时候都是下面的一段，没有enter（）的
+    this.movingSpot.selectAll('circle').data(pathTable)
+        .enter().append('circle')
+        .attr("cx", function (d) {
+          return scales.x(d[nowTimeStep][1] + 0.5);
+        })
+        .attr("cy", function (d) {
+          return scales.y(d[nowTimeStep][0] + 0.5);
+        })
+        .attr("r", function (d) {
+          return 10;
+        })
+        .attr("class", "movingSpot")
+        .style("fill", function (d, i) {
+          return colorSet[i]
+        });
 
-    // if(nowTimeStep === 0){
-    //   this.movingSpot.selectAll('circle').data(pathTable)
-    //       .enter().append('circle')
-    //       .attr("cx", function (d) { return scales.x(d[nowTimeStep][1] + 0.5); })
-    //       .attr("cy", function (d) { return scales.y(d[nowTimeStep][0] + 0.5); })
-    //       .attr("r", function (d) { return 10; })
-    //       .attr("class", "movingSpot");
-    //
-    //   //this.nowTimeStep += 1;// 这里不做数据上的改变的操作，只是负责显示
-    // }else{
-    //   this.movingSpot.selectAll('circle').data(pathTable)
-    //       .transition()
-    //       .attr("cx", function (d) { return scales.x(d[nowTimeStep][1] + 0.5); })
-    //       .attr("cy", function (d) { return scales.y(d[nowTimeStep][0] + 0.5); })
-    //       .duration(duration);
-    //
-    //   //this.nowTimeStep += 1;
-    // }
-
-
-      this.movingSpot.selectAll('circle').data(pathTable)
-          .enter().append('circle')
-          .attr("cx", function (d) { return scales.x(d[nowTimeStep][1] + 0.5); })
-          .attr("cy", function (d) { return scales.y(d[nowTimeStep][0] + 0.5); })
-          .attr("r", function (d) { return 10; })
-          .attr("class", "movingSpot");
-
-      this.movingSpot.selectAll('circle').data(pathTable)
-          .transition()
-          .attr("cx", function (d) { return scales.x(d[nowTimeStep][1] + 0.5); })
-          .attr("cy", function (d) { return scales.y(d[nowTimeStep][0] + 0.5); })
-          .duration(duration);
+    this.movingSpot.selectAll('circle').data(pathTable)
+        .transition()
+        .attr("cx", function (d) {
+          return scales.x(d[nowTimeStep][1] + 0.5);
+        })
+        .attr("cy", function (d) {
+          return scales.y(d[nowTimeStep][0] + 0.5);
+        })
+        .duration(duration);
 
   }
 
-  testCoop(){
+  testCoop() {
 
     //1. 只要有 unit 走完了一定的步长，开始触发 coopFinder，就把 pathTable里的之前的timestep shift出去，
     // 开始规划的接下来的这一步 timestep 为 0；
@@ -264,7 +264,7 @@ class Coop extends Component {
 
   }
 
-  coopNextTimeStep(){
+  coopNextTimeStep() {
     // 更新 timestep，
 
     // 如果需要重新规划，
@@ -277,13 +277,13 @@ class Coop extends Component {
       return (path.length - this.nowTimeStep) < 20;
     }); // 得到path剩余长度 < 某个值的时候，该 unit 就需要重新plan了
 
-    if(optIndex === -1){
+    if (optIndex === -1) {
       // no unit need to replanning
       // 这个 return 是不是能够不要？
       //console.log('不需要重新规划');
-    }else{
+    } else {
       // some unit going to replan
-      for(let i = 0; i < this.pathTable.length; i +=1){
+      for (let i = 0; i < this.pathTable.length; i += 1) {
         //console.log(this.nowTimeStep);
 
         //this.pathTable[i].shift(); // remove the first element and return the removed ele
@@ -325,7 +325,7 @@ class Coop extends Component {
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
-          <Button type="primary" onClick={() => this.testCoop()} >test</Button>
+          <Button type="primary" onClick={() => this.testCoop()}>test</Button>
           <br/>
         </div>
 

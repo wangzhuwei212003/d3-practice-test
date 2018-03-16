@@ -50,8 +50,7 @@ svg {
   stroke: #2973F2;
 }
 .movingSpot {
-  fill: blue;
-  opacity: 0.8;
+  opacity: 0.7;
   stroke-width: 1px;
   stroke: #2973F2;
 }

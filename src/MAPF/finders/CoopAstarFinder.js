@@ -122,7 +122,7 @@ CoopAstarFinder.prototype.findPath = function(index, goalTable, searchDeepth, pa
       //console.log(Util.backtraceNode(node));
       return Util.backtrace(node);
     }
-    
+
     // 根据当前的这个格子找下一个要搜索的点，这些点应该是下一个 timestep 里的，也就是下一个 grid。
     // 这里的点应该是包括自身node + 周围的node。分别对应的就是在原处停止 wait，和其他的 action。
 
@@ -161,7 +161,10 @@ CoopAstarFinder.prototype.findPath = function(index, goalTable, searchDeepth, pa
       }
 
      // ng = node.g + 1 + node.t + 1; // new g is the sum of the moving cost and the time cost.
-      ng = node.g + 1; // time cost ignore ?
+       // time cost ignore ? 1代表的是1个timestep，另外的我觉得还应该加上一个1 路程的cost
+      ng = node.g + 1; // wait will gain a time cost 1
+
+
 
       if (!neighbor.opened || ng < neighbor.g) {
         neighbor.g = ng;
