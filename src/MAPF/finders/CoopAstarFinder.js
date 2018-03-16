@@ -117,32 +117,15 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
     node = openList.pop();
     node.closed = true;  // 这一步是必须的，没错，这里要标记一下。。 其实这个地方是 close 了，但是下一个 grid 还是有这个点。所以可以说是一个grid全部都没有了。
 
-    gridNextStep = reservationTable[node.t + 1];
-    nodeNextStep = gridNextStep.getNodeAt(node.row, node.col); // 得到下一个grid里的相同位置的node
-    // 当前的点不一定能够 wait，因为可能别的小车要过来。这样的情况就要其他的小车让路了。
-
-
     // 如果反向找到了起始点，那么路径已找到，并返回这个路径
-    if (node.row === endRow && node.col === endCol){
-      console.log('find the path'); // 如果这个是已经找了，前提是我也不知道endpoint是哪个timestep里的，所以只能这样来判断。
-      if (nodeNextStep.walkable) {
-        if(!nodeNextStep.opened){
-          nodeNextStep.g = 0;
-          nodeNextStep.h = 0;
-          nodeNextStep.t = node.t + 1;
-          nodeNextStep.f = 0;
-          nodeNextStep.parent = node;
+    // if (node.row === endRow && node.col === endCol){
+    //   console.log('find the path'); // 如果这个是已经找了，前提是我也不知道endpoint是哪个timestep里的，所以只能这样来判断。
+    //   return Util.backtrace(node);
+    // } 这段注释是因为，即使是到达了终点，也要继续计算。
 
-          openList.push(nodeNextStep);
-          nodeNextStep.opened = true;
-        }
-      }
-    } //这段注释是因为，即使是到达了终点，也要继续计算。
-
-    if (node.t >= searchDeepth - 1) {
+    if(node.t >= searchDeepth -1){
       console.log(`寻路暂停，beyond the deepth，${searchDeepth}`);
-      console.log('规划出来的路径点：', Util.backtraceNode(node));
-      //debugger;
+      console.log(Util.backtraceNode(node));
       return Util.backtrace(node);
     }
 
@@ -150,41 +133,26 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
     // 这里的点应该是包括自身node + 周围的node。分别对应的就是在原处停止 wait，和其他的 action。
 
     // find the node in which grid. 直接查node的index比较直接。还是直接在同一个 grid 里的所有node里添加一个 t 字段比较方便。
-
-    if (!gridNextStep) {
+    gridNextStep = reservationTable[node.t + 1];
+    if(!gridNextStep){
       console.log(node.t);
       console.log(reservationTable);
       debugger;
     }
 
-
+    nodeNextStep = gridNextStep.getNodeAt(node.row, node.col); // 得到下一个grid里的相同位置的node
+    // 当前的点不一定能够 wait，因为可能别的小车要过来。这样的情况就要其他的小车让路了。
 
     neighbors = gridNextStep.getNeighbors(nodeNextStep); // 得到下一个 grid 里的node。
 
     // 然后 探索下一个 grid 里的这些选出来的点。
     // 这里所有的点都是根据上面 pop 出来的点得出的一系列的相关的点。
-    if (nodeNextStep.walkable) {
-      ng = node.g;
-      if(!nodeNextStep.opened){
-        nodeNextStep.g = ng;
-        nodeNextStep.h = node.h || weight * heuristic(abs(nodeNextStep.col - endCol), abs(nodeNextStep.row - endRow));
-        nodeNextStep.t = node.t + 1;
-        nodeNextStep.f = nodeNextStep.g + nodeNextStep.h;
-        nodeNextStep.parent = node;
-
-        openList.push(nodeNextStep);
-        nodeNextStep.opened = true;
-      }
-      if(ng < nodeNextStep.g){
-        nodeNextStep.g = ng;
-        nodeNextStep.h = nodeNextStep.h || weight * heuristic(abs(nodeNextStep.col - endCol), abs(nodeNextStep.row - endRow));
-        nodeNextStep.f = nodeNextStep.g + nodeNextStep.h;
-        nodeNextStep.parent = node;
-        openList.updateItem(nodeNextStep);
-      }
+    if(nodeNextStep.walkable){
+      neighbors.push(nodeNextStep); // 如果待在原地是合法的话。
+      nodeNextStep.t = node.t + 1;
     }
 
-    for (i = 0, l = neighbors.length; i < l; ++i) {
+    for(i = 0, l = neighbors.length; i < l; ++i){
       // 探索所有的合法的点。此时 neighbors 里的点都是下一步没有占用的点
       // 还有一点是要 剔除 掉对向互换位置的点
 
@@ -193,50 +161,36 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
       col = neighbor.col;
       row = neighbor.row;
 
-      if (neighbor.moveTo && neighbor.moveTo.row === node.row && neighbor.moveTo.col === node.col) {
+      if(neighbor.moveTo && neighbor.moveTo.row === node.row && neighbor.moveTo.col === node.col){
         // 判断为相对互换位置，不合法，跳过
         continue
       }
 
-      // ng = node.g + 1 + node.t + 1; // new g is the sum of the moving cost and the time cost.
-      // time cost ignore ? 1代表的是1个timestep，另外的我觉得还应该加上一个1 路程的cost
-      ng = node.g + 1; // distance cost 1
+     // ng = node.g + 1 + node.t + 1; // new g is the sum of the moving cost and the time cost.
+       // time cost ignore ? 1代表的是1个timestep，另外的我觉得还应该加上一个1 路程的cost
+      ng = node.g + 1; // wait will gain a time cost 1
 
-      // if (!neighbor.opened || ng < neighbor.g) {
-      //   neighbor.g = ng;
-      //   neighbor.h = neighbor.h || weight * heuristic(abs(col - endCol), abs(row - endRow));
-      //   neighbor.f = neighbor.g + neighbor.h;
-      //   //neighbor.f = neighbor.g + neighbor.h + neighbor.t;
-      //   neighbor.parent = node;
-      //
-      //   if (!neighbor.opened) {
-      //     openList.push(neighbor);
-      //     neighbor.opened = true;
-      //     neighbor.t = node.t + 1;
-      //   } else { // 这里是需要更新 g 的 neighbor。
-      //     openList.updateItem(neighbor);
-      //   }
-      // }
-
-      if(!neighbor.opened){
-        neighbor.g = ng;
-        neighbor.h = neighbor.h || weight * heuristic(abs(col - endCol), abs(row - endRow));
-        neighbor.t = node.t + 1;
-        //neighbor.f = neighbor.g + neighbor.h;
-        neighbor.f = neighbor.g + neighbor.h;
-        neighbor.parent = node;
-
-        openList.push(neighbor);
-        neighbor.opened = true;
+      if(node.row === row && node.col === col){
+        ng = node.g;
       }
-      if(ng < neighbor.g){
+
+
+      if (!neighbor.opened || ng < neighbor.g) {
         neighbor.g = ng;
         neighbor.h = neighbor.h || weight * heuristic(abs(col - endCol), abs(row - endRow));
         neighbor.f = neighbor.g + neighbor.h;
         neighbor.parent = node;
-        openList.updateItem(neighbor);
-      }
 
+        if (!neighbor.opened) {
+          openList.push(neighbor);
+          neighbor.opened = true;
+          neighbor.t = node.t + 1;
+
+        } else { // 这里是需要更新 g 的 neighbor。
+          
+          openList.updateItem(neighbor);
+        }
+      }
     } // end for
     //debugger;
   } // end while not open list empty
