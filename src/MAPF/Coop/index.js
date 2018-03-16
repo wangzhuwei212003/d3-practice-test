@@ -22,12 +22,12 @@ class Coop extends Component {
       [[7, 8], [7, 8], [7, 8]],
       [[9, 10], [9, 10], [9, 10], [9, 10]],
     ];
-    this.searchDeepth = 40;
+    this.searchDeepth = 8;
     this.goalTable = [
-      [[3, 4], [13, 14]],
-      [[5, 6], [15, 16]],
-      [[7, 8], [17, 18]],
-      [[9, 10], [19, 20]],
+      [[3, 4], [14, 14]],
+      [[5, 6], [16, 16]],
+      [[7, 8], [17, 17]],
+      [[9, 10], [19, 19]],
     ];
     this.matrixZero = Array(30).fill(Array(30).fill(0)); // fast way to create dimensional array?
     this.gridUI = [];
@@ -204,7 +204,7 @@ class Coop extends Component {
   }
 
   // 画出 能够移动、能够显示当前位置的小圈。
-  drawNextStepMovingSpot(nowTimeStep, scales, pathTable, duration = 1000) {
+  drawNextStepMovingSpot(nowTimeStep, scales, pathTable, duration = 500) {
     //console.log('next step');
 
     //判断传进来的参数 timeStep 的合法性
@@ -274,7 +274,7 @@ class Coop extends Component {
 
 
     let optIndex = this.pathTable.findIndex((path) => {
-      return (path.length - this.nowTimeStep) < 20;
+      return (path.length - this.nowTimeStep) < 4;
     }); // 得到path剩余长度 < 某个值的时候，该 unit 就需要重新plan了
 
     if (optIndex === -1) {
@@ -284,16 +284,14 @@ class Coop extends Component {
     } else {
       // some unit going to replan
       for (let i = 0; i < this.pathTable.length; i += 1) {
-        //console.log(this.nowTimeStep);
 
         //this.pathTable[i].shift(); // remove the first element and return the removed ele
         this.pathTable[i] = this.pathTable[i].slice(this.nowTimeStep); // 保留 index 为 nowTimeStep 的值以及以后的值。
         // 那么重新规划的时候 起始点 应该更新为 pathTable[i][0], 也就是之前的 pathTable[i][this.nowTimeStep]
-        //console.log(this.pathTable[i]);
 
         // pathTable 的第一个点应该和 goalTable 里的第一个点相同。。。如果是在一个 timestep 的时间内计算出剩下的路径。
         // 那么其实 goalTable 是不是多余了，直接就从 pathTable 里取就行了？只是第一次的时候没有
-        this.goalTable[i][0] = this.pathTable[i][0]; // 更新 goalTable。
+        this.goalTable[i][0] = this.pathTable[i][this.pathTable[i].length-1]; // 更新 goalTable。
       } // end for loop
       // patTable and goalTable is updated ( sliced )
 
@@ -302,13 +300,13 @@ class Coop extends Component {
 
       console.log('规划出来的路径： ', path);
       // 不出意外的话，这里会得到一条 path。添加到相对应的 pathTable 里去。
-      path.shift(); // the first startNode is duplicate
+      path.shift(); // the first startNode is duplicate,
       this.pathTable[optIndex] = this.pathTable[optIndex].concat(path);
 
       this.nowTimeStep = 0; // timestep 归零
 
+      console.log('规划出路径之后 path table： ', this.pathTable[optIndex]);
     } // end else
-
 
     // 这里开始，path table 应该是已经更新完毕，剩下的就是根据 pathTable 画出数据，展示数据。
     // for(let i = 0; i < this.pathTable.length; i +=1){
@@ -318,7 +316,7 @@ class Coop extends Component {
 
     this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, 500);
 
-    this.nowTimeStep += 1;
+    this.nowTimeStep += 1; // 500毫秒一个 timestep
   }
 
 
