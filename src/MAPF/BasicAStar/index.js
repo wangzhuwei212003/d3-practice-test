@@ -34,12 +34,12 @@ class BasicAStar extends Component {
         .attr('height', '760px');
 
     this.scales = {
-      x: d3.scaleLinear().domain([0, 30]).range([0, 760]), // 前面是格子数，后面是实际的 pixel 数。
-      y: d3.scaleLinear().domain([0, 30]).range([0, 760]),
+      x: d3.scaleLinear().domain([0, 30]).range([0, 750]), // 前面是格子数，后面是实际的 pixel 数。
+      y: d3.scaleLinear().domain([0, 30]).range([0, 750]),
     };
 
 
-    console.log(this.gridMouseover);
+    //console.log(this.gridMouseover);
     this.drawGridMouseover(this.gridMouseover);
 
     this.groups={
@@ -59,7 +59,7 @@ class BasicAStar extends Component {
   gridDataMax = (reactDom) => {
     //const data = new Array();
     console.log(reactDom);
-    console.log(this);
+    //console.log(this);
     const data = []; // this is preferrable
     let xpos = 1;
     let ypos = 1;
@@ -99,7 +99,7 @@ class BasicAStar extends Component {
 
   drawGridMouseover(gridMouseover) {
 
-    console.log(gridMouseover);
+    //console.log(gridMouseover);
 
     let me = this;
     const gridRef = this.grid;
@@ -274,17 +274,22 @@ class BasicAStar extends Component {
   }
 
   getInputData(){
-    // console.log('get input data');
-    // console.log(this.inputData);
 
     if(!this.inputData.startPoint || !this.inputData.endPoint){
       //console.log('no start point or end point');
       return
     }
+    console.log(Date.now());
+    const starTime = Date.now();
+    console.log(Date.now());
     this.calculatePath();
+    const endTime = Date.now();
+    console.log(Date.now());
+    console.log('计算用时： ', endTime - starTime);
 
     //this.drawPath(this.groups, this.scales);
 
+    // 本来想的是用 d3 filter 或者是什么其他的方法，能够根据 style 的表现，选出相对应的数据。
     // const startPoint = d3.select('.instruction svg').selectAll('g').selectAll('rect[style = "fill: #fff;"]');
     // console.log(d3.select(this.grid));
     // console.log(startPoint); 本来是想 通过 style 来选出相对应的格子，但是有点陌生，以后有时间再花在这个上面吧

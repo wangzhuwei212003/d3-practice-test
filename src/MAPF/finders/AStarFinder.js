@@ -73,7 +73,7 @@ AStarFinder.prototype.findPath = function(startRow, startCol, endRow, endCol, gr
     }
 
     if (node.row === endNode.row && node.col === endNode.col){
-      console.log('find the path'); // 上面写的直接是 node = endnode，这个是直接相等的吗？
+      console.log('find the path'); // 上面写的直接是 node = endnode，这个是直接相等的吗？//其实这里用 === 没错，pop出来的点就是之前push进去的点。
       return
     }
 
