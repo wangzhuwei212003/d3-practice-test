@@ -10,7 +10,9 @@ import CoopAstarFinder from '../finders/CoopAstarFinder';
 import Grid from '../core/Grid';
 
 const colorSet = ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D'];
+const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
 const timeGap = 500;
+const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
 
 class Coop extends Component {
   constructor(props) {
@@ -32,7 +34,7 @@ class Coop extends Component {
       [[17, 17], [29, 29]],
     ];
     this.matrixZero = Array(30).fill(Array(30).fill(0)); // fast way to create dimensional array?
-    this.gridUI = [];
+    this.gridUI = []; // 真正事实上的 matrix 是这个 gridUI
   }
 
   componentDidMount() {
@@ -93,16 +95,22 @@ class Coop extends Component {
       for (let column = 0; column < 30; column += 1) {
         click = 0;
         //click = Math.round(Math.random()*100);
+        let obIntheWay = Math.random() < radio;
         data[row].push({
           x: xpos,
           y: ypos,
           width: width,
           height: height,
-          click: click
+          click: click,
+          ob: obIntheWay
         });
         xpos += width;
 
-        reactDom.gridUI[row].push(0);
+        if(obIntheWay){
+          reactDom.gridUI[row].push(1);
+        }else{
+          reactDom.gridUI[row].push(0);
+        }
       }
 
       xpos = 1;
@@ -144,7 +152,11 @@ class Coop extends Component {
           return d.height;
         })
         .style('fill', function (d) {
-          return '#fff'
+          if(d.ob){
+            return '#221E39'
+          }else{
+            return '#fff'
+          }
         })
         .style('stroke', 'rgb(169,138,58)');
   }
@@ -183,7 +195,7 @@ class Coop extends Component {
           .attr('class', 'path')
           .attr('fill', 'none')
           .style("stroke", function (d) {
-            return colorSet[index]
+            return colorSetPath[index]
           });
 
       // let circleData = this.groups.position.append('g').selectAll('circle').data(pathTable[index]);
@@ -238,7 +250,7 @@ class Coop extends Component {
             //console.log('what is this ', arr[i]);
             //console.log('what is this ', pathTable[index][i]);
             //console.log('the text ele', d === pathTable[index][i]);
-            console.log('the text ele', ((i !== 0) && (d === pathTable[index][i-1])));
+            //console.log('the text ele', ((i !== 0) && (d === pathTable[index][i-1])));
             if((i !== 0) && (d[0] === pathTable[index][i-1][0]) && (d[1] === pathTable[index][i-1][1])){
               return ;
               // return i-1;
@@ -294,11 +306,11 @@ class Coop extends Component {
       if(!this.initialized){
         this.initializePathTable();
       }
-      const stepStart = Date.now();
+      // const stepStart = Date.now();
       this.replanNextTimeStep();
-      const endStep = Date.now();
-      console.log('每一步用时', endStep - stepStart);
-      console.log('next step');
+      // const endStep = Date.now();
+      // console.log('每一步用时', endStep - stepStart);
+      // console.log('next step');
       //console.log(this.pathTable);
       //debugger;
       this.testCoop();
@@ -309,7 +321,8 @@ class Coop extends Component {
     for (let i = 0; i < this.pathTable.length; i += 1) {
       // 假设，pathTable 是一个全空的数组。
       const finder = new CoopAstarFinder();
-      const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero);
+      const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.gridUI);
+      // const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero);
 
       this.pathTable[i] = path.slice(0, path.length - i); // 当 i = 0 的时候，就是整个 path
     } // end for loop 所以 searchDeepth 必须要比 unit 的个数多。
@@ -334,7 +347,7 @@ class Coop extends Component {
           // 当前的 length 更小
           optIndex = cIndex;
           //console.log('p >  c,', optIndex);
-          console.log(cIndex);
+          //console.log(cIndex);
         }
 
         return p.length > c.length? c: p;
@@ -365,7 +378,8 @@ class Coop extends Component {
       this.goalTable[optIndex][0] = startNode; // 更新 goalTable 中的起点。
 
       const finder = new CoopAstarFinder();
-      const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
+      // const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
+      const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.gridUI);
 
       path.unshift(this.pathTable[optIndex][0]);
       this.pathTable[optIndex] = path;
