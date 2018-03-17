@@ -15,19 +15,20 @@ class Coop extends Component {
   constructor(props) {
     super(props);
 
+    this.initialized = false;
     this.nowTimeStep = 0;
     this.pathTable = [
-      [[3, 4]],
-      [[5, 6], [5, 6]],
-      [[7, 8], [7, 8], [7, 8]],
-      [[9, 10], [9, 10], [9, 10], [9, 10]],
-    ];
-    this.searchDeepth = 8;
+      [],
+      [],
+      [],
+      [],
+    ]; // pathtable 初始化是 全空。
+    this.searchDeepth = 10;
     this.goalTable = [
-      [[3, 4], [14, 14]],
-      [[5, 6], [16, 16]],
-      [[7, 8], [17, 17]],
-      [[9, 10], [19, 19]],
+      [[26, 26], [14, 14]],
+      [[14, 14], [26, 26]],
+      [[29, 29], [17, 17]],
+      [[17, 17], [29, 29]],
     ];
     this.matrixZero = Array(30).fill(Array(30).fill(0)); // fast way to create dimensional array?
     this.gridUI = [];
@@ -242,83 +243,109 @@ class Coop extends Component {
   }
 
   testCoop() {
-
-    //1. 只要有 unit 走完了一定的步长，开始触发 coopFinder，就把 pathTable里的之前的timestep shift出去，
-    // 开始规划的接下来的这一步 timestep 为 0；
-    //
-    // 更新goaltable里的 start 和 goal（goal 可能不需要更改）；
-
-    // 更新path table，shift掉已经走过的路径；
-    // path table里的路径数组不一定是等长的。初始化的 path table 是有梯度的，
-    // 此时的梯度我都初始化为wait 是没错的，缺点是可能一开始最差情况要等 n 步（n是unit数量)
-    //
-    // 除此之外，index、searchDeepth、matrixZero 都是明了的。
-
     this.CoopTimer = setTimeout(() => {
-      this.coopNextTimeStep();
+      if(!this.initialized){
+        this.initializePathTable();
+      }
+      this.replanNextTimeStep();
       console.log('next step');
       //console.log(this.pathTable);
       //debugger;
       this.testCoop();
-    }, 500);
-
+    }, 1000);
   }
 
-  coopNextTimeStep() {
-    // 更新 timestep，
+  initializePathTable(){
+    for (let i = 0; i < this.pathTable.length; i += 1) {
+      // 假设，pathTable 是一个全空的数组。
+      const finder = new CoopAstarFinder();
+      const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero);
 
-    // 如果需要重新规划，
-    // 1. timestep 归零；
-    // 2. unshift掉已经走过的 path table；更新 goalTable
-    // 3. 规划，并添加新的path到 path table
+      this.pathTable[i] = path.slice(0, path.length - i); // 当 i = 0 的时候，就是整个 path
+    } // end for loop 所以 searchDeepth 必须要比 unit 的个数多。
+    this.initialized = true;
+  }
 
+  replanNextTimeStep() {
+    // 这个方法里，前提是已经 initialize 过了，假设一个 timestep 的时间留给单个 unit 的 replanning（500 毫秒能算完吗？）。也就是：
+    // 1. initialize 整个 path table 之后，timestep为 0；
+    // 2. timestep 为0的时候，开始重新规划，单个 unit规划时间暂定为 1个timestep
+    // 3. timestep 为1的时候，计算已经完成，更新 path table；
+    // 4. timestep 重置为 0；
 
-    let optIndex = this.pathTable.findIndex((path) => {
-      return (path.length - this.nowTimeStep) < 4;
-    }); // 得到path剩余长度 < 某个值的时候，该 unit 就需要重新plan了
+    if(this.nowTimeStep === 0){
+      // it is time to replanning for unit with the shortest path
+      let searchDeepth = this.searchDeepth;
+      let optIndex = 0;
 
-    if (optIndex === -1) {
-      // no unit need to replanning
-      // 这个 return 是不是能够不要？
-      //console.log('不需要重新规划');
-    } else {
-      // some unit going to replan
-      for (let i = 0; i < this.pathTable.length; i += 1) {
+      let optPath = this.pathTable.reduce(function (p, c, cIndex) {
+        //optIndex += 1; 这样写不行，会一直都是 index = 3
+        if(p.length > c.length){
+          // 当前的 length 更小
+          optIndex = cIndex;
+          //console.log('p >  c,', optIndex);
+          console.log(cIndex);
+        }
 
-        //this.pathTable[i].shift(); // remove the first element and return the removed ele
-        this.pathTable[i] = this.pathTable[i].slice(this.nowTimeStep); // 保留 index 为 nowTimeStep 的值以及以后的值。
-        // 那么重新规划的时候 起始点 应该更新为 pathTable[i][0], 也就是之前的 pathTable[i][this.nowTimeStep]
+        return p.length > c.length? c: p;
+      }, {length: searchDeepth});
+      // 已经找到了需要 replanning 的 path；
 
-        // pathTable 的第一个点应该和 goalTable 里的第一个点相同。。。如果是在一个 timestep 的时间内计算出剩下的路径。
-        // 那么其实 goalTable 是不是多余了，直接就从 pathTable 里取就行了？只是第一次的时候没有
-        this.goalTable[i][0] = this.pathTable[i][this.pathTable[i].length-1]; // 更新 goalTable。
-      } // end for loop
-      // patTable and goalTable is updated ( sliced )
+      // console.log(this.pathTable);
+      // console.log('找到需要更新的 path：', optIndex);
+      // debugger;
+
+      // 得到 用来计算的 pathtable
+      //let _pathTable = [].concat([], this.pathTable); // deep copy, not deep
+      let _pathTable = JSON.parse(JSON.stringify(this.pathTable)); // deep copy
+      // console.log(this.pathTable);
+      // console.log(_pathTable);
+      // debugger;
+      for (let i =0; i< _pathTable.length; i+=1){
+        _pathTable[i].shift(); // 去掉第一个点
+      }
+
+      // console.log(JSON.parse(JSON.stringify(this.pathTable)));
+      // console.log(JSON.parse(JSON.stringify(_pathTable)));
+      // debugger;
+
+      // 更新 goalTable，更新 startnode
+      let startNode = this.pathTable[optIndex][1]; // 把后面一个点当做 start node 来计算。即是 timestep为 1 的点。
+
+      this.goalTable[optIndex][0] = startNode; // 更新 goalTable 中的起点。
 
       const finder = new CoopAstarFinder();
-      const path = finder.findPath(optIndex, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero);
+      const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
 
-      console.log('规划出来的路径： ', path);
-      // 不出意外的话，这里会得到一条 path。添加到相对应的 pathTable 里去。
-      path.shift(); // the first startNode is duplicate,
-      this.pathTable[optIndex] = this.pathTable[optIndex].concat(path);
+      path.unshift(this.pathTable[optIndex][0]);
+      this.pathTable[optIndex] = path;
 
-      this.nowTimeStep = 0; // timestep 归零
+      // UI 这一步还是画path table路径，以及显示 timestep 为0 的点。
+      // 这个时候是没有改变 timestep 为 0 的位置的
+      //
+      // 画点，画路径.
+      console.log(this.pathTable);
+      //debugger;
+      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, 1000);
 
-      console.log('规划出路径之后 path table： ', this.pathTable[optIndex]);
-    } // end else
 
-    // 这里开始，path table 应该是已经更新完毕，剩下的就是根据 pathTable 画出数据，展示数据。
-    // for(let i = 0; i < this.pathTable.length; i +=1){
-    //   // 开始依次给所有小车 画路径以及移动点
-    //   //this.drawPath(i, this.groups[i], this.scales, this.pathTable[i]);
-    // }
+      this.nowTimeStep +=1;
+      // timestep 增加为 1 的时候，unit 已经到上面 path 的起点了。此时 path 已经算好。
+      //
+      // 把所有的path切掉一个，更新optindex的path。timestep 设为 0.
+    }else if(this.nowTimeStep === 1){
+      // 更新 pathtable
+      for (let i =0; i< this.pathTable.length; i+=1){
+        this.pathTable[i].shift(); // 去掉第一个点
+      }
 
-    this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, 500);
+      this.nowTimeStep = 0;
 
-    this.nowTimeStep += 1; // 500毫秒一个 timestep
+      // 画点，画路径，timestep 为 0 的点，以及路径。
+      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, 1000);
+    }
+
   }
-
 
   render() {
     return (
