@@ -157,9 +157,9 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
 
       neighbor = neighbors[i];
 
-      if(neighbor.closed){
-        continue
-      }
+      // if(neighbor.closed){
+      //   continue
+      // }
 
       col = neighbor.col;
       row = neighbor.row;
