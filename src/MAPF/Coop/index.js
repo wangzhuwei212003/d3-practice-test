@@ -10,6 +10,7 @@ import CoopAstarFinder from '../finders/CoopAstarFinder';
 import Grid from '../core/Grid';
 
 const colorSet = ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D'];
+const timeGap = 500;
 
 class Coop extends Component {
   constructor(props) {
@@ -144,7 +145,7 @@ class Coop extends Component {
   }
 
   // 画出 path table 里的规划好的路径。
-  drawPath(index, groups, scales, path) {
+  drawPath(scales, pathTable) {
     // --画路径。。--
     // 整体的效果就是 线串着中间有是数字的圆圈，数字就是 timestep。
 
@@ -153,7 +154,7 @@ class Coop extends Component {
     //path = [[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7]];
 
     // 这里的 Group 是d3 select 后面加上 append('g')；首先是删除掉之前所有的 path。
-    groups.path.selectAll('.path').remove();
+    this.groups.path.selectAll('.path').remove();
 
     const lineFunction = d3.line()
         .x(function (d) {
@@ -164,14 +165,18 @@ class Coop extends Component {
         })
         .curve(d3.curveLinear);
 
-    const lineGraph = groups.path.append('path')
-        .attr('d', lineFunction(path))
+    const lineGraph = this.groups.path.append('path')
+        .attr('d', lineFunction(pathTable[0]))
         .attr('class', 'path')
-        .attr('fill', 'none');
+        .attr('fill', 'none')
+        .style("stroke", function (d) {
+          return colorSet[0]
+        });
 
     // position , circle代表一个个位置，
-    const circleData = groups.position.selectAll('circle').data(path);
-    circleData.exit().remove();
+    this.groups.position.selectAll('circle').remove(); //画之前首先都删掉
+
+    const circleData = this.groups.position.selectAll('circle').data(pathTable[0]);
     const circles = circleData.enter().append('circle');
     const circleAttributes = circles
         .attr("cx", function (d) {
@@ -183,12 +188,14 @@ class Coop extends Component {
         .attr("r", function (d) {
           return 10;
         })
-        .attr("class", "position");
+        .attr("class", "position")
+        .style("fill", function (d) {
+          return colorSet[0]
+        });
 
     // position number
-    const textData = groups.position.selectAll("text").data(path);
-    textData.exit().remove();
-
+    this.groups.position.selectAll("text").remove();
+    const textData = this.groups.position.selectAll("text").data(pathTable[0]);
     const texts = textData.enter().append("text");
     const textAttributes = texts
         .attr("x", function (d) {
@@ -205,7 +212,7 @@ class Coop extends Component {
   }
 
   // 画出 能够移动、能够显示当前位置的小圈。
-  drawNextStepMovingSpot(nowTimeStep, scales, pathTable, duration = 500) {
+  drawNextStepMovingSpot(nowTimeStep, scales, pathTable, duration = timeGap) {
     //console.log('next step');
 
     //判断传进来的参数 timeStep 的合法性
@@ -247,12 +254,15 @@ class Coop extends Component {
       if(!this.initialized){
         this.initializePathTable();
       }
+      const stepStart = Date.now();
       this.replanNextTimeStep();
+      const endStep = Date.now();
+      console.log('每一步用时', endStep - stepStart);
       console.log('next step');
       //console.log(this.pathTable);
       //debugger;
       this.testCoop();
-    }, 1000);
+    }, timeGap);
   }
 
   initializePathTable(){
@@ -324,9 +334,11 @@ class Coop extends Component {
       // 这个时候是没有改变 timestep 为 0 的位置的
       //
       // 画点，画路径.
-      console.log(this.pathTable);
+      //console.log(this.pathTable);
       //debugger;
-      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, 1000);
+      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+
+      this.drawPath(this.scales, this.pathTable);
 
 
       this.nowTimeStep +=1;
@@ -342,7 +354,7 @@ class Coop extends Component {
       this.nowTimeStep = 0;
 
       // 画点，画路径，timestep 为 0 的点，以及路径。
-      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, 1000);
+      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
     }
 
   }

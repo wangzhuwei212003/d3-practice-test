@@ -45,7 +45,7 @@ svg {
 }
 
 .position {
-  fill: #C9EBF0;
+  opacity: 0.4;
   stroke-width: 1px;
   stroke: #2973F2;
 }
@@ -60,11 +60,11 @@ Button{
 }
 
 .positionNumber {
-  fill: #0E1A9E;
+  fill: #fff;
+  /*fill: #0E1A9E;*/
   text-anchor: middle;
 }
 
 .path {
   stroke-width: 3px;
-  stroke: #2973F2;
 }

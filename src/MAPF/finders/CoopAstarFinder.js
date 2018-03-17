@@ -122,8 +122,8 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
     // } 这段注释是因为，即使是到达了终点，也要继续计算。
 
     if(node.t >= searchDeepth -1){
-      console.log(`寻路暂停，beyond the deepth，${searchDeepth}`);
-      console.log(Util.backtraceNode(node));
+      //console.log(`寻路暂停，beyond the deepth，${searchDeepth}`);
+      //console.log(Util.backtraceNode(node));
       return Util.backtrace(node);
     }
 
