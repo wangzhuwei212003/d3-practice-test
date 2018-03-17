@@ -56,6 +56,11 @@ class Coop extends Component {
       position: this.gridMouseover.append('g')
     };
 
+    // this.groups = Array(4).fill({
+    //   path: this.gridMouseover.append('g'),
+    //   position: this.gridMouseover.append('g')
+    // });
+
     this.movingSpot = this.gridMouseover.append('g');
 
     // 画完地图之后，开始画 pathTable 里面的路径
@@ -153,9 +158,6 @@ class Coop extends Component {
     //const path = [[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7]];
     //path = [[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7]];
 
-    // 这里的 Group 是d3 select 后面加上 append('g')；首先是删除掉之前所有的 path。
-    this.groups.path.selectAll('.path').remove();
-
     const lineFunction = d3.line()
         .x(function (d) {
           return scales.x(d[1] + 0.5);
@@ -165,50 +167,88 @@ class Coop extends Component {
         })
         .curve(d3.curveLinear);
 
-    const lineGraph = this.groups.path.append('path')
-        .attr('d', lineFunction(pathTable[0]))
-        .attr('class', 'path')
-        .attr('fill', 'none')
-        .style("stroke", function (d) {
-          return colorSet[0]
-        });
-
+    // 这里的 Group 是d3 select 后面加上 append('g')；首先是删除掉之前所有的 path。
+    this.groups.path.selectAll('.path').remove();
     // position , circle代表一个个位置，
-    this.groups.position.selectAll('circle').remove(); //画之前首先都删掉
-
-    const circleData = this.groups.position.selectAll('circle').data(pathTable[0]);
-    const circles = circleData.enter().append('circle');
-    const circleAttributes = circles
-        .attr("cx", function (d) {
-          return scales.x(d[1] + 0.5);
-        })
-        .attr("cy", function (d) {
-          return scales.y(d[0] + 0.5);
-        })
-        .attr("r", function (d) {
-          return 10;
-        })
-        .attr("class", "position")
-        .style("fill", function (d) {
-          return colorSet[0]
-        });
-
+    // this.groups.position.selectAll('rect').remove(); //画之前首先都删掉
+    // this.groups.position.selectAll('circle').remove(); //画之前首先都删掉
     // position number
     this.groups.position.selectAll("text").remove();
-    const textData = this.groups.position.selectAll("text").data(pathTable[0]);
-    const texts = textData.enter().append("text");
-    const textAttributes = texts
-        .attr("x", function (d) {
-          return scales.x(d[1] + 0.5);
-        })
-        .attr("y", function (d) {
-          return scales.y(d[0] + 0.5);
-        })
-        .attr("dy", ".31em")
-        .text(function (d, i) {
-          return i;
-        })
-        .attr("class", "positionNumber");
+
+    for(let i =0; i< pathTable.length; i+=1){
+      let index = i;
+
+      let lineGraph = this.groups.path.append('path')
+          .attr('d', lineFunction(pathTable[index]))
+          .attr('class', 'path')
+          .attr('fill', 'none')
+          .style("stroke", function (d) {
+            return colorSet[index]
+          });
+
+      // let circleData = this.groups.position.append('g').selectAll('circle').data(pathTable[index]);
+      // let circles = circleData.enter().append('circle');
+      // let circleAttributes = circles
+      //     .attr("cx", function (d) {
+      //       return scales.x(d[1] + 0.5);
+      //     })
+      //     .attr("cy", function (d) {
+      //       return scales.y(d[0] + 0.5);
+      //     })
+      //     .attr("r", function (d) {
+      //       return 10;
+      //     })
+      //     .attr("class", "position")
+      //     .style("fill", function (d) {
+      //       return colorSet[index]
+      //     });
+
+      // let circleData = this.groups.position.append('g').selectAll('rect').data(pathTable[index]);
+      // let circles = circleData.enter().append('rect');
+      // let circleAttributes = circles
+      //     .attr("x", function (d) {
+      //       return scales.x(d[1]);
+      //     })
+      //     .attr("y", function (d) {
+      //       return scales.y(d[0]);
+      //     })
+      //     .attr("width", function (d) {
+      //       return 25;
+      //     })
+      //     .attr("height", function (d) {
+      //       return 25;
+      //     })
+      //     .attr("class", "position")
+      //     .style("fill", function (d) {
+      //       return colorSet[index]
+      //     });
+
+      let textData = this.groups.position.append('g').selectAll("text").data(pathTable[index]);
+      let texts = textData.enter().append("text");
+      let textAttributes = texts
+          .attr("x", function (d) {
+            return scales.x(d[1] + 0.5);
+          })
+          .attr("y", function (d) {
+            return scales.y(d[0] + 0.5);
+          })
+          .attr("dy", ".5em")
+          // .attr("dy", ".31em")
+          .text(function (d, i, arr) {
+            //console.log('what is this ', arr[i]);
+            //console.log('what is this ', pathTable[index][i]);
+            //console.log('the text ele', d === pathTable[index][i]);
+            console.log('the text ele', ((i !== 0) && (d === pathTable[index][i-1])));
+            if((i !== 0) && (d[0] === pathTable[index][i-1][0]) && (d[1] === pathTable[index][i-1][1])){
+              return ;
+              // return i-1;
+            }else{
+              return i;
+              // return i;
+            }
+          })
+          .attr("class", "positionNumber");
+    }
   }
 
   // 画出 能够移动、能够显示当前位置的小圈。
