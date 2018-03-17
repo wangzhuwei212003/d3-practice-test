@@ -48,16 +48,14 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
   // 3. 对这些点进行 loop 更新、push、pop 寻路。得到一条路径。
   // 4. 循环对所有的小车执行这样的操作。
 
-  const reservationTable = new Array(searchDeepth * 2);
+  const reservationTable = new Array(searchDeepth +1); // 这个值应该是 pathtable 最长的一个数组长度
   for (let index = 0; index < reservationTable.length; index += 1) {
     reservationTable[index] = new Grid(30, 30, matrix)
   }
   // 根据 path table 添加相对应的 node 的占位。这里其实我是不用管具体是哪辆车
   let pathNode, reservedNode;
 
-  //console.log(pathTable);
-
-  for (let i = 0; i < pathTable.length; i += 1) {
+  for (let i = 0; i < pathTable.length; i += 1) { // i is the index of unit
     if(i === index){
       continue
     }
@@ -149,6 +147,7 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
     // 这里所有的点都是根据上面 pop 出来的点得出的一系列的相关的点。
     if(nodeNextStep.walkable){
       neighbors.push(nodeNextStep); // 如果待在原地是合法的话。
+      //neighbors.unshift(nodeNextStep); // 如果待在原地是合法的话。unshift 会不会有改变
       nodeNextStep.t = node.t + 1;
     }
 
@@ -157,6 +156,10 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
       // 还有一点是要 剔除 掉对向互换位置的点
 
       neighbor = neighbors[i];
+
+      if(neighbor.closed){
+        continue
+      }
 
       col = neighbor.col;
       row = neighbor.row;
@@ -187,7 +190,7 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
           neighbor.t = node.t + 1;
 
         } else { // 这里是需要更新 g 的 neighbor。
-          
+
           openList.updateItem(neighbor);
         }
       }
