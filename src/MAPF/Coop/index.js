@@ -27,14 +27,21 @@ class Coop extends Component {
       [],
     ]; // pathtable 初始化是 全空。
     this.searchDeepth = 10;
+    // this.goalTable = [
+    //   [[26, 26], [14, 14]],
+    //   [[14, 14], [26, 26]],
+    //   [[29, 29], [17, 17]],
+    //   [[17, 17], [29, 29]],
+    // ];
     this.goalTable = [
-      [[26, 26], [14, 14]],
-      [[14, 14], [26, 26]],
-      [[29, 29], [17, 17]],
-      [[17, 17], [29, 29]],
+      [],
+      [],
+      [],
+      [],
     ];
     this.matrixZero = Array(30).fill(Array(30).fill(0)); // fast way to create dimensional array?
-    this.gridUI = []; // 真正事实上的 matrix 是这个 gridUI
+    this.gridUI = Array(30).fill(Array(30).fill(0));
+    ; // 真正事实上的 matrix 是这个 gridUI
   }
 
   componentDidMount() {
@@ -51,7 +58,7 @@ class Coop extends Component {
     };
 
     //component did mount 之后就开始画整个网格的地图
-    this.drawGridNotInteractive(this.gridMouseover);
+    this.drawGridNotInteractive(this.gridMouseover, this.scales);
 
     this.groups = {
       path: this.gridMouseover.append('g'),
@@ -85,13 +92,12 @@ class Coop extends Component {
     let click = 0;
     const width = 25;
     const height = 25;
-
+    window.aaa = 1;
+    let aa = [];
     //iterate for rows
     for (let row = 0; row < 30; row += 1) {
+      aa[row] = [];
       data.push([]);
-
-      reactDom.gridUI.push([]);
-
       for (let column = 0; column < 30; column += 1) {
         click = 0;
         //click = Math.round(Math.random()*100);
@@ -106,22 +112,30 @@ class Coop extends Component {
         });
         xpos += width;
 
-        if(obIntheWay){
-          reactDom.gridUI[row].push(1);
-        }else{
-          reactDom.gridUI[row].push(0);
+        if (obIntheWay) {
+          // window.aaa += 1;
+          // this.gridUI[row][column] = 1; // 这个会有bug，得出来的都是乱码
+          aa[row][column] = 1;
+
+        } else {
+          // do nothing
+          aa[row][column] = 0;
         }
       }
 
       xpos = 1;
       ypos += height;
     }
+    //console.log(aa);
+    this.gridUI = aa;
+
     return data;
   };
 
   // Just draw the 30 * 30 grid, no more interaction
-  drawGridNotInteractive(gridMouseover) {
+  drawGridNotInteractive(gridMouseover, scales) {
     let me = this;
+    let inputGoalTable = [[], [], [], []];
     const gridRef = this.grid;
 
     const row = gridMouseover.selectAll('.row')
@@ -152,13 +166,36 @@ class Coop extends Component {
           return d.height;
         })
         .style('fill', function (d) {
-          if(d.ob){
+          if (d.ob) {
             return '#221E39'
-          }else{
+          } else {
             return '#fff'
           }
         })
-        .style('stroke', 'rgb(169,138,58)');
+        .style('stroke', 'rgb(169,138,58)')
+        .on("mousedown", function (d) {
+          console.log('mouse down');
+
+          if (inputGoalTable[0].length < 2) {
+            d3.select(this).style('fill', colorSetPath[0]);
+            inputGoalTable[0].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+
+          } else if (inputGoalTable[1].length < 2) {
+            d3.select(this).style('fill', colorSetPath[1]);
+            inputGoalTable[1].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+
+          } else if (inputGoalTable[2].length < 2) {
+            d3.select(this).style('fill', colorSetPath[2]);
+            inputGoalTable[2].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+
+          } else if (inputGoalTable[3].length < 2) {
+            d3.select(this).style('fill', colorSetPath[3]);
+            inputGoalTable[3].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+
+          }
+
+        });
+    this.goalTable = inputGoalTable;
   }
 
   // 画出 path table 里的规划好的路径。
@@ -187,7 +224,7 @@ class Coop extends Component {
     // position number
     this.groups.position.selectAll("text").remove();
 
-    for(let i =0; i< pathTable.length; i+=1){
+    for (let i = 0; i < pathTable.length; i += 1) {
       let index = i;
 
       let lineGraph = this.groups.path.append('path')
@@ -251,10 +288,10 @@ class Coop extends Component {
             //console.log('what is this ', pathTable[index][i]);
             //console.log('the text ele', d === pathTable[index][i]);
             //console.log('the text ele', ((i !== 0) && (d === pathTable[index][i-1])));
-            if((i !== 0) && (d[0] === pathTable[index][i-1][0]) && (d[1] === pathTable[index][i-1][1])){
-              return ;
+            if ((i !== 0) && (d[0] === pathTable[index][i - 1][0]) && (d[1] === pathTable[index][i - 1][1])) {
+              return;
               // return i-1;
-            }else{
+            } else {
               return i;
               // return i;
             }
@@ -303,7 +340,7 @@ class Coop extends Component {
 
   testCoop() {
     this.CoopTimer = setTimeout(() => {
-      if(!this.initialized){
+      if (!this.initialized) {
         this.initializePathTable();
       }
       // const stepStart = Date.now();
@@ -317,10 +354,15 @@ class Coop extends Component {
     }, timeGap);
   }
 
-  initializePathTable(){
+  initializePathTable() {
     for (let i = 0; i < this.pathTable.length; i += 1) {
       // 假设，pathTable 是一个全空的数组。
       const finder = new CoopAstarFinder();
+      // console.log(this.goalTable);
+      // console.log(this.pathTable);
+      // console.log(this.gridUI);
+      //
+      // debugger;
       const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.gridUI);
       // const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero);
 
@@ -336,21 +378,21 @@ class Coop extends Component {
     // 3. timestep 为1的时候，计算已经完成，更新 path table；
     // 4. timestep 重置为 0；
 
-    if(this.nowTimeStep === 0){
+    if (this.nowTimeStep === 0) {
       // it is time to replanning for unit with the shortest path
       let searchDeepth = this.searchDeepth;
       let optIndex = 0;
 
       let optPath = this.pathTable.reduce(function (p, c, cIndex) {
         //optIndex += 1; 这样写不行，会一直都是 index = 3
-        if(p.length > c.length){
+        if (p.length > c.length) {
           // 当前的 length 更小
           optIndex = cIndex;
           //console.log('p >  c,', optIndex);
           //console.log(cIndex);
         }
 
-        return p.length > c.length? c: p;
+        return p.length > c.length ? c : p;
       }, {length: searchDeepth});
       // 已经找到了需要 replanning 的 path；
 
@@ -364,7 +406,7 @@ class Coop extends Component {
       // console.log(this.pathTable);
       // console.log(_pathTable);
       // debugger;
-      for (let i =0; i< _pathTable.length; i+=1){
+      for (let i = 0; i < _pathTable.length; i += 1) {
         _pathTable[i].shift(); // 去掉第一个点
       }
 
@@ -395,13 +437,13 @@ class Coop extends Component {
       this.drawPath(this.scales, this.pathTable);
 
 
-      this.nowTimeStep +=1;
+      this.nowTimeStep += 1;
       // timestep 增加为 1 的时候，unit 已经到上面 path 的起点了。此时 path 已经算好。
       //
       // 把所有的path切掉一个，更新optindex的path。timestep 设为 0.
-    }else if(this.nowTimeStep === 1){
+    } else if (this.nowTimeStep === 1) {
       // 更新 pathtable
-      for (let i =0; i< this.pathTable.length; i+=1){
+      for (let i = 0; i < this.pathTable.length; i += 1) {
         this.pathTable[i].shift(); // 去掉第一个点
       }
 
