@@ -104,7 +104,8 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
 
   // set the `g` and `f` value of the start node to be 0
   startNode.g = 0;
-  startNode.f = 0;
+  startNode.h = weight * heuristic(abs(startCol - endCol), abs(startRow - endRow));
+  startNode.f = startNode.h + startNode.g;
   startNode.t = 0; // t 代表时间，个人是觉得能够 f = g + h + t，把时间也考虑进去。
 
   openList.push(startNode);
@@ -123,7 +124,7 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
 
     if(node.t >= searchDeepth -1){
       //console.log(`寻路暂停，beyond the deepth，${searchDeepth}`);
-      //console.log(Util.backtraceNode(node));
+      console.log('规划出来的路径：', Util.backtraceNode(node));
       return Util.backtrace(node);
     }
 
@@ -143,19 +144,38 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
 
     neighbors = gridNextStep.getNeighbors(nodeNextStep); // 得到下一个 grid 里的node。
 
+    let testArray = [];
+    for(i = 0, l = neighbors.length; i < l; ++i){
+      let test = neighbors[i];
+
+      col = test.col;
+      row = test.row;
+
+      if(test.moveTo && test.moveTo.row === node.row && test.moveTo.col === node.col){
+        // 判断为相对互换位置，不合法，跳过
+        continue
+      }
+      testArray.push(test);
+    } // end for
+
     // 然后 探索下一个 grid 里的这些选出来的点。
     // 这里所有的点都是根据上面 pop 出来的点得出的一系列的相关的点。
-    if(nodeNextStep.walkable){
-      neighbors.push(nodeNextStep); // 如果待在原地是合法的话。
+    if(nodeNextStep.walkable && testArray.length === 0){
+      testArray.push(nodeNextStep); // 如果待在原地是合法的话。来一剂猛药，且没有其他可走的点了
       //neighbors.unshift(nodeNextStep); // 如果待在原地是合法的话。unshift 会不会有改变
       nodeNextStep.t = node.t + 1;
     }
 
-    for(i = 0, l = neighbors.length; i < l; ++i){
+    if(nodeNextStep.walkable && endRow === node.row && endCol === node.col ){
+      testArray.push(nodeNextStep); // 如果待在原地是合法的 且已到达终点
+      nodeNextStep.t = node.t + 1;
+    }
+
+    for(i = 0, l = testArray.length; i < l; ++i){
       // 探索所有的合法的点。此时 neighbors 里的点都是下一步没有占用的点
       // 还有一点是要 剔除 掉对向互换位置的点
 
-      neighbor = neighbors[i];
+      neighbor = testArray[i];
 
       // if(neighbor.closed){
       //   continue
@@ -171,10 +191,10 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
 
      // ng = node.g + 1 + node.t + 1; // new g is the sum of the moving cost and the time cost.
        // time cost ignore ? 1代表的是1个timestep，另外的我觉得还应该加上一个1 路程的cost
-      ng = node.g + 1; // wait will gain a time cost 1
+      ng = node.g + 1 ; // wait will gain a time cost 1. no time cost
 
       if(node.row === row && node.col === col){
-        ng = node.g;
+        ng = node.g ; // plus time cost 1 , no no time cost
       }
 
 
