@@ -28,7 +28,8 @@ import Tetris from './Tutorials/Tetris';
 import Test from './example/Test';
 
 import BasicAStar from './MAPF/BasicAStar';
-import Coop from './MAPF/Coop';
+import Coop4 from './MAPF/Coop4';
+import Coop30 from './MAPF/Coop30';
 
 const SubMenu = Menu.SubMenu;
 
@@ -100,7 +101,11 @@ class App extends Component {
                   </Menu.Item>
                   <Menu.Item key="3">
                     <Icon type="inbox"/>
-                    <span><Link to='/MAPF/Coop'>Coop 30</Link></span>
+                    <span><Link to='/MAPF/Coop4'>Coop 4</Link></span>
+                  </Menu.Item>
+                  <Menu.Item key="4">
+                    <Icon type="inbox"/>
+                    <span><Link to='/MAPF/Coop30'>Coop 30</Link></span>
                   </Menu.Item>
                   <SubMenu key="sub1" title={<span><Icon type="mail"/><span>D3 example</span></span>}>
                     <Menu.Item key="5"><Link to='/Tutorials/DynamicTable'>DynamicTable</Link></Menu.Item>
@@ -125,7 +130,8 @@ class App extends Component {
                 <Route path="/example/Test" component={Test}/>
 
                 <Route path="/MAPF/BasicAStar" component={BasicAStar}/>
-                <Route path="/MAPF/Coop" component={Coop}/>
+                <Route path="/MAPF/Coop4" component={Coop4}/>
+                <Route path="/MAPF/Coop30" component={Coop30}/>
 
                 <Route path="/Tutorials/DynamicTable" component={DynamicTable}/>
                 <Route path="/Tutorials/MakeGrid" component={Grid}/>

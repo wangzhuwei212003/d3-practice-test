@@ -1,4 +1,7 @@
 /**
+ * Created by zhuweiwang on 19/03/2018.
+ */
+/**
  * Created by zhuweiwang on 12/03/2018.
  */
 import React, {Component} from 'react';
@@ -21,8 +24,8 @@ class Coop extends Component {
     this.initialized = false;
     this.nowTimeStep = 0;
 
-    this.unitsNum = 30;
-    this.searchDeepth = 31; // 至少是 unit 总数 +1？
+    this.unitsNum = 4;
+    this.searchDeepth = 10; // 至少是 unit 总数 +1？至少为 5
     // this.searchDeepth = 5; // 至少是 unit 总数 +1？
     this.pathTable = Array(this.unitsNum).fill([]); // test 30 units
     // this.pathTable = [
@@ -43,36 +46,10 @@ class Coop extends Component {
       [],
       [],
       [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
     ];
     this.matrixZero = Array(30).fill(Array(30).fill(0)); // fast way to create dimensional array?
     this.gridUI = Array(30).fill(Array(30).fill(0));
-    ; // 真正事实上的 matrix 是这个 gridUI
+    // 真正事实上的 matrix 是这个 gridUI
   }
 
   componentDidMount() {
@@ -171,32 +148,6 @@ class Coop extends Component {
       [],
       [],
       [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
     ];
     // let inputGoalTable = Array(this.unitsNum).fill([]); // fill 和这种写法有这么大区别吗？
     console.log(inputGoalTable);
@@ -279,110 +230,6 @@ class Coop extends Component {
           } else if (inputGoalTable[3].length < 2) {
             d3.select(this).style('fill', colorSetPath[3]);
             inputGoalTable[3].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[4].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[4].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[5].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[5].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[6].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[6].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[7].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[7].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[8].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[8].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[9].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[9].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[10].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[10].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[11].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[11].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[12].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[12].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[13].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[13].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[14].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[14].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[15].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[15].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[16].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[16].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[17].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[17].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[18].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[18].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[19].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[19].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[20].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[20].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[21].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[21].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[22].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[22].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[23].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[23].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[24].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[24].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[25].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[25].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[26].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[26].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[27].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[27].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[28].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[28].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[29].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[29].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
 
           }
 
