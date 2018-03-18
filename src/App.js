@@ -100,7 +100,7 @@ class App extends Component {
                   </Menu.Item>
                   <Menu.Item key="3">
                     <Icon type="inbox"/>
-                    <span><Link to='/MAPF/Coop'>Coop</Link></span>
+                    <span><Link to='/MAPF/Coop'>Coop 30</Link></span>
                   </Menu.Item>
                   <SubMenu key="sub1" title={<span><Icon type="mail"/><span>D3 example</span></span>}>
                     <Menu.Item key="5"><Link to='/Tutorials/DynamicTable'>DynamicTable</Link></Menu.Item>
