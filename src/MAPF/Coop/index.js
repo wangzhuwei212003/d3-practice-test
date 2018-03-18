@@ -343,10 +343,10 @@ class Coop extends Component {
       if (!this.initialized) {
         this.initializePathTable();
       }
-      // const stepStart = Date.now();
+      const stepStart = Date.now();
       this.replanNextTimeStep();
-      // const endStep = Date.now();
-      // console.log('每一步用时', endStep - stepStart);
+      const endStep = Date.now();
+      console.log('每一步用时', endStep - stepStart);
       // console.log('next step');
       //console.log(this.pathTable);
       //debugger;

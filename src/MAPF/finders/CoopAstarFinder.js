@@ -69,6 +69,7 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
         row: pathNode[0],
         col: pathNode[1]
       } : {row: pathTable[i][j + 1][0], col: pathTable[i][j + 1][1]} // 存上下一时刻的动作。
+      //console.log(reservedNode);
     }
   } // end for loop。
   // reservation table ready ！！！
@@ -124,7 +125,7 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
 
     if(node.t >= searchDeepth -1){
       //console.log(`寻路暂停，beyond the deepth，${searchDeepth}`);
-      console.log('规划出来的路径：', Util.backtraceNode(node));
+      //console.log('规划出来的路径：', Util.backtraceNode(node));
       return Util.backtrace(node);
     }
 
@@ -151,8 +152,15 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
       col = test.col;
       row = test.row;
 
-      if(test.moveTo && test.moveTo.row === node.row && test.moveTo.col === node.col){
+      if(test.moveTo){
+        console.log(test.moveTo);
+        debugger; //这里永远不会触发。。
+      }
+
+      let nodeBeforeTest = reservationTable[node.t].getNodeAt(test.row, test.col); // 得到正确的 timestep 的点。
+      if(nodeBeforeTest.moveTo && nodeBeforeTest.moveTo.row === node.row && nodeBeforeTest.moveTo.col === node.col){
         // 判断为相对互换位置，不合法，跳过
+        console.log('检测到 相对方向');
         continue
       }
       testArray.push(test);
