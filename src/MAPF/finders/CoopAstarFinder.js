@@ -164,9 +164,7 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
       testArray.push(nodeNextStep); // 如果待在原地是合法的话。来一剂猛药，且没有其他可走的点了
       //neighbors.unshift(nodeNextStep); // 如果待在原地是合法的话。unshift 会不会有改变
       nodeNextStep.t = node.t + 1;
-    }
-
-    if(nodeNextStep.walkable && endRow === node.row && endCol === node.col ){
+    }else if(nodeNextStep.walkable && endRow === node.row && endCol === node.col ){
       testArray.push(nodeNextStep); // 如果待在原地是合法的 且已到达终点
       nodeNextStep.t = node.t + 1;
     }
