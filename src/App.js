@@ -30,6 +30,7 @@ import Test from './example/Test';
 import BasicAStar from './MAPF/BasicAStar';
 import Coop4 from './MAPF/Coop4';
 import Coop30 from './MAPF/Coop30';
+import RowByCol from './MAPF/RowsByColumns';
 
 const SubMenu = Menu.SubMenu;
 
@@ -107,6 +108,10 @@ class App extends Component {
                     <Icon type="inbox"/>
                     <span><Link to='/MAPF/Coop30'>Coop 30</Link></span>
                   </Menu.Item>
+                  <Menu.Item key="5">
+                    <Icon type="inbox"/>
+                    <span><Link to='/MAPF/RowByCol'>Rows by columns</Link></span>
+                  </Menu.Item>
                   <SubMenu key="sub1" title={<span><Icon type="mail"/><span>D3 example</span></span>}>
                     <Menu.Item key="5"><Link to='/Tutorials/DynamicTable'>DynamicTable</Link></Menu.Item>
                     <Menu.Item key="6"><Link to='/Tutorials/MakeGrid'>Grid</Link></Menu.Item>
@@ -132,6 +137,7 @@ class App extends Component {
                 <Route path="/MAPF/BasicAStar" component={BasicAStar}/>
                 <Route path="/MAPF/Coop4" component={Coop4}/>
                 <Route path="/MAPF/Coop30" component={Coop30}/>
+                <Route path="/MAPF/RowByCol" component={RowByCol}/>
 
                 <Route path="/Tutorials/DynamicTable" component={DynamicTable}/>
                 <Route path="/Tutorials/MakeGrid" component={Grid}/>
