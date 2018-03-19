@@ -14,8 +14,8 @@ import './index.css';
 import CoopAstarFinder from '../finders/CoopAstarFinder';
 import Grid from '../core/Grid';
 
-const colorSet = ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D'];
-const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
+const colorSet = ['#D7263D', '#F46036', '#C5D86D', '#1B998B', '#2E294E'];
+const colorSetPath = ['#E16171', '#F78B6C', '#D4E294', '#59B4AA', '#67637E'];
 const timeGap = 500;
 const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
 

@@ -7,6 +7,10 @@ import Util from '../core/Util';
 import Heuristic from '../core/Heuristic';
 import Grid from '../core/Grid';
 
+const rowNum = 30;
+const colNum = 23;
+
+
 function CoopAstarFinder(opt) {
   opt = opt || {};
   this.heuristic = opt.heuristic || Heuristic.manhattan;
@@ -50,7 +54,7 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
 
   const reservationTable = new Array(searchDeepth +1); // 这个值应该是 pathtable 最长的一个数组长度
   for (let index = 0; index < reservationTable.length; index += 1) {
-    reservationTable[index] = new Grid(30, 30, matrix)
+    reservationTable[index] = new Grid(colNum, rowNum, matrix)
   }
   // 根据 path table 添加相对应的 node 的占位。这里其实我是不用管具体是哪辆车
   let pathNode, reservedNode;
