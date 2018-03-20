@@ -68,11 +68,11 @@ module.exports = {
     const topTurnRow = 9; // 由于前端界面的问题，这里的值是特殊的，代表最顶部一行刚拐弯。即是最顶部一行减 1
     const topTurnCol = 7; // 同上一个点的 col
 
-    const btmTurnRow = topTurnRow + boxRow * 3;
-    const topEndTurnCol = topTurnCol + (boxCol - 1) * 2;
-
     const boxRow = 6; // 中间有箱子的行数、列数
     const boxCol = 5;
+
+    const btmTurnRow = topTurnRow + boxRow * 3;
+    const topEndTurnCol = topTurnCol + (boxCol - 1) * 2;
 
     const pickRow = 22; // 这个是根据UI测试的图里定的。可以说是写死了。
 
@@ -188,6 +188,11 @@ module.exports = {
     } else {
       console.log('some senario not expected!');
       console.log('startRow, startCol, endRow, endCol',startRow, startCol, endRow, endCol)
+      console.log(startRow >= topTurnRow && startRow <= btmTurnRow);
+      console.log(startCol >= topTurnCol && startCol <= topEndTurnCol);
+      console.log(startCol === endCol);
+      debugger;
+
     }
   }
 

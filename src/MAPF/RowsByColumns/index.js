@@ -17,8 +17,7 @@ import Grid from '../core/Grid';
 
 const colorSet = ['#D7263D', '#F46036', '#C5D86D', '#1B998B', '#2E294E'];
 const colorSetPath = ['#E16171', '#F78B6C', '#D4E294', '#59B4AA', '#67637E'];
-const timeGap = 2000;
-const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
+const timeGap = 50;
 
 const rowNum = 30;
 const colNum = 23;
@@ -32,7 +31,7 @@ class RowsByColumn extends Component {
     this.initialized = false;
     this.nowTimeStep = 0;
 
-    this.unitsNum = 4;
+    this.unitsNum = 1;
     this.searchDeepth = 10; // 至少是 unit 总数 +1？至少为 5
     // this.searchDeepth = 5; // 至少是 unit 总数 +1？
     this.pathTable = Array(this.unitsNum).fill([]); // test 30 units
@@ -50,10 +49,10 @@ class RowsByColumn extends Component {
     // ];
     // this.goalTable = Array(this.unitsNum).fill(Array(2));
     this.goalTable = [
-      [],
-      [],
-      [],
-      [],
+      []
+      // [],
+      // [],
+      // [],
     ];
     this.matrixZero = Array(rowNum).fill(Array(colNum).fill(0)); // fast way to create dimensional array?
     // 真正事实上的 matrix 是这个 gridUI
@@ -163,7 +162,10 @@ class RowsByColumn extends Component {
           ob = 1;
         }
 
-        if (row === rowNum - 3 && (column === 3 || column === colNum - 4 )) {
+        if (row === rowNum - 3 && (column === 3 || column === 5 || column === colNum - 4 || column === colNum - 6 )) {
+          ob = 1;
+        }
+        if (row === rowNum - 21 && (column === 5 || column === colNum - 6 )) {
           ob = 1;
         }
         if (row === rowNum - 22 && (column === 2 || column === colNum - 3)) {
@@ -194,10 +196,7 @@ class RowsByColumn extends Component {
   drawGridNotInteractive(gridMouseover, scales) {
     let me = this;
     let inputGoalTable = [
-      [],
-      [],
-      [],
-      [],
+      []
     ];
     // let inputGoalTable = Array(this.unitsNum).fill([]); // fill 和这种写法有这么大区别吗？
     console.log(inputGoalTable);
@@ -246,19 +245,20 @@ class RowsByColumn extends Component {
             d3.select(this).style('fill', colorSetPath[0]);
             inputGoalTable[0].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
 
-          } else if (inputGoalTable[1].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[1].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[2].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[2].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
-
-          } else if (inputGoalTable[3].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[3].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
-
           }
+          // else if (inputGoalTable[1].length < 2) {
+          //   d3.select(this).style('fill', colorSetPath[1]);
+          //   inputGoalTable[1].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
+          //
+          // } else if (inputGoalTable[2].length < 2) {
+          //   d3.select(this).style('fill', colorSetPath[2]);
+          //   inputGoalTable[2].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
+          //
+          // } else if (inputGoalTable[3].length < 2) {
+          //   d3.select(this).style('fill', colorSetPath[3]);
+          //   inputGoalTable[3].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
+          //
+          // }
 
         });
     this.goalTable = inputGoalTable;
