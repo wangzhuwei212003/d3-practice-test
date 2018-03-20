@@ -10,6 +10,19 @@ import Util from '../core/Util';
 import Heuristic from '../core/Heuristic';
 import Grid from '../core/Grid';
 
+const topTurnRow = 9; // 由于前端界面的问题，这里的值是特殊的，代表最顶部一行刚拐弯。即是最顶部一行减 1
+const topTurnCol = 7; // 同上一个点的 col
+
+const boxRow = 6; // 中间有箱子的行数、列数
+const boxCol = 5;
+
+const btmTurnRow = topTurnRow + boxRow * 3;
+const topEndTurnCol = topTurnCol + (boxCol - 1) * 2;
+
+const pickRow = 22; // 这个是根据UI测试的图里定的。可以说是写死了。
+
+const ShelfCol = 23; // 一共有这么多列
+
 function HCCoopAstarFinder(opt) {
   opt = opt || {};
   this.heuristic = opt.heuristic || Heuristic.huicang;
@@ -18,26 +31,6 @@ function HCCoopAstarFinder(opt) {
 }
 
 HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, pathTable, matrix, rowNum, colNum) {
-  // grid 包含的应该是固有的障碍，ignoring other agents
-
-// path table 是3维数组，表示所有小车的路径。而且 path table 里应该是像一种 window的感觉，时间窗。已经执行过的timestep往前删除掉，剩下的保留，以及新规划的路径往里添加。
-// 这么写出来之后再来看，应该是规划的 depth 不是越长越好.
-// [
-//  [[],[],[],[],[]],
-//  [[],[],[],[],[]],
-//  [[],[],[],[],[]],
-//  [[],[],[],[],[]],
-// ]
-// 如上是4个小车的 path table 的样子。。
-// 初始数据应该至少也是 [[],[],[],[]], 首先多少个车是定的。可能为空数组。
-//
-// 还有一个多对多的点对点的数组。这个数组是在上面的调用 path finder 的代码块里。 goalTable
-// [
-//  [[start-row, start-col], [end-row, end-col]],
-//  [[start-row, start-col], [end-row, end-col]],
-//  [[start-row, start-col], [end-row, end-col]],
-//  [[start-row, start-col], [end-row, end-col]],
-// ]。
 
   const startRow = goalTable[index][0][0];
   const startCol = goalTable[index][0][1];
@@ -88,8 +81,6 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       // 如果是要规划，肯定 startNode 对应的就是time step 是 0 的 grid map 里的点。
       startNode = reservationTable[0].getNodeAt(startRow, startCol),
 
-      //endnode 应该是暂时不知道哪个点，只是知道 row、col. 到时候判断到达不用 ===，直接判断 row、col 的值。
-      //endNode = grid.getNodeAt(endRow, endCol),
 
       heuristic = this.heuristic,
       weight = this.weight, // 这个weight可以说是 g 和 h 的权重
@@ -109,7 +100,6 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
   // set the `g` and `f` value of the start node to be 0
   startNode.g = 0;
   startNode.h = weight * heuristic(startRow, startCol, endRow, endCol);
-  // startNode.h = weight * heuristic(abs(startCol - endCol), abs(startRow - endRow));
   startNode.f = startNode.h + startNode.g;
   startNode.t = 0; // t 代表时间，个人是觉得能够 f = g + h + t，把时间也考虑进去。
 
@@ -120,12 +110,6 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
     //从openlist里找到（哪个值我不确定，如果是 backwards search 的话，应该是 g ）值最小的 node。pop是从heap里删除掉最小的 并返回这个最小的元素。
     node = openList.pop();
     node.closed = true;  // 这一步是必须的，没错，这里要标记一下。。 其实这个地方是 close 了，但是下一个 grid 还是有这个点。所以可以说是一个grid全部都没有了。
-
-    // 如果反向找到了起始点，那么路径已找到，并返回这个路径
-    // if (node.row === endRow && node.col === endCol){
-    //   console.log('find the path'); // 如果这个是已经找了，前提是我也不知道endpoint是哪个timestep里的，所以只能这样来判断。
-    //   return Util.backtrace(node);
-    // } 这段注释是因为，即使是到达了终点，也要继续计算。
 
     if(node.t >= searchDeepth -1){
       //console.log(`寻路暂停，beyond the deepth，${searchDeepth}`);
@@ -147,7 +131,17 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
     nodeNextStep = gridNextStep.getNodeAt(node.row, node.col); // 得到下一个grid里的相同位置的node
     // 当前的点不一定能够 wait，因为可能别的小车要过来。这样的情况就要其他的小车让路了。
 
-    neighbors = gridNextStep.getNeighbors(nodeNextStep); // 得到下一个 grid 里的node。
+    if(
+        (node.row === btmTurnRow + 1 && (node.col >= topTurnCol && node.col <= topEndTurnCol)) ||
+        (endRow === pickRow && (endCol === 1 || endCol === ShelfCol - 2) &&
+        node.row === topTurnRow - 1 && (node.col >= topTurnCol && node.col <= topEndTurnCol))
+    ){
+      // 当前在最下一行 且是货位下方，不能上下。
+      // 终点是拣货台，顶部一行不能上下
+      neighbors = gridNextStep.HCgetNeighbors(nodeNextStep, true);
+    }else{
+      neighbors = gridNextStep.HCgetNeighbors(nodeNextStep); // 得到下一个 grid 里的node。
+    }
 
     let testArray = [];
     for(i = 0, l = neighbors.length; i < l; ++i){

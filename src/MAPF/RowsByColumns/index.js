@@ -486,8 +486,8 @@ class RowsByColumn extends Component {
 
       this.goalTable[optIndex][0] = startNode; // 更新 goalTable 中的起点。
 
-      console.log(this.goalTable);
-      console.log(this.matrixZero);
+      //console.log(this.goalTable);
+      //console.log(this.matrixZero);
       //debugger;
 
       const finder = new CoopAstarFinder();

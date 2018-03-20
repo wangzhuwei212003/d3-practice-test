@@ -63,7 +63,6 @@ module.exports = {
    *
    */
   huicang: function (startRow, startCol, endRow, endCol) {
-    // 排错, TODO
 
     const topTurnRow = 9; // 由于前端界面的问题，这里的值是特殊的，代表最顶部一行刚拐弯。即是最顶部一行减 1
     const topTurnCol = 7; // 同上一个点的 col
@@ -77,6 +76,17 @@ module.exports = {
     const pickRow = 22; // 这个是根据UI测试的图里定的。可以说是写死了。
 
     const ShelfCol = 23; // 一共有这么多列
+
+    // 排错, TODO
+    if(endRow === pickRow && (endCol === 1 || endCol === ShelfCol - 2)){
+      console.log('目标为拣货台');
+    } else if(endRow >= topTurnRow && endRow <= btmTurnRow &&
+        endCol >= topTurnCol && endCol <= topEndTurnCol){
+      console.log('目标为中间货位');
+    }else{
+      console.log('目标设置错误。');
+      return 0; //让小车待在原地
+    }
 
     // 分两部分，
     // 1. 可以上下的部分（中间部分，且当前列数和目标列数相同）；

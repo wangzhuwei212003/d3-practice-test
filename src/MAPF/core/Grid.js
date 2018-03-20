@@ -169,6 +169,46 @@ Grid.prototype.getNeighbors = function(node) {
   return neighbors;
 };
 
+Grid.prototype.HCgetNeighbors = function (node, prohibit = false) {
+  const row = node.row,
+      col = node.col,
+      neighbors = [],
+      nodes = this.nodes;
+
+  //添加特殊情况：如果目标不是中间货位，不允许从中间货位穿
+  if(prohibit){
+    // 如果不允许，那么走到最上面一行就只有水平方向。
+    // →
+    if (this.isWalkableAt(row, col +1)) {
+      neighbors.push(nodes[row][col + 1]);
+    }
+    // ←
+    if (this.isWalkableAt(row, col-1)) {
+      neighbors.push(nodes[row][col - 1]);
+    }
+  }else {
+    //仅考虑 上下左右 四个方向
+    // ↑
+    if (this.isWalkableAt(row-1, col)) {
+      neighbors.push(nodes[row - 1][col]);
+    }
+    // →
+    if (this.isWalkableAt(row, col +1)) {
+      neighbors.push(nodes[row][col + 1]);
+    }
+    // ↓
+    if (this.isWalkableAt(row +1, col)) {
+      neighbors.push(nodes[row +1][col]);
+    }
+    // ←
+    if (this.isWalkableAt(row, col-1)) {
+      neighbors.push(nodes[row][col - 1]);
+    }
+  }
+
+  return neighbors;
+};
+
 
 /**
  * Get a clone of this grid.
