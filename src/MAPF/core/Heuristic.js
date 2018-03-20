@@ -79,10 +79,10 @@ module.exports = {
 
     // 排错, TODO
     if(endRow === pickRow && (endCol === 1 || endCol === ShelfCol - 2)){
-      console.log('目标为拣货台');
+      //console.log('目标为拣货台');
     } else if(endRow >= topTurnRow && endRow <= btmTurnRow &&
         endCol >= topTurnCol && endCol <= topEndTurnCol){
-      console.log('目标为中间货位');
+      //console.log('目标为中间货位');
     }else{
       console.log('目标设置错误。');
       return 0; //让小车待在原地

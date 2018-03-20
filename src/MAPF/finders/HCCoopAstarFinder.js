@@ -131,20 +131,49 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
     nodeNextStep = gridNextStep.getNodeAt(node.row, node.col); // 得到下一个grid里的相同位置的node
     // 当前的点不一定能够 wait，因为可能别的小车要过来。这样的情况就要其他的小车让路了。
 
+    /*
+    * 如果是这么特殊的情况，周围的运动方向只有一个，只有中间能上下移动
+    *
+    */
     if(
-        (node.row === btmTurnRow + 1 && (node.col >= topTurnCol && node.col <= topEndTurnCol)) ||
-        (endRow === pickRow && (endCol === 1 || endCol === ShelfCol - 2) &&
-        node.row === topTurnRow - 1 && (node.col >= topTurnCol && node.col <= topEndTurnCol))
+        node.row >= topTurnRow && node.row <= btmTurnRow &&
+        node.col >= topTurnCol && node.col <= topEndTurnCol
     ){
-      // 当前在最下一行 且是货位下方，不能上下。
-      // 终点是拣货台，顶部一行不能上下
-      neighbors = gridNextStep.HCgetNeighbors(nodeNextStep, true);
-    }else{
-      neighbors = gridNextStep.HCgetNeighbors(nodeNextStep); // 得到下一个 grid 里的node。
+      // 在中间货位部分，能够上下移动
+      neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPDOWN');
+    }else if (
+        (node.col <= 3 && node.row <= btmTurnRow) ||
+        (node.col === 1 && node.row === btmTurnRow + 1)
+    ){
+      // 上升列，能够往右上，不能下
+      neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPRIGHT');
+    }else if (
+        node.row === topTurnRow - 1 &&
+        node.col >= 3 && node.col < ShelfCol - 4
+    ){
+      // 最上面一行，分情况，看目标
+      /*
+      * 1. 只能往右，目标列不等于当前列
+      * 2. 只能往下，目标列等于当前列
+      */
+      if(node.col === endCol){
+        neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWN');
+      }else{
+        neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'RIGHT');
+      }
+    } else if (node.col >= ShelfCol - 4 && node.row <= btmTurnRow){
+      // 下降列，只能右下
+      neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWNRIGHT');
+    } else if (
+        node.row === btmTurnRow + 1 &&
+        (node.col >=2 && node.col <= ShelfCol -2)
+    ){
+      // 最底部一行，只能往左
+      neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'LEFT');
     }
 
     let testArray = [];
-    for(i = 0, l = neighbors.length; i < l; ++i){
+    for(i = 0, l = neighbors.length; i < l; i +=1){
       let test = neighbors[i];
 
       col = test.col;
@@ -167,15 +196,37 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
     // 然后 探索下一个 grid 里的这些选出来的点。
     // 这里所有的点都是根据上面 pop 出来的点得出的一系列的相关的点。
     if(nodeNextStep.walkable && testArray.length === 0){
-      testArray.push(nodeNextStep); // 如果待在原地是合法的话。来一剂猛药，且没有其他可走的点了
+    // if(nodeNextStep.walkable ){
+      testArray.push(nodeNextStep); // 如果待在原地是合法的话。来一剂猛药，且没有其他可走的点了.... HC 中，要你能够待在原地。
       //neighbors.unshift(nodeNextStep); // 如果待在原地是合法的话。unshift 会不会有改变
       nodeNextStep.t = node.t + 1;
     }else if(nodeNextStep.walkable && endRow === node.row && endCol === node.col ){
       testArray.push(nodeNextStep); // 如果待在原地是合法的 且已到达终点
       nodeNextStep.t = node.t + 1;
+    }else if(nodeNextStep.walkable && testArray.length === 1 &&
+        node.row >= topTurnRow && node.row <= btmTurnRow &&
+        node.col >= topTurnCol && node.col <= topEndTurnCol
+    ){
+      // 如果如果是中间列只有一个 neighbor 可走，那应该就是堵住了，这个时候应该停。
+      // 这个地方有个bug，就是上面的车下来的时候，可能会挡道，导致停止。
+
+      // 目前想到的方法，如果是 neighbor 只有一个，但是不是下面的一个，那就是下面堵住了，要后退了，这个时候是要停的。
+      // 如果 neighbor 的 neighbor 还是只有一个，那就待在原地。
+      let nei = testArray[0];
+      // 判断 nei方向和终点的方向，如果是方向相同，那就运动，但是如果是方向相反，那么就老实待在原点。
+      if(
+          (nei.row - node.row <=0 && endRow - node.row <= 0) ||
+          (nei.row - node.row > 0 && endRow - node.row <= 0)
+      ){
+        // 方向相同，do nothing，no need to push the nodeNextStep
+      }else{
+        // 否则方向不同，就待在原地
+        testArray.push(nodeNextStep);
+        nodeNextStep.t = node.t + 1;
+      }
     }
 
-    for(i = 0, l = testArray.length; i < l; ++i){
+    for(i = 0, l = testArray.length; i < l; i +=1){
       // 探索所有的合法的点。此时 neighbors 里的点都是下一步没有占用的点
       // 还有一点是要 剔除 掉对向互换位置的点
 
@@ -224,7 +275,8 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
   } // end while not open list empty
   // fail to find the path
   console.log('fail to find the path');
-  return [];
+  return Array(searchDeepth).fill([startRow, startCol]);
+  // return [[startRow, startCol], ];
 };
 
 export default HCCoopAstarFinder;

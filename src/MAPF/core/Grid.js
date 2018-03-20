@@ -205,6 +205,64 @@ Grid.prototype.HCgetNeighbors = function (node, prohibit = false) {
       neighbors.push(nodes[row][col - 1]);
     }
   }
+  return neighbors;
+};
+
+Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
+  const row = node.row,
+      col = node.col,
+      neighbors = [],
+      nodes = this.nodes;
+
+  // 大多数位置只允许一个运动方向
+  if(allowDirection === 'UP'){
+    // ↑
+    if (this.isWalkableAt(row-1, col)) {
+      neighbors.push(nodes[row - 1][col]);
+    }
+  }else if(allowDirection === 'DOWN'){
+    // ↓
+    if (this.isWalkableAt(row +1, col)) {
+      neighbors.push(nodes[row +1][col]);
+    }
+  }else if(allowDirection === 'LEFT'){
+    // ←
+    if (this.isWalkableAt(row, col-1)) {
+      neighbors.push(nodes[row][col - 1]);
+    }
+  }else if(allowDirection === 'RIGHT'){
+    // →
+    if (this.isWalkableAt(row, col +1)) {
+      neighbors.push(nodes[row][col + 1]);
+    }
+  }else if(allowDirection === 'UPDOWN'){
+    // ↑
+    if (this.isWalkableAt(row-1, col)) {
+      neighbors.push(nodes[row - 1][col]);
+    }
+    // ↓
+    if (this.isWalkableAt(row +1, col)) {
+      neighbors.push(nodes[row +1][col]);
+    }
+  }else if(allowDirection === 'UPRIGHT'){
+    // ↑
+    if (this.isWalkableAt(row-1, col)) {
+      neighbors.push(nodes[row - 1][col]);
+    }
+    // →
+    if (this.isWalkableAt(row, col +1)) {
+      neighbors.push(nodes[row][col + 1]);
+    }
+  }else if(allowDirection === 'DOWNRIGHT'){
+    // ↓
+    if (this.isWalkableAt(row +1, col)) {
+      neighbors.push(nodes[row +1][col]);
+    }
+    // →
+    if (this.isWalkableAt(row, col +1)) {
+      neighbors.push(nodes[row][col + 1]);
+    }
+  }
 
   return neighbors;
 };

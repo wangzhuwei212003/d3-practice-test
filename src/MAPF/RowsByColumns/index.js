@@ -17,7 +17,7 @@ import Grid from '../core/Grid';
 
 const colorSet = ['#D7263D', '#F46036', '#C5D86D', '#1B998B', '#2E294E'];
 const colorSetPath = ['#E16171', '#F78B6C', '#D4E294', '#59B4AA', '#67637E'];
-const timeGap = 50;
+const timeGap = 500;
 
 const rowNum = 30;
 const colNum = 23;
@@ -32,7 +32,7 @@ class RowsByColumn extends Component {
     this.nowTimeStep = 0;
 
     this.unitsNum = 4;
-    this.searchDeepth = 10; // 至少是 unit 总数 +1？至少为 5
+    this.searchDeepth = 15; // 至少是 unit 总数 +1？至少为 5
     // this.searchDeepth = 5; // 至少是 unit 总数 +1？
     this.pathTable = Array(this.unitsNum).fill([]); // test 30 units
     // this.pathTable = [
@@ -56,6 +56,9 @@ class RowsByColumn extends Component {
     ];
     this.matrixZero = Array(rowNum).fill(Array(colNum).fill(0)); // fast way to create dimensional array?
     // 真正事实上的 matrix 是这个 gridUI
+
+    this.reachGoal = [];
+
   }
 
   componentDidMount() {
@@ -425,20 +428,22 @@ class RowsByColumn extends Component {
 
   initializePathTable() {
     for (let i = 0; i < this.pathTable.length; i += 1) {
+      // this.goalTable 不是空的
       // 假设，pathTable 是一个全空的数组。
       const finder = new CoopAstarFinder();
-      console.log(this.goalTable);
-      // console.log(this.pathTable);
-      console.log(this.matrixZero);
-
-      //
-      //debugger;
-      const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero, rowNum, colNum);
-      // const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero);
-
+      const path = finder.findPath(i, this.goalTable, this.searchDeepth + 1, this.pathTable, this.matrixZero, rowNum, colNum);
+      if(
+          path[path.length-1][0] === this.goalTable[i][1][0] &&
+          path[path.length-1][1] === this.goalTable[i][1][1]
+      ){
+        // 即是当前搜索出的路径中已经包含了终点。记录下这个 index
+        this.reachGoal.push(i);
+      }
       this.pathTable[i] = path.slice(0, path.length - i); // 当 i = 0 的时候，就是整个 path
     } // end for loop 所以 searchDeepth 必须要比 unit 的个数多。
     this.initialized = true;
+    // console.log(this.pathTable); // 这个应该是 search deepth + 1 的长度
+    // debugger;
   }
 
   replanNextTimeStep() {
@@ -449,10 +454,24 @@ class RowsByColumn extends Component {
     // 4. timestep 重置为 0；
 
     if (this.nowTimeStep === 0) {
-      // it is time to replanning for unit with the shortest path
+      /*
+       * 1. 找到需要重新规划的 unit
+       * 2. 准备路径规划需要的参数
+       *    1. optIndex 重规划的小车的 index
+       *    2. this.goalTable, 起点 - 终点信息，需要重规划的小车的起点、终点。起点是下一个 timestep 的原来的 path 里的点
+       *    3. searchDeepth, 搜索的路径长度
+       *    4. _pathTable, 下一个 timestep 开始的 pathtable，记录其他小车的位置信息
+       *    5. this.matrixZero, 标识障碍的地图信息
+       *    6. rowNum, colNum 总地图的二维数组的行列数
+       *
+       * 3. replanning 得到新的 path
+       * 4. 更新 pathtable
+       * 5.
+       *
+       *
+       */
       let searchDeepth = this.searchDeepth;
       let optIndex = 0;
-
       let optPath = this.pathTable.reduce(function (p, c, cIndex) {
         //optIndex += 1; 这样写不行，会一直都是 index = 3
         if (p.length > c.length) {
@@ -461,55 +480,39 @@ class RowsByColumn extends Component {
           //console.log('p >  c,', optIndex);
           //console.log(cIndex);
         }
-
         return p.length > c.length ? c : p;
       }, {length: searchDeepth});
       // 已经找到了需要 replanning 的 path；
 
-      // console.log(this.pathTable);
-      // console.log('找到需要更新的 path：', optIndex);
-      // debugger;
+      // 更新 goalTable，更新 startnode
+      let startNode = this.pathTable[optIndex][1]; // 把后面一个点当做 start node 来计算。即是 timestep为 1 的点。
+      this.goalTable[optIndex][0] = startNode; // 更新 goalTable 中的起点。
 
-      // 得到 用来计算的 pathtable
-      //let _pathTable = [].concat([], this.pathTable); // deep copy, not deep
       let _pathTable = JSON.parse(JSON.stringify(this.pathTable)); // deep copy
-      // console.log(this.pathTable);
-      // console.log(_pathTable);
-      // debugger;
       for (let i = 0; i < _pathTable.length; i += 1) {
         _pathTable[i].shift(); // 去掉第一个点
       }
 
-      // console.log(JSON.parse(JSON.stringify(this.pathTable)));
-      // console.log(JSON.parse(JSON.stringify(_pathTable)));
-      // debugger;
-
-      // 更新 goalTable，更新 startnode
-      let startNode = this.pathTable[optIndex][1]; // 把后面一个点当做 start node 来计算。即是 timestep为 1 的点。
-
-      this.goalTable[optIndex][0] = startNode; // 更新 goalTable 中的起点。
-
-      //console.log(this.goalTable);
-      //console.log(this.matrixZero);
-      //debugger;
-
       const finder = new CoopAstarFinder();
-      // const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
       const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero, rowNum, colNum);
+      if(
+          path[path.length-1][0] === this.goalTable[optIndex][1][0] &&
+          path[path.length-1][1] === this.goalTable[optIndex][1][1]
+      ){
+        // 即是当前搜索出的路径中已经包含了终点。记录下这个 index
+        this.reachGoal.push(optIndex);
+      }
 
-      path.unshift(this.pathTable[optIndex][0]);
+      path.unshift(this.pathTable[optIndex][0]); // 现在这个path 应该就是 search deepth + 一个点。长度是 search deepth + 1
       this.pathTable[optIndex] = path;
 
       // UI 这一步还是画path table路径，以及显示 timestep 为0 的点。
       // 这个时候是没有改变 timestep 为 0 的位置的
       //
       // 画点，画路径.
-      //console.log(this.pathTable);
-      //debugger;
+
       this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
-
       this.drawPath(this.scales, this.pathTable);
-
 
       this.nowTimeStep += 1;
       // timestep 增加为 1 的时候，unit 已经到上面 path 的起点了。此时 path 已经算好。
@@ -518,9 +521,20 @@ class RowsByColumn extends Component {
     } else if (this.nowTimeStep === 1) {
       // 更新 pathtable
       for (let i = 0; i < this.pathTable.length; i += 1) {
-        this.pathTable[i].shift(); // 去掉第一个点
+
+        this.pathTable[i].shift(); // 去掉第一个点，这个是真的改变 pathtable，上面的 _pathtable 是用来计算的，用来传参数的。
+
+        let path = this.pathTable[i];
+        let goal = this.goalTable[i][1];
+        if(
+            path[path.length-1][0] === goal[0] &&
+            path[path.length-1][1] === goal[1]
+        ){
+          this.pathTable[i].push(goal);
+        }
       }
 
+      //console.log(this.pathTable);
       this.nowTimeStep = 0;
 
       // 画点，画路径，timestep 为 0 的点，以及路径。
