@@ -1,4 +1,7 @@
 /**
+ * Created by zhuweiwang on 20/03/2018.
+ */
+/**
  * Created by zhuweiwang on 14/03/2018.
  */
 
@@ -7,14 +10,14 @@ import Util from '../core/Util';
 import Heuristic from '../core/Heuristic';
 import Grid from '../core/Grid';
 
-function CoopAstarFinder(opt) {
+function HCCoopAstarFinder(opt) {
   opt = opt || {};
-  this.heuristic = opt.heuristic || Heuristic.manhattan;
+  this.heuristic = opt.heuristic || Heuristic.huicang;
   this.weight = opt.weight || 1;
 
 }
 
-CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, pathTable, matrix, rowNum, colNum) {
+HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, pathTable, matrix, rowNum, colNum) {
   // grid 包含的应该是固有的障碍，ignoring other agents
 
 // path table 是3维数组，表示所有小车的路径。而且 path table 里应该是像一种 window的感觉，时间窗。已经执行过的timestep往前删除掉，剩下的保留，以及新规划的路径往里添加。
@@ -105,7 +108,8 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
 
   // set the `g` and `f` value of the start node to be 0
   startNode.g = 0;
-  startNode.h = weight * heuristic(abs(startCol - endCol), abs(startRow - endRow));
+  startNode.h = weight * heuristic(startRow, startCol, endRow, endCol);
+  // startNode.h = weight * heuristic(abs(startCol - endCol), abs(startRow - endRow));
   startNode.f = startNode.h + startNode.g;
   startNode.t = 0; // t 代表时间，个人是觉得能够 f = g + h + t，把时间也考虑进去。
 
@@ -195,8 +199,8 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
         continue
       }
 
-     // ng = node.g + 1 + node.t + 1; // new g is the sum of the moving cost and the time cost.
-       // time cost ignore ? 1代表的是1个timestep，另外的我觉得还应该加上一个1 路程的cost
+      // ng = node.g + 1 + node.t + 1; // new g is the sum of the moving cost and the time cost.
+      // time cost ignore ? 1代表的是1个timestep，另外的我觉得还应该加上一个1 路程的cost
       ng = node.g + 1 ; // wait will gain a time cost 1. no time cost
 
       if(node.row === row && node.col === col){
@@ -206,7 +210,8 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
 
       if (!neighbor.opened || ng < neighbor.g) {
         neighbor.g = ng;
-        neighbor.h = neighbor.h || weight * heuristic(abs(col - endCol), abs(row - endRow));
+        neighbor.h = neighbor.h || weight * heuristic(row, col, endRow, endCol);
+        // neighbor.h = neighbor.h || weight * heuristic(abs(col - endCol), abs(row - endRow));
         neighbor.f = neighbor.g + neighbor.h;
         neighbor.parent = node;
 
@@ -228,4 +233,4 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
   return [];
 };
 
-export default CoopAstarFinder;
+export default HCCoopAstarFinder;

@@ -14,6 +14,9 @@ const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
 const timeGap = 500;
 const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
 
+const rowNum = 30;
+const colNum = 30;
+
 class Coop extends Component {
   constructor(props) {
     super(props);
@@ -555,7 +558,7 @@ class Coop extends Component {
       // console.log(this.gridUI);
       //
       // debugger;
-      const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.gridUI);
+      const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.gridUI, rowNum, colNum);
       // const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero);
 
       this.pathTable[i] = path.slice(0, path.length - i); // 当 i = 0 的时候，就是整个 path
@@ -613,7 +616,7 @@ class Coop extends Component {
 
       const finder = new CoopAstarFinder();
       // const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
-      const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.gridUI);
+      const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.gridUI, rowNum, colNum);
 
       path.unshift(this.pathTable[optIndex][0]);
       this.pathTable[optIndex] = path;

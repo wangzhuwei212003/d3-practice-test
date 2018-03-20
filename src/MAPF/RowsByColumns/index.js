@@ -11,12 +11,13 @@ import * as d3 from 'd3';
 import {Button} from 'antd';
 import './index.css';
 
-import CoopAstarFinder from '../finders/CoopAstarFinder';
+import CoopAstarFinder from '../finders/HCCoopAstarFinder';
+// import CoopAstarFinder from '../finders/CoopAstarFinder';
 import Grid from '../core/Grid';
 
 const colorSet = ['#D7263D', '#F46036', '#C5D86D', '#1B998B', '#2E294E'];
 const colorSetPath = ['#E16171', '#F78B6C', '#D4E294', '#59B4AA', '#67637E'];
-const timeGap = 500;
+const timeGap = 2000;
 const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
 
 const rowNum = 30;
@@ -239,6 +240,7 @@ class RowsByColumn extends Component {
         .style('opacity', '0.4')
         .on("mousedown", function (d) {
           console.log('mouse down');
+          console.log('[row, col]', [(d.y - 1) / cellH, (d.x - 1) / cellW]);
 
           if (inputGoalTable[0].length < 2) {
             d3.select(this).style('fill', colorSetPath[0]);
@@ -422,12 +424,13 @@ class RowsByColumn extends Component {
     for (let i = 0; i < this.pathTable.length; i += 1) {
       // 假设，pathTable 是一个全空的数组。
       const finder = new CoopAstarFinder();
-      // console.log(this.goalTable);
+      console.log(this.goalTable);
       // console.log(this.pathTable);
+      console.log(this.matrixZero);
 
       //
-      // debugger;
-      const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero);
+      //debugger;
+      const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero, rowNum, colNum);
       // const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero);
 
       this.pathTable[i] = path.slice(0, path.length - i); // 当 i = 0 的时候，就是整个 path
@@ -483,9 +486,13 @@ class RowsByColumn extends Component {
 
       this.goalTable[optIndex][0] = startNode; // 更新 goalTable 中的起点。
 
+      console.log(this.goalTable);
+      console.log(this.matrixZero);
+      //debugger;
+
       const finder = new CoopAstarFinder();
       // const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
-      const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
+      const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero, rowNum, colNum);
 
       path.unshift(this.pathTable[optIndex][0]);
       this.pathTable[optIndex] = path;
