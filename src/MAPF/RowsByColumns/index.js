@@ -31,7 +31,7 @@ class RowsByColumn extends Component {
     this.initialized = false;
     this.nowTimeStep = 0;
 
-    this.unitsNum = 1;
+    this.unitsNum = 4;
     this.searchDeepth = 10; // 至少是 unit 总数 +1？至少为 5
     // this.searchDeepth = 5; // 至少是 unit 总数 +1？
     this.pathTable = Array(this.unitsNum).fill([]); // test 30 units
@@ -49,10 +49,10 @@ class RowsByColumn extends Component {
     // ];
     // this.goalTable = Array(this.unitsNum).fill(Array(2));
     this.goalTable = [
-      []
-      // [],
-      // [],
-      // [],
+      [],
+      [],
+      [],
+      [],
     ];
     this.matrixZero = Array(rowNum).fill(Array(colNum).fill(0)); // fast way to create dimensional array?
     // 真正事实上的 matrix 是这个 gridUI
@@ -196,6 +196,9 @@ class RowsByColumn extends Component {
   drawGridNotInteractive(gridMouseover, scales) {
     let me = this;
     let inputGoalTable = [
+      [],
+      [],
+      [],
       []
     ];
     // let inputGoalTable = Array(this.unitsNum).fill([]); // fill 和这种写法有这么大区别吗？
@@ -246,19 +249,19 @@ class RowsByColumn extends Component {
             inputGoalTable[0].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
 
           }
-          // else if (inputGoalTable[1].length < 2) {
-          //   d3.select(this).style('fill', colorSetPath[1]);
-          //   inputGoalTable[1].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
-          //
-          // } else if (inputGoalTable[2].length < 2) {
-          //   d3.select(this).style('fill', colorSetPath[2]);
-          //   inputGoalTable[2].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
-          //
-          // } else if (inputGoalTable[3].length < 2) {
-          //   d3.select(this).style('fill', colorSetPath[3]);
-          //   inputGoalTable[3].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
-          //
-          // }
+          else if (inputGoalTable[1].length < 2) {
+            d3.select(this).style('fill', colorSetPath[1]);
+            inputGoalTable[1].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
+
+          } else if (inputGoalTable[2].length < 2) {
+            d3.select(this).style('fill', colorSetPath[2]);
+            inputGoalTable[2].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
+
+          } else if (inputGoalTable[3].length < 2) {
+            d3.select(this).style('fill', colorSetPath[3]);
+            inputGoalTable[3].push([(d.y - 1) / cellH, (d.x - 1) / cellW]); // push 第一个unit起 / 终点
+
+          }
 
         });
     this.goalTable = inputGoalTable;
