@@ -245,10 +245,10 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       col = neighbor.col;
       row = neighbor.row;
 
-      if(neighbor.moveTo && neighbor.moveTo.row === node.row && neighbor.moveTo.col === node.col){
-        // 判断为相对互换位置，不合法，跳过
-        continue
-      }
+      // if(neighbor.moveTo && neighbor.moveTo.row === node.row && neighbor.moveTo.col === node.col){
+      //   // 判断为相对互换位置，不合法，跳过
+      //   continue
+      // }
 
       // ng = node.g + 1 + node.t + 1; // new g is the sum of the moving cost and the time cost.
       // time cost ignore ? 1代表的是1个timestep，另外的我觉得还应该加上一个1 路程的cost
