@@ -226,6 +226,12 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       }
     }
 
+    if(testArray.length === 0){
+      console.log('没有符合要求的neighbor，添加当前点');
+      testArray.push(nodeNextStep);
+      nodeNextStep.t = node.t + 1;
+    }
+
     for(i = 0, l = testArray.length; i < l; i +=1){
       // 探索所有的合法的点。此时 neighbors 里的点都是下一步没有占用的点
       // 还有一点是要 剔除 掉对向互换位置的点
@@ -275,7 +281,7 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
   } // end while not open list empty
   // fail to find the path
   console.log('fail to find the path');
-  return Array(searchDeepth).fill([startRow, startCol]);
+  return [];
   // return [[startRow, startCol], ];
 };
 
