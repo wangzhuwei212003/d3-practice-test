@@ -425,6 +425,15 @@ class RowsByColumn extends Component {
       this.testCoop();
     }, timeGap);
   }
+  nextStep() {
+      if (!this.initialized) {
+        this.initializePathTable();
+      }
+      const stepStart = Date.now();
+      this.replanNextTimeStep();
+      const endStep = Date.now();
+      console.log('每一步用时', endStep - stepStart);
+  }
 
   initializePathTable() {
     for (let i = 0; i < this.pathTable.length; i += 1) {
@@ -543,6 +552,7 @@ class RowsByColumn extends Component {
     return (
         <div ref={ele => this.grid = ele} className="BGRowByCol">
           <Button type="primary" onClick={() => this.testCoop()}>test</Button>
+          <Button type="primary" onClick={() => this.nextStep()}>ONE step</Button>
           <br/>
         </div>
 
