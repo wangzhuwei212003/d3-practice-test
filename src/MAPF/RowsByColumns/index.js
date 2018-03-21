@@ -503,14 +503,10 @@ class RowsByColumn extends Component {
         this.reachGoal.push(optIndex);
       }
 
-      path.unshift(this.pathTable[optIndex][0]); // 现在这个path 应该就是 search deepth + 一个点。长度是 search deepth + 1
+      path.unshift(this.pathTable[optIndex][0]); // unshift 添加了一个点。现在这个path 应该就是 search deepth + 一个点。长度是 search deepth + 1
       this.pathTable[optIndex] = path;
 
-      // UI 这一步还是画path table路径，以及显示 timestep 为0 的点。
-      // 这个时候是没有改变 timestep 为 0 的位置的
-      //
       // 画点，画路径.
-
       this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
       this.drawPath(this.scales, this.pathTable);
 
