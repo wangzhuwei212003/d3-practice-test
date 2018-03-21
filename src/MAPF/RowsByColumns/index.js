@@ -418,7 +418,7 @@ class RowsByColumn extends Component {
       const stepStart = Date.now();
       this.replanNextTimeStep();
       const endStep = Date.now();
-      console.log('每一步用时', endStep - stepStart);
+      //console.log('每一步用时', endStep - stepStart);
       // console.log('next step');
       //console.log(this.pathTable);
       //debugger;
@@ -427,12 +427,17 @@ class RowsByColumn extends Component {
   }
   nextStep() {
       if (!this.initialized) {
+        const stepStart = Date.now();
         this.initializePathTable();
+        const endStep = Date.now();
+        console.log('初始化 4 个 unit 用时：', endStep - stepStart);
       }
-      const stepStart = Date.now();
+      console.log(this.pathTable);
+      //const stepStart = Date.now();
       this.replanNextTimeStep();
-      const endStep = Date.now();
-      console.log('每一步用时', endStep - stepStart);
+      //const endStep = Date.now();
+      //console.log('每一步用时', endStep - stepStart);
+    console.log(this.pathTable);
   }
 
   initializePathTable() {

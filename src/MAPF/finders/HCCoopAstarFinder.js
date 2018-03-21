@@ -60,18 +60,26 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       pathNode = pathTable[i][j]; // [row, col]
       // j时刻的grid
 
-      // // 考虑 footprint，先考虑1行3列。
-      // for(){
-      //
-      // }
+      // 考虑 footprint，先考虑1行3列。
+
+      for(let occupyCol = 0; occupyCol<3; occupyCol+=1){
+        reservedNode = reservationTable[j].getNodeAt(pathNode[0], pathNode[1]-1+occupyCol); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
+        // reservedNode.walkable = false; 注意这里已经删除了 walkable,这里仅仅会影响到 getNeighbors 方法。
+        reservedNode.unitWalkable = false; // 把横向的三个点都设为 unitWalkable 为 false
+        reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
+          row: pathNode[0],
+          col: pathNode[1]-1+occupyCol
+        } : {row: pathTable[i][j + 1][0], col: pathTable[i][j + 1][1]-1+occupyCol} // 存上下一时刻的动作。
+      }
 
 
-      reservedNode = reservationTable[j].getNodeAt(pathNode[0], pathNode[1]); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
-      reservedNode.walkable = false;
-      reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
-        row: pathNode[0],
-        col: pathNode[1]
-      } : {row: pathTable[i][j + 1][0], col: pathTable[i][j + 1][1]} // 存上下一时刻的动作。
+      // reservedNode = reservationTable[j].getNodeAt(pathNode[0], pathNode[1]); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
+      // reservedNode.walkable = false;
+      // reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
+      //   row: pathNode[0],
+      //   col: pathNode[1]
+      // } : {row: pathTable[i][j + 1][0], col: pathTable[i][j + 1][1]} // 存上下一时刻的动作。
+
       //console.log(reservedNode);
     }
   } // end for loop。
@@ -120,7 +128,7 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
 
     if(node.t >= searchDeepth -1){
       //console.log(`寻路暂停，beyond the deepth，${searchDeepth}`);
-      //console.log('规划出来的路径：', Util.backtraceNode(node));
+      console.log('规划出来的路径：', Util.backtraceNode(node));
       return Util.backtrace(node);
     }
 
@@ -165,6 +173,9 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       */
       if(node.col === endCol){
         neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWN');
+        // console.log(nodeNextStep);
+        // console.log(neighbors);
+        // debugger;
       }else{
         neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'RIGHT');
       }
@@ -187,8 +198,8 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       row = test.row;
 
       if(test.moveTo){
-        console.log(test.moveTo);
-        debugger; //这里永远不会触发。。
+        //console.log(test.moveTo);
+        //debugger; //这里永远不会触发。。如果是有 footprint 是会有moveTo的
       }
 
       let nodeBeforeTest = reservationTable[node.t].getNodeAt(test.row, test.col); // 得到正确的 timestep 的点。
@@ -202,15 +213,14 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
 
     // 然后 探索下一个 grid 里的这些选出来的点。
     // 这里所有的点都是根据上面 pop 出来的点得出的一系列的相关的点。
-    if(nodeNextStep.walkable && testArray.length === 0){
+    if(nodeNextStep.walkable && nodeNextStep.unitWalkable && testArray.length === 0){
     // if(nodeNextStep.walkable ){
-      testArray.push(nodeNextStep); // 如果待在原地是合法的话。来一剂猛药，且没有其他可走的点了.... HC 中，要你能够待在原地。
-      //neighbors.unshift(nodeNextStep); // 如果待在原地是合法的话。unshift 会不会有改变
+      testArray.push(nodeNextStep); // 如果待在原地是合法的，且没有其他可走的点了.... HC 中，要你能够待在原地。
       nodeNextStep.t = node.t + 1;
-    }else if(nodeNextStep.walkable && endRow === node.row && endCol === node.col ){
-      testArray.push(nodeNextStep); // 如果待在原地是合法的 且已到达终点
+    }else if(nodeNextStep.walkable && nodeNextStep.unitWalkable && endRow === node.row && endCol === node.col ){
+      testArray.push(nodeNextStep); // 如果已到达终点
       nodeNextStep.t = node.t + 1;
-    }else if(nodeNextStep.walkable && testArray.length === 1 &&
+    }else if(nodeNextStep.walkable && nodeNextStep.unitWalkable && testArray.length === 1 &&
         node.row >= topTurnRow && node.row <= btmTurnRow &&
         node.col >= topTurnCol && node.col <= topEndTurnCol
     ){
@@ -233,6 +243,8 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       }
     }
 
+    // 下面这句是罪恶之源，上面那么多行就是为了确保不随便加原地点。
+    // 如果经过上面的判断都没加上，那就是不应该加。除非上面的判断考虑的不够。
     if(testArray.length === 0){
       console.log('没有符合要求的neighbor，添加当前点');
       testArray.push(nodeNextStep);

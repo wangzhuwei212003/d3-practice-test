@@ -105,6 +105,11 @@ Grid.prototype.isWalkableAt = function(row, col) {
   return this.isInside(row, col) && this.nodes[row][col].walkable;
 };
 
+Grid.prototype.isUnitWalkableAt = function(row, col) {
+  //console.log(this.nodes[row][col].unitWalkable);
+  return this.isInside(row, col) && this.nodes[row][col].unitWalkable;
+};
+
 
 /**
  * Determine whether the position is inside the grid.
@@ -215,16 +220,35 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
       neighbors = [],
       nodes = this.nodes;
 
+  let twoWalkable = true;
+  let falseExit = true;
+
   // 大多数位置只允许一个运动方向
   if(allowDirection === 'UP'){
     // ↑
     if (this.isWalkableAt(row-1, col)) {
+      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -1, col-1+occupyCol);
+        if(twoWalkable === false){
+          return []; // 只要有一个阻挡，就不能移动，返回 【】
+        }
+      }
+      // 如果执行完了，没有 return，就没有阻挡，return 一个可走的地方
       neighbors.push(nodes[row - 1][col]);
     }
   }else if(allowDirection === 'DOWN'){
     // ↓
     if (this.isWalkableAt(row +1, col)) {
+      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row +1, col-1+occupyCol);
+        //console.log(twoWalkable);
+        if(twoWalkable === false){
+          //console.log('向下有阻挡');
+          return []; // 只要有一个阻挡，就不能移动，返回 【】
+        }
+      }
       neighbors.push(nodes[row +1][col]);
+      //console.log(neighbors);
     }
   }else if(allowDirection === 'LEFT'){
     // ←
@@ -239,29 +263,63 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
   }else if(allowDirection === 'UPDOWN'){
     // ↑
     if (this.isWalkableAt(row-1, col)) {
-      neighbors.push(nodes[row - 1][col]);
+
+      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -1, col-1+occupyCol);
+        if(twoWalkable === false){
+          falseExit = true;
+          break
+        }
+      }
+
+      if(falseExit){
+        // 如果是因为错误跳出循环 do nothing
+      }else{
+        neighbors.push(nodes[row - 1][col]);
+      }
     }
     // ↓
     if (this.isWalkableAt(row +1, col)) {
+
+      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row +1, col-1+occupyCol);
+        //console.log(twoWalkable);
+        if(twoWalkable === false){
+          //console.log('向下有阻挡');
+          return neighbors; //
+        }
+      }
       neighbors.push(nodes[row +1][col]);
     }
   }else if(allowDirection === 'UPRIGHT'){
+    // →
+    if (this.isWalkableAt(row, col +1)) {
+      neighbors.push(nodes[row][col + 1]);
+    }
     // ↑
     if (this.isWalkableAt(row-1, col)) {
+      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -1, col-1+occupyCol);
+        if(twoWalkable === false){
+          return []; // 只要有一个阻挡，就不能移动，返回 【】
+        }
+      }
       neighbors.push(nodes[row - 1][col]);
     }
+  }else if(allowDirection === 'DOWNRIGHT'){
     // →
     if (this.isWalkableAt(row, col +1)) {
       neighbors.push(nodes[row][col + 1]);
     }
-  }else if(allowDirection === 'DOWNRIGHT'){
     // ↓
     if (this.isWalkableAt(row +1, col)) {
+      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row +1, col-1+occupyCol);
+        if(twoWalkable === false){
+          return []; // 只要有一个阻挡，就不能移动，返回 【】
+        }
+      }
       neighbors.push(nodes[row +1][col]);
-    }
-    // →
-    if (this.isWalkableAt(row, col +1)) {
-      neighbors.push(nodes[row][col + 1]);
     }
   }
 
