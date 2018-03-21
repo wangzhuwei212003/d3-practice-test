@@ -59,6 +59,13 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       // 精确到每一条路径中的每一个点了。 j 是一条路径中的 timestep。
       pathNode = pathTable[i][j]; // [row, col]
       // j时刻的grid
+
+      // // 考虑 footprint，先考虑1行3列。
+      // for(){
+      //
+      // }
+
+
       reservedNode = reservationTable[j].getNodeAt(pathNode[0], pathNode[1]); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
       reservedNode.walkable = false;
       reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
@@ -249,7 +256,7 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       if(node.row === row && node.col === col){
         ng = node.g ; // 停留在原地没有新增 cost
       }
-      
+
       if (!neighbor.opened || ng < neighbor.g) {
         neighbor.g = ng;
         neighbor.h = neighbor.h || weight * heuristic(row, col, endRow, endCol);

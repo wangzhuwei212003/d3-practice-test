@@ -82,6 +82,7 @@ Grid.prototype._buildNodes = function(width, height, matrix) {
         // while others will be un-walkable， 1 或者 true 代表有障碍
         nodes[i][j].walkable = false;
       }
+      nodes[i][j].unitWalkable = true;
     }
   }
 
