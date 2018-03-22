@@ -245,11 +245,11 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
 
     // 下面这句是罪恶之源，上面那么多行就是为了确保不随便加原地点。
     // 如果经过上面的判断都没加上，那就是不应该加。除非上面的判断考虑的不够。
-    if(testArray.length === 0){
-      console.log('没有符合要求的neighbor，添加当前点');
-      testArray.push(nodeNextStep);
-      nodeNextStep.t = node.t + 1;
-    }
+    // if(testArray.length === 0){
+    //   console.log('没有符合要求的neighbor，添加当前点');
+    //   testArray.push(nodeNextStep);
+    //   nodeNextStep.t = node.t + 1;
+    // }
 
     for(i = 0, l = testArray.length; i < l; i +=1){
       // 探索所有的合法的点。此时 neighbors 里的点都是下一步没有占用的点

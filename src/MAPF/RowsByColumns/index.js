@@ -10,14 +10,15 @@ import React, {Component} from 'react';
 import * as d3 from 'd3';
 import {Button} from 'antd';
 import './index.css';
+import Heap from 'heap';
 
 import CoopAstarFinder from '../finders/HCCoopAstarFinder';
 // import CoopAstarFinder from '../finders/CoopAstarFinder';
-import Grid from '../core/Grid';
+import HCPriority from './util';
 
 const colorSet = ['#D7263D', '#F46036', '#C5D86D', '#1B998B', '#2E294E'];
 const colorSetPath = ['#E16171', '#F78B6C', '#D4E294', '#59B4AA', '#67637E'];
-const timeGap = 50;
+const timeGap = 1000;
 
 const rowNum = 30;
 const colNum = 23;
@@ -32,7 +33,7 @@ class RowsByColumn extends Component {
     this.nowTimeStep = 0;
 
     this.unitsNum = 4;
-    this.searchDeepth = 15; // 至少是 unit 总数 +1？至少为 5
+    this.searchDeepth = 10; // 至少是 unit 总数 +1？至少为 5
     // this.searchDeepth = 5; // 至少是 unit 总数 +1？
     this.pathTable = Array(this.unitsNum).fill([]); // test 30 units
     // this.pathTable = [
@@ -56,8 +57,6 @@ class RowsByColumn extends Component {
     ];
     this.matrixZero = Array(rowNum).fill(Array(colNum).fill(0)); // fast way to create dimensional array?
     // 真正事实上的 matrix 是这个 gridUI
-
-    this.reachGoal = [];
 
   }
 
@@ -307,43 +306,6 @@ class RowsByColumn extends Component {
             return colorSetPath[index]
           });
 
-      // let circleData = this.groups.position.append('g').selectAll('circle').data(pathTable[index]);
-      // let circles = circleData.enter().append('circle');
-      // let circleAttributes = circles
-      //     .attr("cx", function (d) {
-      //       return scales.x(d[1] + 0.5);
-      //     })
-      //     .attr("cy", function (d) {
-      //       return scales.y(d[0] + 0.5);
-      //     })
-      //     .attr("r", function (d) {
-      //       return 10;
-      //     })
-      //     .attr("class", "position")
-      //     .style("fill", function (d) {
-      //       return colorSet[index]
-      //     });
-
-      // let circleData = this.groups.position.append('g').selectAll('rect').data(pathTable[index]);
-      // let circles = circleData.enter().append('rect');
-      // let circleAttributes = circles
-      //     .attr("x", function (d) {
-      //       return scales.x(d[1]);
-      //     })
-      //     .attr("y", function (d) {
-      //       return scales.y(d[0]);
-      //     })
-      //     .attr("width", function (d) {
-      //       return 25;
-      //     })
-      //     .attr("height", function (d) {
-      //       return 25;
-      //     })
-      //     .attr("class", "position")
-      //     .style("fill", function (d) {
-      //       return colorSet[index]
-      //     });
-
       let textData = this.groups.position.append('g').selectAll("text").data(pathTable[index]);
       let texts = textData.enter().append("text");
       let textAttributes = texts
@@ -416,48 +378,75 @@ class RowsByColumn extends Component {
         this.initializePathTable();
       }
       const stepStart = Date.now();
-      this.replanNextTimeStep();
+      // this.replanNextTimeStep();
+      this.initialNextTimeStep();
       const endStep = Date.now();
-      //console.log('每一步用时', endStep - stepStart);
+      console.log('每一步计算用时', endStep - stepStart);
       // console.log('next step');
       //console.log(this.pathTable);
       //debugger;
       this.testCoop();
     }, timeGap);
   }
+
   nextStep() {
-      if (!this.initialized) {
-        const stepStart = Date.now();
-        this.initializePathTable();
-        const endStep = Date.now();
-        console.log('初始化 4 个 unit 用时：', endStep - stepStart);
-      }
-      console.log(this.pathTable);
-      //const stepStart = Date.now();
-      this.replanNextTimeStep();
-      //const endStep = Date.now();
-      //console.log('每一步用时', endStep - stepStart);
+    if (!this.initialized) {
+      const stepStart = Date.now();
+      this.initializePathTable();
+      const endStep = Date.now();
+      console.log('初始化 4 个 unit 用时：', endStep - stepStart);
+    }
     console.log(this.pathTable);
+    const stepStart = Date.now();
+    this.initialNextTimeStep();
+    // this.replanNextTimeStep();
+    const endStep = Date.now();
+    console.log('每一步用时', endStep - stepStart);
+    //console.log(this.pathTable);
   }
 
   initializePathTable() {
-    for (let i = 0; i < this.pathTable.length; i += 1) {
+    // 会用到 this.goaltable , 更改 this.pathTable
+    let _goalTable = JSON.parse(JSON.stringify(this.goalTable)); // deep copy this.goalTable
+    let startRow, startCol; // 这个是为了寻找当前点的 priority，是 this.goalTable 里的第一个元素
+    const _unitsNum = this.unitsNum;
+    const _searchDeepth = this.searchDeepth;
+    let _pathTable = Array(_unitsNum).fill([]); // 重置 this.pathtable
+
+    const priorityHeap = new Heap(function (nodeA, nodeB) {
+      return -(nodeA.p - nodeB.p); // priority 大的先pop出来
+    });
+    for (let i = 0; i < _goalTable.length; i += 1) {
+      startRow = _goalTable[i][0][0]; // 起点的行数
+      startCol = _goalTable[i][0][1]; // 起点的列数
+      priorityHeap.push({
+        index: i,
+        p: HCPriority.HCPriority(startRow, startCol)
+      });
+    }
+    // while (!priorityHeap.empty()){
+    //  console.log(priorityHeap.pop());
+    //  //PriorityIndex.push(priorityHeap.pop()); // priority小的在前面。
+    // }
+    // const endStep = Date.now();
+    // console.log('排序用时：', endStep - stepStart);
+
+    //debugger;
+
+
+    for (let i = 0; i < _unitsNum; i += 1) {
       // this.goalTable 不是空的
       // 假设，pathTable 是一个全空的数组。
+      let obj = priorityHeap.pop();
+      let optIndex = obj['index'];
+      console.log(optIndex);
       const finder = new CoopAstarFinder();
-      const path = finder.findPath(i, this.goalTable, this.searchDeepth + 1, this.pathTable, this.matrixZero, rowNum, colNum);
-      if(
-          path[path.length-1][0] === this.goalTable[i][1][0] &&
-          path[path.length-1][1] === this.goalTable[i][1][1]
-      ){
-        // 即是当前搜索出的路径中已经包含了终点。记录下这个 index
-        this.reachGoal.push(i);
-      }
-      this.pathTable[i] = path.slice(0, path.length - i); // 当 i = 0 的时候，就是整个 path
+      const path = finder.findPath(optIndex, _goalTable, _searchDeepth + 1, _pathTable, this.matrixZero, rowNum, colNum);
+
+      _pathTable[optIndex] = path.slice(0, path.length - optIndex); // 当 i = 0 的时候，就是整个 path
     } // end for loop 所以 searchDeepth 必须要比 unit 的个数多。
     this.initialized = true;
-    // console.log(this.pathTable); // 这个应该是 search deepth + 1 的长度
-    // debugger;
+    this.pathTable = _pathTable;
   }
 
   replanNextTimeStep() {
@@ -509,20 +498,24 @@ class RowsByColumn extends Component {
 
       const finder = new CoopAstarFinder();
       const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero, rowNum, colNum);
-      if(
-          path[path.length-1][0] === this.goalTable[optIndex][1][0] &&
-          path[path.length-1][1] === this.goalTable[optIndex][1][1]
-      ){
-        // 即是当前搜索出的路径中已经包含了终点。记录下这个 index
-        this.reachGoal.push(optIndex);
+      console.log(path);
+      console.log(path === []); // false ?
+      if (path.length === 0) {
+        this.goalTable[optIndex][0] = this.pathTable[optIndex][0];
+        this.initializePathTable();
+        console.log('重新规划');
+        debugger;
+        // 画点，画路径.
+        this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+        this.drawPath(this.scales, this.pathTable);
+      } else {
+        path.unshift(this.pathTable[optIndex][0]); // unshift 添加了一个点。现在这个path 应该就是 search deepth + 一个点。长度是 search deepth + 1
+        this.pathTable[optIndex] = path;
+
+        // 画点，画路径.
+        this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+        this.drawPath(this.scales, this.pathTable);
       }
-
-      path.unshift(this.pathTable[optIndex][0]); // unshift 添加了一个点。现在这个path 应该就是 search deepth + 一个点。长度是 search deepth + 1
-      this.pathTable[optIndex] = path;
-
-      // 画点，画路径.
-      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
-      this.drawPath(this.scales, this.pathTable);
 
       this.nowTimeStep += 1;
       // timestep 增加为 1 的时候，unit 已经到上面 path 的起点了。此时 path 已经算好。
@@ -536,10 +529,10 @@ class RowsByColumn extends Component {
 
         let path = this.pathTable[i];
         let goal = this.goalTable[i][1];
-        if(
-            path[path.length-1][0] === goal[0] &&
-            path[path.length-1][1] === goal[1]
-        ){
+        if (
+            path[path.length - 1][0] === goal[0] &&
+            path[path.length - 1][1] === goal[1]
+        ) {
           this.pathTable[i].push(goal);
         }
       }
@@ -551,6 +544,75 @@ class RowsByColumn extends Component {
       this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
     }
 
+  }
+  initialNextTimeStep() {
+    if (this.nowTimeStep === 0) {
+      /*
+      * 1. 第一次重新规划后，goalTable、pathtable 都有了，且他们的第一个点相同
+      *   画前端，
+      *
+      * timestep 为 0 。
+      *   计算（开始规划下一步，更改 goalTable 里的起点，更改为 pathtable 的第二个点。）、更新pathtable
+      *
+      * timestep 为 1 ，
+      *   画前端
+      *   设置 timestep 为 0。
+      * ----
+      *
+      * t = 0
+      *   画
+      *   算
+      *   t += 1
+      *
+      * timeGap
+      *
+      * t = 1
+      *   画
+      *   算
+      *   t = 0
+      *
+      * timeGap
+      *
+      * t = 0
+      *   画
+       *  算
+       *  t += 1
+       *
+      * */
+
+      // 画点，画路径.
+      this.drawNextStepMovingSpot(0, this.scales, this.pathTable, timeGap);
+      // this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+      this.drawPath(this.scales, this.pathTable);
+
+
+      //更新 goaltable 的起点
+      for(let i = 0; i < this.goalTable.length; i+=1){
+        this.goalTable[i][0] = this.pathTable[i][1];
+      }
+      // 算路径，按照优先级
+      this.initializePathTable();
+
+      // 增加 timestep
+      this.nowTimeStep += 1;
+
+    } else if (this.nowTimeStep === 1) {
+
+      // 画点，画路径.
+      this.drawNextStepMovingSpot(0, this.scales, this.pathTable, timeGap);
+      // this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+      this.drawPath(this.scales, this.pathTable);
+
+      //更新 goaltable 的起点
+      for(let i = 0; i < this.goalTable.length; i+=1){
+        this.goalTable[i][0] = this.pathTable[i][1];
+      }
+      // 算路径，按照优先级
+      this.initializePathTable(); // 这里似乎是不应该再算一遍了，这个看起来是有两步一起走的情况。注释掉是来回反复走。
+
+      // 增加 timestep
+      this.nowTimeStep =0;
+    }
   }
 
   render() {
