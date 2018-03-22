@@ -228,7 +228,7 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
     // ↑
     if (this.isWalkableAt(row-1, col)) {
       for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -1, col-1+occupyCol);
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -4, col-1+occupyCol);
         if(twoWalkable === false){
           return []; // 只要有一个阻挡，就不能移动，返回 【】
         }
@@ -283,7 +283,7 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
     if (this.isWalkableAt(row-1, col)) {
 
       for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -1, col-1+occupyCol);
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -4, col-1+occupyCol);
         if(twoWalkable === false){
           falseExit = true;
           break
@@ -330,7 +330,7 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
     // ↑
     if (this.isWalkableAt(row-1, col)) {
       for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -1, col-1+occupyCol);
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -4, col-1+occupyCol);
         if(twoWalkable === false){
           return neighbors; // 只要有一个阻挡，就不能移动，返回 【】
         }
