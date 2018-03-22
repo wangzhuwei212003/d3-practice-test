@@ -317,7 +317,7 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
         console.log(twoWalkable);
         if(twoWalkable === false){
           falseExit = true;
-          debugger;
+          //debugger;
           break
         }
       }
