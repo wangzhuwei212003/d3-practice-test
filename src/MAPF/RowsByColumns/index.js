@@ -18,7 +18,7 @@ import HCPriority from './util';
 
 const colorSet = ['#D7263D', '#F46036', '#C5D86D', '#1B998B', '#2E294E'];
 const colorSetPath = ['#E16171', '#F78B6C', '#D4E294', '#59B4AA', '#67637E'];
-const timeGap = 1000;
+const timeGap = 500;
 
 const rowNum = 30;
 const colNum = 23;

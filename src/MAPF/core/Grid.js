@@ -221,7 +221,7 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
       nodes = this.nodes;
 
   let twoWalkable = true;
-  let falseExit = true;
+  let falseExit = false;
 
   // 大多数位置只允许一个运动方向
   if(allowDirection === 'UP'){
@@ -314,9 +314,10 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
     if (this.isWalkableAt(row, col +1)) {
       for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
         twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
-        //console.log(twoWalkable);
+        console.log(twoWalkable);
         if(twoWalkable === false){
           falseExit = true;
+          debugger;
           break
         }
       }

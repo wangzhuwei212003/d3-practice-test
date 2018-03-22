@@ -164,8 +164,6 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
     ){
       // 上升列，能够往右上，不能下
       neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPRIGHT');
-      // console.log(neighbors);
-      // debugger;
     }else if (
         node.row === topTurnRow - 1 &&
         node.col >= 3 && node.col < ShelfCol - 4
