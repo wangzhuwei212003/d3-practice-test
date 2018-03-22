@@ -233,7 +233,7 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       // 判断 nei方向和终点的方向，如果是方向相同，那就运动，但是如果是方向相反，那么就老实待在原点。
       if(
           (nei.row - node.row <=0 && endRow - node.row <= 0) ||
-          (nei.row - node.row > 0 && endRow - node.row <= 0)
+          (nei.row - node.row > 0 && endRow - node.row > 0)
       ){
         // 方向相同，do nothing，no need to push the nodeNextStep
       }else{

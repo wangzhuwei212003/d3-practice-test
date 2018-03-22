@@ -87,6 +87,7 @@ class RowsByColumn extends Component {
     // });
 
     this.movingSpot = this.gridMouseover.append('g');
+    this.movingSpotOuter = this.gridMouseover.append('g');
 
     // 画完地图之后，开始画 pathTable 里面的路径
     // 以及 根据timestep和pathtable来画出当前的运动的spot。
@@ -370,6 +371,33 @@ class RowsByColumn extends Component {
         })
         .duration(duration);
 
+    this.movingSpotOuter.selectAll('rect').data(pathTable)
+        .enter().append('rect')
+        .attr('x', function (d) {
+          return scales.x(d[nowTimeStep][1]  -1);
+        })
+        .attr('y', function (d) {
+          return scales.y(d[nowTimeStep][0] - 4);
+        })
+        .attr('width', function (d) {
+          return cellW *3;
+        })
+        .attr('height', function (d) {
+          return cellH *4;
+        })
+        .style('fill', 'none')
+        .style('stroke-width', '2px')
+        .style('stroke', 'red');
+
+    this.movingSpotOuter.selectAll('rect').data(pathTable)
+        .transition()
+        .attr("x", function (d) {
+          return scales.x(d[nowTimeStep][1] - 1);
+        })
+        .attr("y", function (d) {
+          return scales.y(d[nowTimeStep][0] - 3);
+        })
+        .duration(duration);
   }
 
   testCoop() {
