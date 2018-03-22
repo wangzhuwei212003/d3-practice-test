@@ -63,13 +63,15 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
       // 考虑 footprint，先考虑1行3列。
 
       for(let occupyCol = 0; occupyCol<3; occupyCol+=1){
-        reservedNode = reservationTable[j].getNodeAt(pathNode[0], pathNode[1]-1+occupyCol); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
-        // reservedNode.walkable = false; 注意这里已经删除了 walkable,这里仅仅会影响到 getNeighbors 方法。
-        reservedNode.unitWalkable = false; // 把横向的三个点都设为 unitWalkable 为 false
-        reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
-          row: pathNode[0],
-          col: pathNode[1]-1+occupyCol
-        } : {row: pathTable[i][j + 1][0], col: pathTable[i][j + 1][1]-1+occupyCol} // 存上下一时刻的动作。
+        for(let occupyRow = 0; occupyRow < 4; occupyRow+=1){
+          reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1]-1+occupyCol); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
+          // reservedNode.walkable = false; 注意这里已经删除了 walkable,这里仅仅会影响到 getNeighbors 方法。
+          reservedNode.unitWalkable = false; // 把横向的三个点都设为 unitWalkable 为 false
+          reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
+            row: pathNode[0]- occupyRow,
+            col: pathNode[1]-1+occupyCol
+          } : {row: pathTable[i][j + 1][0]- occupyRow, col: pathTable[i][j + 1][1]-1+occupyCol} // 存上下一时刻的动作。
+        }
       }
 
 
@@ -162,6 +164,8 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
     ){
       // 上升列，能够往右上，不能下
       neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPRIGHT');
+      // console.log(neighbors);
+      // debugger;
     }else if (
         node.row === topTurnRow - 1 &&
         node.col >= 3 && node.col < ShelfCol - 4
@@ -291,6 +295,7 @@ HCCoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth,
   } // end while not open list empty
   // fail to find the path
   console.log('fail to find the path');
+  debugger;
   return [];
   // return [[startRow, startCol], ];
 };

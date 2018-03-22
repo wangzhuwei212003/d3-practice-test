@@ -253,11 +253,29 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
   }else if(allowDirection === 'LEFT'){
     // ←
     if (this.isWalkableAt(row, col-1)) {
+
+      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col - 1 -1);
+        //console.log(twoWalkable);
+        if(twoWalkable === false){
+          //console.log('向zuo有阻挡');
+          //debugger;
+          return neighbors; //
+        }
+      }
       neighbors.push(nodes[row][col - 1]);
     }
   }else if(allowDirection === 'RIGHT'){
     // →
     if (this.isWalkableAt(row, col +1)) {
+      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
+        //console.log(twoWalkable);
+        if(twoWalkable === false){
+          //console.log('向下有阻挡');
+          return neighbors; //
+        }
+      }
       neighbors.push(nodes[row][col + 1]);
     }
   }else if(allowDirection === 'UPDOWN'){
@@ -294,14 +312,26 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
   }else if(allowDirection === 'UPRIGHT'){
     // →
     if (this.isWalkableAt(row, col +1)) {
-      neighbors.push(nodes[row][col + 1]);
+      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
+        //console.log(twoWalkable);
+        if(twoWalkable === false){
+          falseExit = true;
+          break
+        }
+      }
+      if(falseExit){
+        // 如果是因为错误跳出循环 do nothing
+      }else{
+        neighbors.push(nodes[row][col + 1]);
+      }
     }
     // ↑
     if (this.isWalkableAt(row-1, col)) {
       for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
         twoWalkable = twoWalkable && this.isUnitWalkableAt(row -1, col-1+occupyCol);
         if(twoWalkable === false){
-          return []; // 只要有一个阻挡，就不能移动，返回 【】
+          return neighbors; // 只要有一个阻挡，就不能移动，返回 【】
         }
       }
       neighbors.push(nodes[row - 1][col]);
@@ -309,14 +339,26 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
   }else if(allowDirection === 'DOWNRIGHT'){
     // →
     if (this.isWalkableAt(row, col +1)) {
-      neighbors.push(nodes[row][col + 1]);
+      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
+        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
+        //console.log(twoWalkable);
+        if(twoWalkable === false){
+          falseExit = true;
+          break
+        }
+      }
+      if(falseExit){
+        // 如果是因为错误跳出循环 do nothing
+      }else{
+        neighbors.push(nodes[row][col + 1]);
+      }
     }
     // ↓
     if (this.isWalkableAt(row +1, col)) {
       for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
         twoWalkable = twoWalkable && this.isUnitWalkableAt(row +1, col-1+occupyCol);
         if(twoWalkable === false){
-          return []; // 只要有一个阻挡，就不能移动，返回 【】
+          return neighbors; // 只要有一个阻挡，就不能移动，返回 【】
         }
       }
       neighbors.push(nodes[row +1][col]);
