@@ -40,7 +40,7 @@ function Grid(width_or_matrix, height, matrix) {
  *     the walkable status of the nodes.
  * @see Grid
  */
-Grid.prototype._buildNodes = function(width, height, matrix) {
+Grid.prototype._buildNodes = function (width, height, matrix) {
   let i, j,
       nodes = new Array(height);
 
@@ -59,8 +59,8 @@ Grid.prototype._buildNodes = function(width, height, matrix) {
     throw new Error('Matrix size does not fit');
   }
 
-  for (i = 0; i < height; i+=1) {
-    for (j = 0; j < width; j+=1) {
+  for (i = 0; i < height; i += 1) {
+    for (j = 0; j < width; j += 1) {
       if (matrix[i][j]) {
         // 0, false, null will be walkable
         // while others will be un-walkable， 1 或者 true 代表有障碍
@@ -73,24 +73,24 @@ Grid.prototype._buildNodes = function(width, height, matrix) {
   return nodes;
 };
 
-Grid.prototype.getNodeAt = function(row, col) {
+Grid.prototype.getNodeAt = function (row, col) {
   return this.nodes[row][col];
 };
 
-Grid.prototype.isWalkableAt = function(row, col) {
+Grid.prototype.isWalkableAt = function (row, col) {
   return this.isInside(row, col) && this.nodes[row][col].walkable;
 };
 
-Grid.prototype.isUnitWalkableAt = function(row, col) {
+Grid.prototype.isUnitWalkableAt = function (row, col) {
   //console.log(this.nodes[row][col].unitWalkable);
   return this.isInside(row, col) && this.nodes[row][col].unitWalkable;
 };
 
-Grid.prototype.isInside = function(row, col) {
+Grid.prototype.isInside = function (row, col) {
   return (col >= 0 && col < this.width) && (row >= 0 && row < this.height);
 };
 
-Grid.prototype.setWalkableAt = function(row, col, walkable) {
+Grid.prototype.setWalkableAt = function (row, col, walkable) {
   this.nodes[row][col].walkable = walkable;
 };
 
@@ -104,152 +104,185 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
   let falseExit = false;
 
   // 大多数位置只允许一个运动方向
-  if(allowDirection === 'UP'){
+  if (allowDirection === 'UP') {
     // ↑
-    if (this.isWalkableAt(row-1, col)) {
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -4, col-1+occupyCol);
-        if(twoWalkable === false){
-          return []; // 只要有一个阻挡，就不能移动，返回 【】
+    if (this.isWalkableAt(row - 1, col)) {
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          // 占位是4行
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - 1 - occupyRow, col - 1 + occupyCol);
+          if (twoWalkable === false) {
+            return []; // 只要有一个阻挡，就不能移动，返回 []
+          }
         }
+
       }
       // 如果执行完了，没有 return，就没有阻挡，return 一个可走的地方
       neighbors.push(nodes[row - 1][col]);
     }
-  }else if(allowDirection === 'DOWN'){
+  } else if (allowDirection === 'DOWN') {
     // ↓
-    if (this.isWalkableAt(row +1, col)) {
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row +1, col-1+occupyCol);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          //console.log('向下有阻挡');
-          return []; // 只要有一个阻挡，就不能移动，返回 【】
+    if (this.isWalkableAt(row + 1, col)) {
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row + 1 - occupyRow, col - 1 + occupyCol);
+          //console.log(twoWalkable);
+          if (twoWalkable === false) {
+            //console.log('向下有阻挡');
+            return []; // 只要有一个阻挡，就不能移动，返回 【】
+          }
         }
       }
-      neighbors.push(nodes[row +1][col]);
+      neighbors.push(nodes[row + 1][col]);
       //console.log(neighbors);
     }
-  }else if(allowDirection === 'LEFT'){
+  } else if (allowDirection === 'LEFT') {
     // ←
-    if (this.isWalkableAt(row, col-1)) {
+    if (this.isWalkableAt(row, col - 1)) {
 
-      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col - 1 -1);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          //console.log('向zuo有阻挡');
-          //debugger;
-          return neighbors; //
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col - 1 - 1 + occupyCol);
+          //console.log(twoWalkable);
+          if (twoWalkable === false) {
+            return []; // 只要有一个阻挡，就不能移动，返回 【】
+          }
         }
       }
+
       neighbors.push(nodes[row][col - 1]);
     }
-  }else if(allowDirection === 'RIGHT'){
+  } else if (allowDirection === 'RIGHT') {
     // →
-    if (this.isWalkableAt(row, col +1)) {
-      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          //console.log('向下有阻挡');
-          return neighbors; //
+    if (this.isWalkableAt(row, col + 1)) {
+
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col - 1 + 1 + occupyCol);
+          //console.log(twoWalkable);
+          if (twoWalkable === false) {
+            return []; // 只要有一个阻挡，就不能移动，返回 【】
+          }
         }
       }
+
       neighbors.push(nodes[row][col + 1]);
     }
-  }else if(allowDirection === 'UPDOWN'){
+  } else if (allowDirection === 'UPDOWN') {
     // ↑
-    if (this.isWalkableAt(row-1, col)) {
-
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -4, col-1+occupyCol);
-        if(twoWalkable === false){
-          falseExit = true;
+    if (this.isWalkableAt(row - 1, col)) {
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          // 占位是4行
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - 1 - occupyRow, col - 1 + occupyCol);
+          if (twoWalkable === false) {
+            falseExit = true;
+            break
+          }
+        }
+        if(falseExit){
           break
         }
       }
 
-      if(falseExit){
+      if (falseExit) {
         // 如果是因为错误跳出循环 do nothing
-      }else{
+      } else {
         neighbors.push(nodes[row - 1][col]);
       }
     }
     // ↓
-    if (this.isWalkableAt(row +1, col)) {
+    if (this.isWalkableAt(row + 1, col)) {
 
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row +1, col-1+occupyCol);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          //console.log('向下有阻挡');
-          return neighbors; //
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row + 1 - occupyRow, col - 1 + occupyCol);
+          if (twoWalkable === false) {
+            return neighbors;
+          }
         }
       }
-      neighbors.push(nodes[row +1][col]);
+      neighbors.push(nodes[row + 1][col]);
     }
-  }else if(allowDirection === 'UPRIGHT'){
+  } else if (allowDirection === 'UPRIGHT') {
     // →
-    if (this.isWalkableAt(row, col +1)) {
-      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          falseExit = true;
-          //debugger;
+    if (this.isWalkableAt(row, col + 1)) {
+
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col - 1 + 1 + occupyCol);
+          if (twoWalkable === false) {
+            falseExit = true;
+            break
+          }
+        }
+        if(falseExit){
           break
         }
       }
-      if(falseExit){
+
+      if (falseExit) {
         // 如果是因为错误跳出循环 do nothing
-      }else{
+      } else {
         neighbors.push(nodes[row][col + 1]);
       }
     }
     // ↑
-    if (this.isWalkableAt(row-1, col)) {
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -4, col-1+occupyCol);
-        if(twoWalkable === false){
-          return neighbors; // 只要有一个阻挡，就不能移动，返回 【】
+    if (this.isWalkableAt(row - 1, col)) {
+
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          // 占位是4行
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - 1 - occupyRow, col - 1 + occupyCol);
+          if (twoWalkable === false) {
+            return neighbors;
+          }
         }
       }
       neighbors.push(nodes[row - 1][col]);
     }
-  }else if(allowDirection === 'DOWNRIGHT'){
+  } else if (allowDirection === 'DOWNRIGHT') {
     // →
-    if (this.isWalkableAt(row, col +1)) {
-      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          falseExit = true;
+    if (this.isWalkableAt(row, col + 1)) {
+
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col - 1 + 1 + occupyCol);
+          if (twoWalkable === false) {
+            falseExit = true;
+            break
+          }
+        }
+        if(falseExit){
           break
         }
       }
-      if(falseExit){
+
+      if (falseExit) {
         // 如果是因为错误跳出循环 do nothing
-      }else{
+      } else {
         neighbors.push(nodes[row][col + 1]);
       }
     }
     // ↓
-    if (this.isWalkableAt(row +1, col)) {
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row +1, col-1+occupyCol);
-        if(twoWalkable === false){
-          return neighbors; // 只要有一个阻挡，就不能移动，返回 【】
+    if (this.isWalkableAt(row + 1, col)) {
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row + 1 - occupyRow, col - 1 + occupyCol);
+          //console.log(twoWalkable);
+          if (twoWalkable === false) {
+            return neighbors;
+          }
         }
       }
-      neighbors.push(nodes[row +1][col]);
+      neighbors.push(nodes[row + 1][col]);
     }
   }
 
   return neighbors;
 };
 
-Grid.prototype.clone = function() {
+Grid.prototype.clone = function () {
   let i, j,
 
       width = this.width,

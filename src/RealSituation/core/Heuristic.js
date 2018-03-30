@@ -1,8 +1,18 @@
 /**
  * Created by zhuweiwang on 29/03/2018.
  */
+import {
+  topLeftRow,
+  topLeftCol,
+  boxRowNum,
+  boxColNum,
+  pickStationRow,
+  shelfColLen,
 
-module.exports = {
+
+} from '../CoopDispatch/config';
+
+export default {
 
   /**
    * Manhattan distance.
@@ -33,20 +43,29 @@ module.exports = {
    */
   huicang: function (startRow, startCol, endRow, endCol) {
 
-    const topTurnRow = 9; // 由于前端界面的问题，这里的值是特殊的，代表最顶部一行刚拐弯。即是最顶部一行减 1
-    const topTurnCol = 7; // 同上一个点的 col
+    // const topTurnRow = 9; // 由于前端界面的问题，这里的值是特殊的，代表最顶部一行刚拐弯。即是最顶部一行减 1
+    // const topTurnCol = 7; // 同上一个点的 col
+    const topTurnRow = topLeftRow;
+    const topTurnCol = topLeftCol;
 
-    const boxRow = 6; // 中间有箱子的行数、列数
-    const boxCol = 5;
+    //console.log(topTurnRow,topTurnCol);
 
-    const btmTurnRow = topTurnRow + boxRow * 3;
-    const topEndTurnCol = topTurnCol + (boxCol - 1) * 2;
+    // const boxRow = 6; // 中间有箱子的行数、列数
+    // const boxCol = 5;
+    const boxRow = boxRowNum;
+    const boxCol = boxColNum;
+    //console.log(boxRow, boxCol);
 
-    const pickRow = 22; // 这个是根据UI测试的图里定的。可以说是写死了。
+    //debugger;
 
-    const ShelfCol = 23; // 一共有这么多列
+    const btmTurnRow = topTurnRow + boxRow * 3; // 中间部分最底一行的格子行数
+    const topEndTurnCol = topTurnCol + (boxCol - 1) * 2; // 中间部分最右侧一列的格子列数
 
-    // 排错, TODO
+    const pickRow = pickStationRow; // 这个是根据UI测试的图里定的。可以说是写死了。拣货台的行数。22
+
+    const ShelfCol = shelfColLen; // 一共有这么多列, 23 列，不从 0 开始。
+
+    // 排错
     if(endRow === pickRow && (endCol === 1 || endCol === ShelfCol - 2)){
       //console.log('目标为拣货台');
     } else if(endRow >= topTurnRow && endRow <= btmTurnRow &&

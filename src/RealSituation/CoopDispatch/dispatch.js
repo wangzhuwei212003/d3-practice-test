@@ -1,8 +1,6 @@
 /**
  * Created by zhuweiwang on 29/03/2018.
  */
-//import { shuttles } from '@backend/shuttle/shuttleInstances.js'; // 这个是得到的我所需要的数据
-
 import Heap from 'heap';
 import HCCoopFinder from '../finders/HCCoopFinder';
 
