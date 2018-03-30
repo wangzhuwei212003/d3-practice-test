@@ -194,7 +194,7 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
     if (this.isWalkableAt(row, col +1)) {
       for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
         twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
-        console.log(twoWalkable);
+        //console.log(twoWalkable);
         if(twoWalkable === false){
           falseExit = true;
           //debugger;

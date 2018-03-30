@@ -305,16 +305,16 @@ class Visual extends Component {
     this.movingSpotOuter.selectAll('rect').data(pathTable)
         .enter().append('rect')
         .attr('x', function (d) {
-          return scales.x(d[nowTimeStep][1]  -1);
+          return scales.x(d[nowTimeStep][1] - 1);
         })
         .attr('y', function (d) {
           return scales.y(d[nowTimeStep][0] - 4);
         })
         .attr('width', function (d) {
-          return cellW *3;
+          return cellW * 3;
         })
         .attr('height', function (d) {
-          return cellH *4;
+          return cellH * 4;
         })
         .style('fill', 'none')
         .style('stroke-width', '2px')
@@ -346,30 +346,29 @@ class Visual extends Component {
   }
 
   //那其实每次都是画、算，是不是就直接就 setInterval 就可以了？
+  testInterval() {
+    this.coopInterval = setInterval(() => {
+      this.initialNextTimeStep(); // 画、算。
+    }, 1000)
+  }
 
   initialNextTimeStep() {
-      /*
-       * 1. 第一次重新规划后，goalTable、pathtable 都有了，且他们的第一个点相同
-       * 2. 画、算
-       *
-       */
+    /*
+     * 1. 第一次重新规划后，goalTable、pathtable 都有了，且他们的第一个点相同
+     * 2. 画、算（每一次都是画出来然后，再算。）
+     *
+     */
+    dispatch.initialNextTimeStep(); // 应该先算，再画，第一次是要初始化的。
 
-      // 画点，画路径.
-      this.drawNextStepMovingSpot(0, this.scales, this.pathTable, timeGap);
-      this.drawPath(this.scales, this.pathTable);
+    // 画点，画路径.
+    this.drawNextStepMovingSpot(0, this.scales, dispatch.getPathTable(), timeGap);
+    this.drawPath(this.scales, dispatch.getPathTable());
 
 
-      //更新 goaltable 的起点
-      for(let i = 0; i < this.goalTable.length; i+=1){
-        this.goalTable[i][0] = this.pathTable[i][1];
-      }
-      // 算路径，按照优先级
-      this.initializePathTable();
   }
 
   test() {
     console.log('test function occurred');
-
     console.log(dispatch.testGet());
     dispatch.testSet();
   }
@@ -377,7 +376,7 @@ class Visual extends Component {
   render() {
     return (
         <div ref={ele => this.grid = ele}>
-          <Button type="primary" onClick={() => this.test()}> test </Button>
+          <Button type="primary" onClick={() => this.testInterval()}> test </Button>
           <br/>
         </div>
     )

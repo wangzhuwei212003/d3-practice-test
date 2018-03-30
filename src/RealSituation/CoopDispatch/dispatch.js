@@ -67,6 +67,10 @@ export const setMatrixZero = function (newMatrixZero) {
   matrixZero = newMatrixZero;
 };
 
+export const getPathTable = function () {
+  return pathTable;
+};
+
 export const findPath = function () {
   // 这个将是之后暴露给旭凯那边的 API，每隔一个 timeGap 就调用这个方法。我这边也根据 timeGap 来做出路径规划。
   /*
@@ -120,6 +124,60 @@ export const initializePathTable = function () {
   } // end for loop 所以 searchDeepth 必须要比 unit 的个数多。
 
   pathTable = _pathTable; // 更新当前保存的数据里的 pathtable。
+
+};
+
+export const initialNextTimeStep = function () {
+  /*
+   * 初始化路径之后，这个是连续地隔一段时间重新规划一次的方法。
+   *
+   * 根据 pathTable 前端显示的方法这里是肯定不需要的。
+   * 1. 这里更新 goalTable 的起点，
+   * 2. 重新规划
+   * 3. 更新 pathtable
+   */
+
+  if(!checkGoalTable(goalTable)){
+    // 如果是没有通过测试，那么就是应该是报错了！
+    console.log('goalTable illegal');
+    return
+  }
+
+  if(!checkPathTable(pathTable)){
+    // 如果是 pathTable 为空，那么是应该 initialize path，否则就不用了。
+    console.log('直接初始化路径。');
+    initializePathTable()
+  }else{
+    // 如果是正在进行中，就是应该有更新 goalTable 之后再去算路径、更新 pathTable。
+    //console.log('initial next step occurred!!');
+    let _goalTable = JSON.parse(JSON.stringify(goalTable)); // deep copy 当前的 goalTable
+
+    // 更新 goaltable 的起点，用来路径规划的起点是 pathTable 的下一个点，也就是。
+    for (let i = 0; i < _goalTable.length; i += 1) {
+      _goalTable[i][0] = pathTable[i][1];
+    }
+    goalTable = _goalTable;
+    // 算路径，按照优先级
+    initializePathTable();
+  }
+};
+
+const checkGoalTable = function (goalTable) {
+  // 应该是一个三维数组，格式参考上面
+  // true means GOOD to run the nextStep.
+
+    return goalTable.length === shuttleAmount &&
+        goalTable[0].length === 2 && goalTable[0][1].length === 2 &&
+        goalTable[shuttleAmount-1].length === 2 && goalTable[shuttleAmount-1][1].length === 2;
+
+};
+const checkPathTable = function (pathTable) {
+  // 应该是一个三维数组，格式参考上面
+  // true means GOOD to run the nextStep.
+
+    return pathTable.length === shuttleAmount &&
+        pathTable[0][1].length === 2 &&
+        pathTable[shuttleAmount-1][1].length === 2;
 
 };
 

@@ -41,7 +41,7 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
   // 3. 对这些点进行 loop 更新、push、pop 寻路。得到一条路径。
   // 4. 循环对所有的小车执行这样的操作。
 
-  const reservationTable = new Array(searchDeepth +1); // 这个值应该是 pathtable 最长的一个数组长度
+  const reservationTable = new Array(searchDeepth + 1); // 这个值应该是 pathtable 最长的一个数组长度
   for (let index = 0; index < reservationTable.length; index += 1) {
     reservationTable[index] = new Grid(colNum, rowNum, matrix)
   }
@@ -49,7 +49,7 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
   let pathNode, reservedNode;
 
   for (let i = 0; i < pathTable.length; i += 1) { // i is the index of unit
-    if(i === index){
+    if (i === index) {
       continue
     }
     for (let j = 0; j < pathTable[i].length; j += 1) {
@@ -59,15 +59,15 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
 
       // 考虑 footprint，先考虑1行3列。
 
-      for(let occupyCol = 0; occupyCol<3; occupyCol+=1){
-        for(let occupyRow = 0; occupyRow < 4; occupyRow+=1){
-          reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1]-1+occupyCol); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
+      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+          reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1] - 1 + occupyCol); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
           // reservedNode.walkable = false; 注意这里已经删除了 walkable,这里仅仅会影响到 getNeighbors 方法。
           reservedNode.unitWalkable = false; // 把横向的三个点都设为 unitWalkable 为 false
           reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
-            row: pathNode[0]- occupyRow,
-            col: pathNode[1]-1+occupyCol
-          } : {row: pathTable[i][j + 1][0]- occupyRow, col: pathTable[i][j + 1][1]-1+occupyCol} // 存上下一时刻的动作。
+            row: pathNode[0] - occupyRow,
+            col: pathNode[1] - 1 + occupyCol
+          } : {row: pathTable[i][j + 1][0] - occupyRow, col: pathTable[i][j + 1][1] - 1 + occupyCol} // 存上下一时刻的动作。
         }
       }
 
@@ -125,9 +125,9 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
     node = openList.pop();
     node.closed = true;  // 这一步是必须的，没错，这里要标记一下。。 其实这个地方是 close 了，但是下一个 grid 还是有这个点。所以可以说是一个grid全部都没有了。
 
-    if(node.t >= searchDeepth -1){
+    if (node.t >= searchDeepth - 1) {
       //console.log(`寻路暂停，beyond the deepth，${searchDeepth}`);
-      console.log('规划出来的路径：', Util.backtraceNode(node));
+      //console.log('规划出来的路径：', Util.backtraceNode(node));
       return Util.backtrace(node);
     }
 
@@ -136,7 +136,7 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
 
     // find the node in which grid. 直接查node的index比较直接。还是直接在同一个 grid 里的所有node里添加一个 t 字段比较方便。
     gridNextStep = reservationTable[node.t + 1];
-    if(!gridNextStep){
+    if (!gridNextStep) {
       console.log(node.t);
       console.log(reservationTable);
       debugger;
@@ -149,60 +149,60 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
      * 如果是这么特殊的情况，周围的运动方向只有一个，只有中间能上下移动
      *
      */
-    if(
+    if (
         node.row >= topTurnRow && node.row <= btmTurnRow &&
         node.col >= topTurnCol && node.col <= topEndTurnCol
-    ){
+    ) {
       // 在中间货位部分，能够上下移动
       neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPDOWN');
-    }else if (
+    } else if (
         (node.col <= 3 && node.row <= btmTurnRow) ||
         (node.col === 1 && node.row === btmTurnRow + 1)
-    ){
+    ) {
       // 上升列，能够往右上，不能下
       neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPRIGHT');
-    }else if (
+    } else if (
         node.row === topTurnRow - 1 &&
         node.col >= 3 && node.col < ShelfCol - 4
-    ){
+    ) {
       // 最上面一行，分情况，看目标
       /*
        * 1. 只能往右，目标列不等于当前列
        * 2. 只能往下，目标列等于当前列
        */
-      if(node.col === endCol){
+      if (node.col === endCol) {
         neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWN');
         // console.log(nodeNextStep);
         // console.log(neighbors);
         // debugger;
-      }else{
+      } else {
         neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'RIGHT');
       }
-    } else if (node.col >= ShelfCol - 4 && node.row <= btmTurnRow){
+    } else if (node.col >= ShelfCol - 4 && node.row <= btmTurnRow) {
       // 下降列，只能右下
       neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWNRIGHT');
     } else if (
         node.row === btmTurnRow + 1 &&
-        (node.col >=2 && node.col <= ShelfCol -2)
-    ){
+        (node.col >= 2 && node.col <= ShelfCol - 2)
+    ) {
       // 最底部一行，只能往左
       neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'LEFT');
     }
 
     let testArray = [];
-    for(i = 0, l = neighbors.length; i < l; i +=1){
+    for (i = 0, l = neighbors.length; i < l; i += 1) {
       let test = neighbors[i];
 
       col = test.col;
       row = test.row;
 
-      if(test.moveTo){
+      if (test.moveTo) {
         //console.log(test.moveTo);
         //debugger; //这里永远不会触发。。如果是有 footprint 是会有moveTo的
       }
 
       let nodeBeforeTest = reservationTable[node.t].getNodeAt(test.row, test.col); // 得到正确的 timestep 的点。
-      if(nodeBeforeTest.moveTo && nodeBeforeTest.moveTo.row === node.row && nodeBeforeTest.moveTo.col === node.col){
+      if (nodeBeforeTest.moveTo && nodeBeforeTest.moveTo.row === node.row && nodeBeforeTest.moveTo.col === node.col) {
         // 判断为相对互换位置，不合法，跳过
         console.log('检测到 相对方向');
         continue
@@ -212,17 +212,17 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
 
     // 然后 探索下一个 grid 里的这些选出来的点。
     // 这里所有的点都是根据上面 pop 出来的点得出的一系列的相关的点。
-    if(nodeNextStep.walkable && nodeNextStep.unitWalkable && testArray.length === 0){
+    if (nodeNextStep.walkable && nodeNextStep.unitWalkable && testArray.length === 0) {
       // if(nodeNextStep.walkable ){
       testArray.push(nodeNextStep); // 如果待在原地是合法的，且没有其他可走的点了.... HC 中，要你能够待在原地。
       nodeNextStep.t = node.t + 1;
-    }else if(nodeNextStep.walkable && nodeNextStep.unitWalkable && endRow === node.row && endCol === node.col ){
+    } else if (nodeNextStep.walkable && nodeNextStep.unitWalkable && endRow === node.row && endCol === node.col) {
       testArray.push(nodeNextStep); // 如果已到达终点
       nodeNextStep.t = node.t + 1;
-    }else if(nodeNextStep.walkable && nodeNextStep.unitWalkable && testArray.length === 1 &&
+    } else if (nodeNextStep.walkable && nodeNextStep.unitWalkable && testArray.length === 1 &&
         node.row >= topTurnRow && node.row <= btmTurnRow &&
         node.col >= topTurnCol && node.col <= topEndTurnCol
-    ){
+    ) {
       // 如果如果是中间列只有一个 neighbor 可走，那应该就是堵住了，这个时候应该停。
       // 这个地方有个bug，就是上面的车下来的时候，可能会挡道，导致停止。
 
@@ -230,12 +230,12 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       // 如果 neighbor 的 neighbor 还是只有一个，那就待在原地。
       let nei = testArray[0];
       // 判断 nei方向和终点的方向，如果是方向相同，那就运动，但是如果是方向相反，那么就老实待在原点。
-      if(
-          (nei.row - node.row <=0 && endRow - node.row <= 0) ||
+      if (
+          (nei.row - node.row <= 0 && endRow - node.row <= 0) ||
           (nei.row - node.row > 0 && endRow - node.row > 0)
-      ){
+      ) {
         // 方向相同，do nothing，no need to push the nodeNextStep
-      }else{
+      } else {
         // 否则方向不同，就待在原地
         testArray.push(nodeNextStep);
         nodeNextStep.t = node.t + 1;
@@ -250,7 +250,7 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
     //   nodeNextStep.t = node.t + 1;
     // }
 
-    for(i = 0, l = testArray.length; i < l; i +=1){
+    for (i = 0, l = testArray.length; i < l; i += 1) {
       // 探索所有的合法的点。此时 neighbors 里的点都是下一步没有占用的点
       // 还有一点是要 剔除 掉对向互换位置的点
 
@@ -263,9 +263,9 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       col = neighbor.col;
       row = neighbor.row;
 
-      ng = node.g + 1 ;
-      if(node.row === row && node.col === col){
-        ng = node.g ; // 停留在原地没有新增 cost
+      ng = node.g + 1;
+      if (node.row === row && node.col === col) {
+        ng = node.g; // 停留在原地没有新增 cost
       }
 
       if (!neighbor.opened || ng < neighbor.g) {
