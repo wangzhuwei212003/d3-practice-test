@@ -1,0 +1,88 @@
+.BGRowByCol{
+  /*background-color: #C5D86D;*/
+  background-image: url("../../image/real.jpg");
+  background-repeat: no-repeat;
+  background-position: 8px 160px;
+  background-size: calc(-10px + 23 * 50px) calc(27 * 30px);
+  /*算每一格是 25px 宽，15px 高*/
+
+  width: calc(23 * 50px);
+}
+
+body {
+  background-color: #EEEEEE;
+}
+
+.display, .control {
+  margin: 10px;
+}
+
+.display {
+  float: left;
+}
+
+.control {
+  float: left;
+}
+
+.control textarea {
+  margin: 10px;
+}
+
+svg {
+  border: 1px solid black;
+}
+
+.grass {
+  fill: #3CAB26;
+  stroke-width: 1px;
+  stroke: #2D801C;
+}
+
+.rock {
+  fill: #858585;
+  stroke-width: 1px;
+  stroke: #C7C7C7;
+}
+
+.lava {
+  fill: #B3210B;
+  stroke-width: 1px;
+  stroke: #FF6600;
+}
+
+.position {
+  /*opacity: 0.4;*/
+  stroke-width: 1px;
+  stroke: #2973F2;
+}
+.movingSpot {
+  opacity: 0.8;
+  stroke-width: 1px;
+  stroke: #2973F2;
+}
+
+Button{
+  margin: 5px;
+}
+
+.positionNumber {
+  fill: #000;
+  /*fill: #fff;*/
+  /*fill: #0E1A9E;*/
+  text-anchor: middle;
+  font-size: 1.2em;
+}
+
+.goalText{
+  fill: #222;
+  /*fill: #fff;*/
+  /*fill: #0E1A9E;*/
+  text-anchor: middle;
+  font-size: 1.2em;
+}
+
+.path {
+  stroke-width: 14px;
+  opacity:0.7;
+}

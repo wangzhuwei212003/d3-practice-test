@@ -8,7 +8,6 @@ import {
 
 import {Menu, Icon, Button, Layout} from 'antd';
 
-
 import logo from './logo.svg';
 import box from './SvgFile/box.svg';
 import marked from './SvgFile/marked.svg';
@@ -31,6 +30,7 @@ import BasicAStar from './MAPF/BasicAStar';
 import Coop4 from './MAPF/Coop4';
 import Coop30 from './MAPF/Coop30';
 import RowByCol from './MAPF/RowsByColumns';
+import Visual from './RealSituation/visual';
 
 const SubMenu = Menu.SubMenu;
 
@@ -112,6 +112,10 @@ class App extends Component {
                     <Icon type="inbox"/>
                     <span><Link to='/MAPF/RowByCol'>Rows by columns</Link></span>
                   </Menu.Item>
+                  <Menu.Item key="6">
+                    <Icon type="inbox"/>
+                    <span><Link to='/RealSituation/visual'>Real situation</Link></span>
+                  </Menu.Item>
                   <SubMenu key="sub1" title={<span><Icon type="mail"/><span>D3 example</span></span>}>
                     <Menu.Item key="5"><Link to='/Tutorials/DynamicTable'>DynamicTable</Link></Menu.Item>
                     <Menu.Item key="6"><Link to='/Tutorials/MakeGrid'>Grid</Link></Menu.Item>
@@ -138,6 +142,7 @@ class App extends Component {
                 <Route path="/MAPF/Coop4" component={Coop4}/>
                 <Route path="/MAPF/Coop30" component={Coop30}/>
                 <Route path="/MAPF/RowByCol" component={RowByCol}/>
+                <Route path="/RealSituation/visual" component={Visual}/>
 
                 <Route path="/Tutorials/DynamicTable" component={DynamicTable}/>
                 <Route path="/Tutorials/MakeGrid" component={Grid}/>
