@@ -18,7 +18,8 @@ import {
 } from '../CoopDispatch/config';
 
 import * as dispatch from '../CoopDispatch/dispatch';
-
+import * as Util from '../core/Util';
+import './index.css';
 
 class Visual extends Component {
   constructor(props) {
@@ -57,7 +58,6 @@ class Visual extends Component {
 
   gridDataMax = (reactDom) => {
     const data = []; // this is preferrable
-    const matrixData = []; // for later calculate
     let xpos = 1;
     let ypos = 1;
     const width = cellW;
@@ -66,7 +66,6 @@ class Visual extends Component {
     //iterate for rows
     for (let row = 0; row < rowNum; row += 1) {
       data.push([]);
-      matrixData.push([]);
       for (let column = 0; column < colNum; column += 1) {
         let ob = 0;
         if (row === rowNum - 1 || row === rowNum - 23 && column > 1 && column < colNum - 2) {
@@ -122,8 +121,6 @@ class Visual extends Component {
         if (row === rowNum - 22 && (column === 2 || column === colNum - 3)) {
           ob = 1;
         }
-
-        matrixData[row].push(ob);
         data[row].push({
           x: xpos,
           y: ypos,
@@ -139,7 +136,7 @@ class Visual extends Component {
     }
 
     //reactDom.matrixZero = matrixData; // 这个涉及到后端的matrixZero，0-1矩阵
-    dispatch.setMatrixZero(matrixData);
+    dispatch.setMatrixZero(Util.generateMatrix());
     return data;
   };
 
@@ -375,7 +372,7 @@ class Visual extends Component {
 
   render() {
     return (
-        <div ref={ele => this.grid = ele}>
+        <div ref={ele => this.grid = ele} className="RealBGRowByCol">
           <Button type="primary" onClick={() => this.testInterval()}> test </Button>
           <br/>
         </div>

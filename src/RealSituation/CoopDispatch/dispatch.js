@@ -15,7 +15,7 @@ import {
   searchDeepth,
 
 } from './config';
-import Util from '../core/Util';
+import * as Util from '../core/Util';
 
 //const exports = module.exports = {};
 //

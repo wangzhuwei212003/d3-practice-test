@@ -1,8 +1,20 @@
 /**
  * Created by zhuweiwang on 29/03/2018.
  */
+import {
+  rowNum,
+  colNum,
 
-exports.backtrace = function (node) {
+  topLeftRow,
+  topLeftCol,
+  boxRowNum,
+  boxColNum,
+  pickStationRow,
+  shelfColLen,
+
+} from '../CoopDispatch/config';
+
+export const backtrace = function (node) {
   const path = [[node.row, node.col]];
   while (node.parent) {
     node = node.parent;
@@ -12,7 +24,7 @@ exports.backtrace = function (node) {
 }; // 这里是用的 row、col，不是之前说的 x、y
 
 
-exports.backtraceNode = function (node) {
+export const backtraceNode = function (node) {
   const pathTest = [node];
   while (node.parent) {
     node = node.parent;
@@ -36,26 +48,24 @@ exports.backtraceNode = function (node) {
  * 4. 最底一行 到 左边拣货台
  *
  */
-exports.HCPriority = function (row, col) {
+export const HCPriority = function (row, col) {
 
-  const topTurnRow = 9; // 由于前端界面的问题，这里的值是特殊的，代表最顶部一行刚拐弯。即是最顶部一行减 1
-  const topTurnCol = 7; // 同上一个点的 col
+  const topTurnRow = topLeftRow;
+  const topTurnCol = topLeftCol;
 
-  const boxRow = 6; // 中间有箱子的行数、列数
-  const boxCol = 5;
+  const boxRow = boxRowNum;
+  const boxCol = boxColNum;
 
   const btmTurnRow = topTurnRow + boxRow * 3;
-  const topEndTurnCol = topTurnCol + (boxCol - 1) * 2; // 15
+  const topEndTurnCol = topTurnCol + (boxCol - 1) * 2;
 
-  const pickRow = 22; // 这个是根据UI测试的图里定的。可以说是写死了。
+  const pickRow = pickStationRow; // 这个是根据UI测试的图里定的。可以说是写死了。拣货台的行数。22
 
-  const ShelfCol = 23; // 一共有这么多列
-  // 行数取值范围 [8,28]
-  // 列数取值范围 [1,21]
+  const ShelfCol = shelfColLen;
 
   // 排错
   if (row > 28 || row < 8 || col < 1 || col > 21) {
-    console.log('行列数超出范围');
+    console.log('行列数超出范围'); // 当前点的行数、列数。
     return 0; //
   }
 
@@ -97,3 +107,73 @@ exports.HCPriority = function (row, col) {
   }
 
 };
+
+export const generateMatrix = function () {
+  // 根据中间货位的行数、列数来得到整个代表物理障碍的 0-1 矩阵
+  const matrixData = [];
+
+  for (let row = 0; row < rowNum; row += 1) {
+    matrixData.push([]);
+    for (let column = 0; column < colNum; column += 1) {
+      let ob = 0;
+      if (row === rowNum - 1 || row === rowNum - 23 && column > 1 && column < colNum - 2) {
+        ob = 1; // 最底部一行和最顶部一行的障碍。
+      }
+      if (row > rowNum - 22 && row < rowNum - 2 && column % 2 === 0 && column > 0 && column < colNum - 1) {
+        ob = 1; // 中间竖直方向，的立柱
+      }
+
+      if (row === rowNum - 11  && column === 1) {
+        // special point
+        ob = 1;
+      }
+      if (row === rowNum - 11  && column === 2) {
+        // special point
+        ob = 0;
+      }
+      if (row === rowNum - 10  && column === 3) {
+        // special point
+        ob = 1;
+      }
+      if (row === rowNum - 10  && column === 2) {
+        // special point
+        ob = 0;
+      }
+      if (row === rowNum - 11  && column === colNum - 2) {
+        // special point
+        ob = 1;
+      }
+      if (row === rowNum - 11 && column === colNum - 3) {
+        // special point
+        ob = 0;
+      }
+      if (row === rowNum - 10  && column === colNum - 4) {
+        // special point
+        ob = 1;
+      }
+      if (row === rowNum - 10  && column === colNum - 3) {
+        // special point
+        ob = 0;
+      }
+
+      if ((column === 0 || column === colNum - 1) && row < rowNum - 1 && row > rowNum - 11 ) {
+        ob = 1; // 最靠左右两边的柱子
+      }
+
+      if (row === rowNum - 3 && (column === 3 || column === 5 || column === colNum - 4 || column === colNum - 6 )) {
+        ob = 1;
+      }
+      if (row === rowNum - 21 && (column === 5 || column === colNum - 6 )) {
+        ob = 1;
+      }
+      if (row === rowNum - 22 && (column === 2 || column === colNum - 3)) {
+        ob = 1;
+      }
+      matrixData[row].push(ob);
+    }
+  } // end of for loop
+
+  return matrixData;
+};
+
+export default {}

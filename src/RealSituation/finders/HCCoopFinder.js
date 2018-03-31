@@ -3,22 +3,31 @@
  */
 
 import Heap from 'heap';
-import Util from '../core/Util';
+import * as Util from '../core/Util';
 import Heuristic from '../core/Heuristic';
 import Grid from '../core/Grid';
+import {
+  topLeftRow,
+  topLeftCol,
+  boxRowNum,
+  boxColNum,
+  pickStationRow,
+  shelfColLen,
 
-const topTurnRow = 9; // 由于前端界面的问题，这里的值是特殊的，代表最顶部一行刚拐弯。即是最顶部一行减 1
-const topTurnCol = 7; // 同上一个点的 col
+} from '../CoopDispatch/config';
 
-const boxRow = 6; // 中间有箱子的行数、列数
-const boxCol = 5;
+const topTurnRow = topLeftRow;
+const topTurnCol = topLeftCol;
+
+const boxRow = boxRowNum;
+const boxCol = boxColNum;
 
 const btmTurnRow = topTurnRow + boxRow * 3;
 const topEndTurnCol = topTurnCol + (boxCol - 1) * 2;
 
-const pickRow = 22; // 这个是根据UI测试的图里定的。可以说是写死了。
+const pickRow = pickStationRow; // 这个是根据UI测试的图里定的。可以说是写死了。拣货台的行数。22
 
-const ShelfCol = 23; // 一共有这么多列
+const ShelfCol = shelfColLen;
 
 function HCCoopFinder(opt) {
   opt = opt || {};
@@ -57,8 +66,7 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       pathNode = pathTable[i][j]; // [row, col]
       // j时刻的grid
 
-      // 考虑 footprint，先考虑1行3列。
-
+      // 考虑 footprint，
       for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
         for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
           reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1] - 1 + occupyCol); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
@@ -69,19 +77,9 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
             col: pathNode[1] - 1 + occupyCol
           } : {row: pathTable[i][j + 1][0] - occupyRow, col: pathTable[i][j + 1][1] - 1 + occupyCol} // 存上下一时刻的动作。
         }
-      }
-
-
-      // reservedNode = reservationTable[j].getNodeAt(pathNode[0], pathNode[1]); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
-      // reservedNode.walkable = false;
-      // reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
-      //   row: pathNode[0],
-      //   col: pathNode[1]
-      // } : {row: pathTable[i][j + 1][0], col: pathTable[i][j + 1][1]} // 存上下一时刻的动作。
-
-      //console.log(reservedNode);
-    }
-  } // end for loop。
+      } // 每一个点有4行3列的占位。
+    } // 对于每条路径中的每个点，都有一个4 * 3格的占位
+  } // end for loop，所有pathtable里的点占位情况更新完毕。
   // reservation table ready ！！！
 
   // 1. Heap 还是 heap，push、pop 都是要用到的。
@@ -154,7 +152,8 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
         node.col >= topTurnCol && node.col <= topEndTurnCol
     ) {
       // 在中间货位部分，能够上下移动
-      neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPDOWN');
+      neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWN');
+      //  neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPDOWN');
     } else if (
         (node.col <= 3 && node.row <= btmTurnRow) ||
         (node.col === 1 && node.row === btmTurnRow + 1)
