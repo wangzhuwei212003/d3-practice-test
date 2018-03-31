@@ -64,7 +64,7 @@ export const HCPriority = function (row, col) {
   const ShelfCol = shelfColLen;
 
   // 排错
-  if (row > 28 || row < 8 || col < 1 || col > 21) {
+  if (row > 28 - 5 || row < 8 - 5 || col < 1 || col > 21) {
     console.log('行列数超出范围'); // 当前点的行数、列数。
     return 0; //
   }
