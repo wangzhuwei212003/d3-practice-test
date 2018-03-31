@@ -18,8 +18,8 @@ import {
   timeGap
 } from '../config';
 
-// import * as dispatch from '../dispatch';
-// import * as Util from '../Finder/core/Util';
+import * as dispatch from '../dispatch';
+import * as Util from '../Finder/core/Util';
 import './index.css';
 
 class Visual extends Component {
@@ -109,8 +109,9 @@ class Visual extends Component {
       ypos += height;
     }
 
-    //reactDom.matrixZero = matrixData; // 这个涉及到后端的matrixZero，0-1矩阵
-    //dispatch.setMatrixZero(Util.generateMatrix());
+    dispatch.setMatrixZero(Util.generateMatrix());
+    // console.log(data);
+    // debugger;
     return data;
   };
 
@@ -184,7 +185,7 @@ class Visual extends Component {
           }
 
         });
-    //dispatch.setGoalTable(inputGoalTable); // 更改dispatch里面的数据。
+    dispatch.setGoalTable(inputGoalTable); // 更改dispatch里面的数据。接收用来路径规划的数据。
   }
 
   // 画出 path table 里的规划好的路径。
@@ -315,7 +316,8 @@ class Visual extends Component {
      * 2. 画、算（每一次都是画出来然后，再算。）
      *
      */
-    //dispatch.initialNextTimeStep(); // 应该先算，再画，第一次是要初始化的。
+
+    dispatch.initialNextTimeStep(); // 应该先算，再画，第一次是要初始化的。
 
     // 画点，画路径.
     // this.drawNextStepMovingSpot(0, this.scales, dispatch.getPathTable(), timeGap);

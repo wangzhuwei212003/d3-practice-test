@@ -1,14 +1,11 @@
 /**
  * Created by zhuweiwang on 31/03/2018.
  */
-/**
- * Created by zhuweiwang on 29/03/2018.
- */
 
 import Heap from 'heap';
-import * as Util from '../core/Util';
-import Heuristic from '../core/Heuristic';
-import Grid from '../core/Grid';
+import * as Util from './core/Util';
+import Heuristic from './core/Heuristic';
+import Grid from './core/Grid';
 import {
   topLeftRow,
   topLeftCol,
@@ -17,7 +14,7 @@ import {
   pickStationRow,
   shelfColLen,
 
-} from '../CoopDispatch/config';
+} from '../config';
 
 const topTurnRow = topLeftRow;
 const topTurnCol = topLeftCol;

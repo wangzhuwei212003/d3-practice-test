@@ -5,7 +5,7 @@
  * Created by zhuweiwang on 29/03/2018.
  */
 import Heap from 'heap';
-import HCCoopFinder from '../finders/HCCoopFinder';
+import HCCoopFinder from './Finder/HCCoopFinder';
 
 import {
   shuttleAmount,
@@ -18,10 +18,8 @@ import {
   searchDeepth,
 
 } from './config';
-import * as Util from '../core/Util';
+import * as Util from './Finder/core/Util';
 
-//const exports = module.exports = {};
-//
 // /* 这里需要保存的数据，
 //  * 1. pathTable 三维数组
 //  * [
@@ -79,7 +77,6 @@ export const initializePathTable = function () {
    * 用到的数据：goalTable，首先这个要求goalTable不为空。
    *
    * 更改的数据：pathTable
-   *
    */
 
   const _unitsNum = shuttleAmount;
@@ -131,13 +128,14 @@ export const initialNextTimeStep = function () {
   if(!checkGoalTable(goalTable)){
     // 如果是没有通过测试，那么就是应该是报错了！
     console.log('goalTable illegal');
+    debugger;
     return
   }
 
   if(!checkPathTable(pathTable)){
     // 如果是 pathTable 为空，那么是应该 initialize path，否则就不用了。
     console.log('直接初始化路径。');
-    initializePathTable()
+    initializePathTable();
   }else{
     // 如果是正在进行中，就是应该有更新 goalTable 之后再去算路径、更新 pathTable。
     //console.log('initial next step occurred!!');
@@ -154,8 +152,9 @@ export const initialNextTimeStep = function () {
 };
 
 const checkGoalTable = function (goalTable) {
-  // 应该是一个三维数组，格式参考上面
-  // true means GOOD to run the nextStep.
+  // 应该是一个三维数组，格式参考上面。
+  //
+  // true means GOOD to run the nextStep. 为了确定goalTable不为空，且符合上面的格式。
 
   return goalTable.length === shuttleAmount &&
       goalTable[0].length === 2 && goalTable[0][1].length === 2 &&
@@ -164,7 +163,7 @@ const checkGoalTable = function (goalTable) {
 };
 const checkPathTable = function (pathTable) {
   // 应该是一个三维数组，格式参考上面
-  // true means GOOD to run the nextStep.
+  // true means GOOD to run the nextStep. 每个小车的路径不为空。
 
   return pathTable.length === shuttleAmount &&
       pathTable[0][1].length === 2 &&
