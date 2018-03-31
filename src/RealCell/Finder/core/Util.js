@@ -15,7 +15,7 @@ import {
   pickStationRow,
   shelfColLen,
 
-} from '../CoopDispatch/config';
+} from '../../config';
 
 export const backtrace = function (node) {
   const path = [[node.row, node.col]];
@@ -67,115 +67,87 @@ export const HCPriority = function (row, col) {
   const ShelfCol = shelfColLen;
 
   // 排错
-  if (row > 28 - 5 || row < 8 - 5 || col < 1 || col > 21) {
+  if (row > rowNum - 1 || row < 0 || col < 0 || col > colNum - 3) {
     console.log('行列数超出范围'); // 当前点的行数、列数。
+    debugger;
     return 0; //
   }
 
   if (
-      (row <= pickRow - 1 && row >= topTurnRow - 1 &&
-      col >= 1 && col <= 3 ) ||
-      (row === topTurnRow - 1)
+      (row <= pickRow - 1 && row >= 0 && col === 0 ) ||
+      (row === 0)
   ) {// 1 左边拣货台上面一格 到 顶部水平行到最右侧
 
-    return col - 1 + 21 - row; // 直接是返回代表 priority 的数值。
+    // 拣货台的那个点的 priority 最大，拣货台上面一个点的 priority 最小
+    return col - row; // 直接是返回代表 priority 的数值。 col越大越重要，row越小越重要
 
   } else if (
-      row >= topTurnRow && row <= btmTurnRow &&
-      col >= topTurnCol && col <= topEndTurnCol
+      row >= 1 && row <= rowNum - 2 &&
+      col >= 8 && col <= colNum - 12
   ) {
-    // 2 中间货位部分, 19 -1 +21 -8 = 31 是上个部分最大的值
-    return 31 + (row - topTurnRow) * boxCol + topEndTurnCol - col;
+    // 2 中间货位部分, 32 - 0 = 32 是上个部分最大的值
+    return 32 + (row ) * (colNum - 4) - col;
 
   } else if (
-      row <= btmTurnRow + 1 && row >= topTurnRow - 1 &&
-      col >= ShelfCol - 4 && col <= ShelfCol - 2
+      row <= rowNum - 2 && row >= 1 &&
+      col === colNum - 4
   ) {
-    // 3. 右边下降列到底部 31+(27 - 9)*5 + 15 - 7 = 129
-    return 129 + (row - topTurnRow + 1) + (col - ShelfCol + 4);
+    // 3. 右边下降列到底部（不包括上下两交点）。 上部分最大值：32+(27 -2 )*(36 -4) - 8 = 824
+    return 824 + row;
 
   } else if (
-      (row <= btmTurnRow + 1 && row >= pickRow &&
-      col >= 1 && col <= 3 ) ||
-      (row === btmTurnRow + 1)
+      (row <= rowNum - 1 && row >= pickRow && col === 0 ) ||
+      (row === rowNum - 1)
   ) {
-    // 4. 最底一行 到 左边拣货台 129 + (28 - 8) + (21 - 19) = 151
-    return 151 + 21 - col + btmTurnRow + 1 - row
+    // 4. 最底一行 到 左边拣货台 。上面最大priority是 824 + 25 = 849
+    return 849 + colNum - col + rowNum - row
 
   } else {
     console.log('some senario not expected!');
     console.log('row, col', row, col);
     debugger;
-
   }
-
 };
 
 export const generateMatrix = function () {
-  // 根据中间货位的行数、列数来得到整个代表物理障碍的 0-1 矩阵
+  // 根据中间货位的行数、列数来得到整个代表物理障碍的 0-1 矩阵，看起来并不像实际的地图，这个是根据划分格子方法为了寻路。
   const matrixData = [];
 
   for (let row = 0; row < rowNum; row += 1) {
     matrixData.push([]);
     for (let column = 0; column < colNum; column += 1) {
-      let ob = 0;
-      if (row === rowNum - 1 || row === rowNum - 23 && column > 1 && column < colNum - 2) {
-        ob = 1; // 最底部一行和最顶部一行的障碍。
-      }
-      if (row > rowNum - 22 && row < rowNum - 2 && column % 2 === 0 && column > 0 && column < colNum - 1) {
-        ob = 1; // 中间竖直方向，的立柱
-      }
+      let ob = 1;
+      // 0 表示没有障碍，1 表示有障碍。
+      // 因为看起来是有障碍的点比较多，默认就是有障碍。
 
-      if (row === rowNum - 11  && column === 1) {
-        // special point
-        ob = 1;
-      }
-      if (row === rowNum - 11  && column === 2) {
-        // special point
+      // 我这边是为了显示的方便，使用的 web 里的坐标系，左上角是（0，0），往右往下变大。
+      if (
+          (row === 0 && column < colNum - 3) ||
+          (row === rowNum - 1 && column < colNum - 3)
+      ) {
+        // 第一行、最后一行的点，没有障碍的点
         ob = 0;
       }
-      if (row === rowNum - 10  && column === 3) {
-        // special point
-        ob = 1;
-      }
-      if (row === rowNum - 10  && column === 2) {
-        // special point
-        ob = 0;
-      }
-      if (row === rowNum - 11  && column === colNum - 2) {
-        // special point
-        ob = 1;
-      }
-      if (row === rowNum - 11 && column === colNum - 3) {
-        // special point
-        ob = 0;
-      }
-      if (row === rowNum - 10  && column === colNum - 4) {
-        // special point
-        ob = 1;
-      }
-      if (row === rowNum - 10  && column === colNum - 3) {
-        // special point
-        ob = 0;
-      }
+      if (
+          column === 0 ||
+          column === colNum - 4
 
-      if ((column === 0 || column === colNum - 1) && row < rowNum - 1 && row > rowNum - 11 ) {
-        ob = 1; // 最靠左右两边的柱子
+      ) {
+        ob = 0; // 第一列，最后一列没有障碍
       }
-
-      if (row === rowNum - 3 && (column === 3 || column === 5 || column === colNum - 4 || column === colNum - 6 )) {
-        ob = 1;
-      }
-      if (row === rowNum - 21 && (column === 5 || column === colNum - 6 )) {
-        ob = 1;
-      }
-      if (row === rowNum - 22 && (column === 2 || column === colNum - 3)) {
-        ob = 1;
+      if (
+          column > 7 &&
+          column < colNum - 11 &&
+          (column - 8) % 4 === 0
+      ) {
+        // 中间正常货位部分，没有障碍
+        ob = 0;
       }
       matrixData[row].push(ob);
     }
-  } // end of for loop
-
+  }
+  // console.log(matrixData);
+  // debugger;
   return matrixData;
 };
 
