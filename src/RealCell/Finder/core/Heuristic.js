@@ -3,6 +3,9 @@
  */
 
 import {
+  rowNum,
+  colNum,
+
   topLeftRow,
   topLeftCol,
   boxRowNum,
@@ -11,20 +14,9 @@ import {
   shelfColLen,
 
 
-} from '../CoopDispatch/config';
+} from '../../config';
 
 export default {
-
-  /**
-   * Manhattan distance.
-   * @param {number} dx - Difference in x.
-   * @param {number} dy - Difference in y.
-   * @return {number} dx + dy
-   */
-  manhattan: function (dx, dy) {
-    return dx + dy;
-  },
-
   /**
    * Huicang distance.
    *
@@ -39,25 +31,16 @@ export default {
    * 运动方向暂定为
    * 1. 顶部的向右
    * 2. 底部的向左、
-   * 3. 竖直方向同列能够上下
+   * 3. 竖直方向同列能够上下。 // 暂定为只有下。
    *
    */
   huicang: function (startRow, startCol, endRow, endCol) {
 
-    // const topTurnRow = 9; // 由于前端界面的问题，这里的值是特殊的，代表最顶部一行刚拐弯。即是最顶部一行减 1
-    // const topTurnCol = 7; // 同上一个点的 col
     const topTurnRow = topLeftRow;
     const topTurnCol = topLeftCol;
 
-    //console.log(topTurnRow,topTurnCol);
-
-    // const boxRow = 6; // 中间有箱子的行数、列数
-    // const boxCol = 5;
     const boxRow = boxRowNum;
     const boxCol = boxColNum;
-    //console.log(boxRow, boxCol);
-
-    //debugger;
 
     const btmTurnRow = topTurnRow + boxRow * 3; // 中间部分最底一行的格子行数
     const topEndTurnCol = topTurnCol + (boxCol - 1) * 2; // 中间部分最右侧一列的格子列数
@@ -67,14 +50,17 @@ export default {
     const ShelfCol = shelfColLen; // 一共有这么多列, 23 列，不从 0 开始。
 
     // 排错
-    if(endRow === pickRow && (endCol === 1 || endCol === ShelfCol - 2)){
+    if(endRow === pickRow && (endCol === 0 || endCol === colNum - 4)){
       //console.log('目标为拣货台');
-    } else if(endRow >= topTurnRow && endRow <= btmTurnRow &&
-        endCol >= topTurnCol && endCol <= topEndTurnCol){
-      //console.log('目标为中间货位');
+    } else if(
+      endRow >= 1 && endRow <= rowNum - 2 &&
+      endCol >= 8 && endCol <= colNum - 12
+    ){
+      //console.log('目标为中间货位'); // 目标是中间货位，这个是 HCPriority 一致的计算方法。
     }else{
       console.log('目标设置错误。');
-      return 0; //让小车待在原地
+      debugger;
+      return 0; // 除了拣货台和中间的货位，其他位置的目标都是不允许的。
     }
 
     // 分两部分，
@@ -85,104 +71,111 @@ export default {
     //    3. 下降列到最底端
     //    4. 底部一行
     //    5. 中间部分，列数和目标列数不同
-    if (startRow >= topTurnRow && startRow <= btmTurnRow &&
-        startCol >= topTurnCol && startCol <= topEndTurnCol &&
-        startCol === endCol
-    ) {// 1 可以上下运动部分，中间部分，并且，目标终点位置是相同列
+    if (
+      startRow >= 1 && startRow <= rowNum - 2 &&
+      startCol >= 8 && startCol <= colNum - 12 &&
+      startCol === endCol
+    ) {// 1. 中间货位部分，并且，目标终点位置是相同列
       return Math.abs(startRow - endRow); // 直接是返回的 行数的步数之差。
 
-    } else if (startCol <= 3 && startRow <= btmTurnRow) {
+    } else if (startCol === 0) {
       // 2-1 上升列到刚要转为水平的 一段
-      if (endRow === pickRow && (endCol === 1 )) {
+      if (endRow === pickRow && (endCol === 0 )) {
         // 目标点是左边拣货台
         if (startRow >= pickRow) {
+          // 当前位置在拣货台下方
           return startRow - endRow
         } else {
           //在左边拣货台上方，那就只能绕圈了，到左上方的点的Manhattan + 左上方点到右下点的Manhattan + 终点（左边拣货台）的Manhattan
-          return (3 - startCol) + (startRow - topTurnRow + 1) +
-              (ShelfCol - 2 - 3) + (btmTurnRow + 1 - topTurnRow + 1) +
-              (btmTurnRow + 1 - pickRow) + (ShelfCol - 2 - 1);
+          return (startRow) +
+              (colNum - 4) + (rowNum - 1) +
+              (rowNum - 1 - pickRow) + (colNum - 4);
         }
       } else {
         // 除此之外，目标是右边拣货台、中间的拣货位，到左上方的点的Manhattan + 左上方点和终点的 Manhattan 距离
-        return (3 - startCol) + (startRow - topTurnRow + 1) +
-            (endCol - 3) + (endRow - topTurnRow + 1);
+        return (startRow) +
+            (endCol) + (endRow);
       }
-    } else if (startRow === topTurnRow - 1) {
+    } else if (startRow === 0) {
       // 2-2 最上面一行，货位正上方一段，一直到最右侧
       if (endCol < startCol) {
         // 目标点是后面 那就只有绕圈。
-        if (endRow === pickRow && (endCol === 1 )) {
+        if (endRow === pickRow && (endCol === 0 )) {
           // 目标点是左边拣货台。// 当前到右下点的Manhattan + 终点（左边拣货台）的Manhattan
-          return (ShelfCol - 2 - startCol) + (btmTurnRow + 1 - startRow) +
-              (btmTurnRow + 1 - pickRow) + (ShelfCol - 2 - 1);
+          return (colNum - 4 - startCol) + (rowNum - 1 - startRow) +
+              (rowNum - 1 - pickRow) + (colNum - 4);
+
         } else {
-          // 这里不用 if 了，直接就是中间的货位了。上面的基础上 左边拣货台到左上方的Manhattan + 左上方到目标的Manhattan
-          return (ShelfCol - 2 - startCol) + (btmTurnRow + 1 - startRow) +
-              (btmTurnRow + 1 - pickRow) + (ShelfCol - 2 - 1) +
-              (3 - 1) + (pickRow - topTurnRow + 1) +
-              (endCol - 3) + (endRow - topTurnRow + 1);
+          // 目标点是中间的货位了。需要绕圈。上面的基础上 左边拣货台到左上方的Manhattan + 左上方到目标的Manhattan
+          return (colNum - 4 - startCol) + (rowNum - 1 - startRow) +
+              (rowNum - 1 - pickRow) + (colNum - 4) +
+              pickRow +
+              (endCol) + (endRow);
         }
       } else {
         // 目标是正下方或者是右方、中间的拣货位，直接就是当前点和终点的 Manhattan 距离
         return (endCol - startCol) + (endRow - startRow);
       }
-    } else if (startCol >= ShelfCol - 4 && startRow <= btmTurnRow) {
+    } else if (startCol === colNum - 4) {
       // 2-3 下降列到最底下水平列。
-      if (endRow === pickRow && (endCol === ShelfCol - 2 )) {
+      if (endRow === pickRow && (endCol === colNum - 4 )) {
         // 目标点是右边拣货台
         if (startRow <= pickRow) {
-          return (endRow - startRow) + (ShelfCol - 2 - startCol)
+          // 起点在拣货台上方。
+          return (endRow - startRow)
         } else {
           //在右边拣货台下方，那就只能绕圈了，到右下点的Manhattan + 左上方的点的Manhattan + 左上方点到右拣货台的Manhattan
-          return (ShelfCol - 2 - startCol) + (btmTurnRow + 1 - startRow) +
-              (btmTurnRow + 1 - pickRow) + (ShelfCol - 2 - 1) + (3 - 1) + (pickRow - topTurnRow + 1) +
-              (pickRow - topTurnRow + 1) + (ShelfCol - 2 - 3);
+          return (rowNum - 1 - startRow) +
+              (rowNum - 1) + (colNum - 4) +
+              (pickRow) + (colNum - 4);
         }
-      } else if (endRow === pickRow && (endCol === 1 )) {
+      } else if (endRow === pickRow && (endCol === 0 )) {
         // 目标点是左边拣货台
-        return (ShelfCol - 2 - startCol) + (btmTurnRow + 1 - startRow) +
-            (btmTurnRow + 1 - pickRow) + (ShelfCol - 2 - 1);
+        return (rowNum - 1 - startRow) +
+            (rowNum - 1 - pickRow) + (colNum - 4);
+
       } else {
         // 目标是中间的货位
-        return (ShelfCol - 2 - startCol) + (btmTurnRow + 1 - startRow) +
-            (btmTurnRow + 1 - pickRow) + (ShelfCol - 2 - 1) + (3 - 1) + (pickRow - topTurnRow + 1) +
-            (endRow - topTurnRow + 1) + (endCol - 3);
+        return (rowNum - 1 - startRow) +
+            (rowNum - 1) + (colNum - 4) +
+            (endRow) + (endCol);
       }
 
-    } else if (startRow === btmTurnRow + 1) {
+    } else if (startRow === rowNum - 1) {
       // 2-4 当前点在最底部一行
-      if (endRow === pickRow && (endCol === 1 )) {
+      if (endRow === pickRow && (endCol === 0 )) {
         // 目标点是左边拣货台
         return (startRow - endRow ) + (startCol - endCol );
-      } else if (endRow === pickRow && (endCol === ShelfCol - 2 )) {
+      } else if (endRow === pickRow && (endCol === colNum - 4 )) {
         // 目标点是右边拣货台 到左边拣货台Manhattan + 到左上角的Manhattan + 左上角到右边拣货台Manhattan
-        return (startRow - pickRow ) + (startCol - 1 ) +
-            (3 - 1) + (pickRow - topTurnRow + 1) +
-            (endCol - 3) + (endRow - topTurnRow + 1);
+        return (startRow - pickRow ) + (startCol) +
+            (pickRow) +
+            (endCol) + (endRow);
       } else {
         // 目标是中间的货位
-        return (startRow - pickRow ) + (startCol - 1 ) +
-            (3 - 1) + (pickRow - topTurnRow + 1) +
-            (endCol - 3) + (endRow - topTurnRow + 1);
+        return (startRow - pickRow ) + (startCol) +
+            (pickRow) +
+            (endCol) + (endRow);
       }
 
-    } else if (startRow >= topTurnRow && startRow <= btmTurnRow &&
-        startCol >= topTurnCol && startCol <= topEndTurnCol &&
-        startCol !== endCol) {
-      // 2-5 中间部分，
-      if(endRow === pickRow && (endCol === 1 )){
+    } else if (
+      startRow >= 1 && startRow <= rowNum - 2 &&
+      startCol >= 8 && startCol <= colNum - 12 &&
+      startCol !== endCol
+    ) {
+      // 2-5 中间部分，需要绕
+      if(endRow === pickRow && (endCol === 0 )){
         // 目标是左边拣货台
         // 当前列数和目标列数不同，到当前列底部 + 左边拣货台Manhattan
-        return (btmTurnRow + 1 - startRow) +
-            (startCol - 1)+(btmTurnRow +1 -pickRow);
+        return (rowNum - 1 - startRow) +
+            (startCol )+(rowNum -1 -pickRow);
       }else {
         // 目标是中间货位，或者右边拣货台
         // 当前列数和目标列数不同，到当前列底部 + 左边拣货台Manhattan + 左上角Manhattan + 目标位置Manhattan
-        return (btmTurnRow + 1 - startRow) +
-            (startCol - 1)+(btmTurnRow +1 -pickRow)+
-            (3 - 1) + (pickRow - topTurnRow + 1) +
-            (endCol - 3) + (endRow - topTurnRow + 1);
+        return (rowNum - 1 - startRow) +
+            (startCol )+(rowNum -1 -pickRow)+
+            (pickRow) +
+            (endCol ) + (endRow);
       }
     } else {
       console.log('some senario not expected!');
