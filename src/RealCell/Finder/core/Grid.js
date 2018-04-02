@@ -3,6 +3,8 @@
  */
 
 import Node from './Node';
+import * as CONFIG from '../config';
+
 
 function Grid(width_or_matrix, height, matrix) {
   let width;
@@ -108,10 +110,10 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
   if (allowDirection === 'UP') {
     // ↑
     if (this.isWalkableAt(row - 1, col)) {
-      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
-        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
+      for (let occupyCol = 0; occupyCol < CONFIG.occupyColConfig; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < CONFIG.occupyRowConfig; occupyRow += 1) {
           // 占位是4行
-          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - 1 - occupyRow, col - 1 + occupyCol);
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - 1 - occupyRow, col + occupyCol);
           if (twoWalkable === false) {
             return []; // 只要有一个阻挡，就不能移动，返回 []
           }
@@ -124,9 +126,9 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
   } else if (allowDirection === 'DOWN') {
     // ↓
     if (this.isWalkableAt(row + 1, col)) {
-      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
-        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
-          twoWalkable = twoWalkable && this.isUnitWalkableAt(row + 1 - occupyRow, col - 1 + occupyCol);
+      for (let occupyCol = 0; occupyCol < CONFIG.occupyColConfig; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < CONFIG.occupyRowConfig; occupyRow += 1) {
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row + 1 - occupyRow, col + occupyCol);
           //console.log(twoWalkable);
           if (twoWalkable === false) {
             //console.log('向下有阻挡');
@@ -141,9 +143,9 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
     // ←
     if (this.isWalkableAt(row, col - 1)) {
 
-      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
-        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
-          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col - 1 - 1 + occupyCol);
+      for (let occupyCol = 0; occupyCol < CONFIG.occupyColConfig; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < CONFIG.occupyRowConfig; occupyRow += 1) {
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col - 1 + occupyCol);
           //console.log(twoWalkable);
           if (twoWalkable === false) {
             return []; // 只要有一个阻挡，就不能移动，返回 【】
@@ -157,9 +159,9 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
     // →
     if (this.isWalkableAt(row, col + 1)) {
 
-      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
-        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
-          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col - 1 + 1 + occupyCol);
+      for (let occupyCol = 0; occupyCol < CONFIG.occupyColConfig; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < CONFIG.occupyRowConfig; occupyRow += 1) {
+          twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col + 1 + occupyCol);
           //console.log(twoWalkable);
           if (twoWalkable === false) {
             return []; // 只要有一个阻挡，就不能移动，返回 【】
@@ -169,7 +171,10 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
 
       neighbors.push(nodes[row][col + 1]);
     }
-  } else if (allowDirection === 'UPDOWN') {
+  }
+
+  // 双向混合的不存在
+  /*else if (allowDirection === 'UPDOWN') {
     // ↑
     if (this.isWalkableAt(row - 1, col)) {
       for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
@@ -205,7 +210,8 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
       }
       neighbors.push(nodes[row + 1][col]);
     }
-  } else if (allowDirection === 'UPRIGHT') {
+  }
+  else if (allowDirection === 'UPRIGHT') {
     // →
     if (this.isWalkableAt(row, col + 1)) {
 
@@ -242,7 +248,8 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
       }
       neighbors.push(nodes[row - 1][col]);
     }
-  } else if (allowDirection === 'DOWNRIGHT') {
+  }
+  else if (allowDirection === 'DOWNRIGHT') {
     // →
     if (this.isWalkableAt(row, col + 1)) {
 
@@ -278,7 +285,7 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
       }
       neighbors.push(nodes[row + 1][col]);
     }
-  }
+  }*/
 
   return neighbors;
 };

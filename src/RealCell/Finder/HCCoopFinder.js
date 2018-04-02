@@ -7,29 +7,12 @@ import * as Util from './core/Util';
 import Heuristic from './core/Heuristic';
 import Grid from './core/Grid';
 import {
-  topLeftRow,
-  topLeftCol,
-  boxRowNum,
-  boxColNum,
-  pickStationRow,
-  shelfColLen,
 
   occupyRowConfig,
   occupyColConfig
 } from '../config';
 
-const topTurnRow = topLeftRow;
-const topTurnCol = topLeftCol;
-
-const boxRow = boxRowNum;
-const boxCol = boxColNum;
-
-const btmTurnRow = topTurnRow + boxRow * 3;
-const topEndTurnCol = topTurnCol + (boxCol - 1) * 2;
-
-const pickRow = pickStationRow; // 这个是根据UI测试的图里定的。可以说是写死了。拣货台的行数。22
-
-const ShelfCol = shelfColLen;
+import * as CONFIG from '../config';
 
 function HCCoopFinder(opt) {
   opt = opt || {};
@@ -143,23 +126,23 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
      *
      */
     if (
-        node.row >= topTurnRow && node.row <= btmTurnRow &&
-        node.col >= topTurnCol && node.col <= topEndTurnCol
+      node.row >= 1 && node.row <= CONFIG.rowNum - 2 &&
+      node.col >= 8 && node.col <= CONFIG.colNum - 12
     ) {
       // 在中间货位部分，能够上下移动
       neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWN');
       //  neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPDOWN');
     } else if (
-        (node.col <= 3 && node.row <= btmTurnRow) ||
-        (node.col === 1 && node.row === btmTurnRow + 1)
+        (node.col === 0 && node.row >= 1)
     ) {
       // 上升列，能够往右上，不能下
-      neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPRIGHT');
+      //neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UPRIGHT');
+      neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UP'); // 上升列只能上
     } else if (
-        node.row === topTurnRow - 1 &&
-        node.col >= 3 && node.col < ShelfCol - 4
+        node.row === 0 &&
+        node.col >= 0 && node.col <= CONFIG.colNum - 5
     ) {
-      // 最上面一行，分情况，看目标
+      // 最上面一行，除去最右上角的一点，分情况，看目标
       /*
        * 1. 只能往右，目标列不等于当前列
        * 2. 只能往下，目标列等于当前列
@@ -172,12 +155,12 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       } else {
         neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'RIGHT');
       }
-    } else if (node.col >= ShelfCol - 4 && node.row <= btmTurnRow) {
-      // 下降列，只能右下
-      neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWNRIGHT');
+    } else if (node.col === CONFIG.colNum - 4 && node.row <= CONFIG.rowNum - 2) {
+      // 下降列，只能下，不包括最右下角
+      neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWN');
     } else if (
-        node.row === btmTurnRow + 1 &&
-        (node.col >= 2 && node.col <= ShelfCol - 2)
+        node.row === CONFIG.rowNum - 1 &&
+        (node.col >= 1 && node.col <= CONFIG.colNum - 4)
     ) {
       // 最底部一行，只能往左
       neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'LEFT');
@@ -214,8 +197,8 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       testArray.push(nodeNextStep); // 如果已到达终点
       nodeNextStep.t = node.t + 1;
     } else if (nodeNextStep.walkable && nodeNextStep.unitWalkable && testArray.length === 1 &&
-        node.row >= topTurnRow && node.row <= btmTurnRow &&
-        node.col >= topTurnCol && node.col <= topEndTurnCol
+        node.row >= 1 && node.row <= CONFIG.rowNum - 2 &&
+        node.col >= 8 && node.col <= CONFIG.colNum - 12
     ) {
       // 如果如果是中间列只有一个 neighbor 可走，那应该就是堵住了，这个时候应该停。
       // 这个地方有个bug，就是上面的车下来的时候，可能会挡道，导致停止。
