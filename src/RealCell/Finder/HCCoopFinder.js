@@ -43,18 +43,11 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
   const endRow = goalTable[index][1][0];
   const endCol = goalTable[index][1][1];
 
-  // 根据这些参数，首先我能够知道的是 特定的小车（index）特定的目标（index + goalTable）其他小车的路径（path table）固有的地形障碍（matrix）搜索的步长（searchDeepth）。
-  // 步骤：
-  // 1. 生成用于寻路的reservation table；
-  // 2. 根据当前的点，得到后面的一个timestep里的相关的点。
-  // 3. 对这些点进行 loop 更新、push、pop 寻路。得到一条路径。
-  // 4. 循环对所有的小车执行这样的操作。
-
   const reservationTable = new Array(searchDeepth + 1); // 这个值应该是 pathtable 最长的一个数组长度
   for (let index = 0; index < reservationTable.length; index += 1) {
     reservationTable[index] = new Grid(colNum, rowNum, matrix)
   }
-  // 根据 path table 添加相对应的 node 的占位。这里其实我是不用管具体是哪辆车
+
   let pathNode, reservedNode;
 
   for (let i = 0; i < pathTable.length; i += 1) { // i is the index of unit
@@ -62,20 +55,20 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       continue
     }
     for (let j = 0; j < pathTable[i].length; j += 1) {
-      // 精确到每一条路径中的每一个点了。 j 是一条路径中的 timestep。
       pathNode = pathTable[i][j]; // [row, col]
       // j时刻的grid
 
-      // 考虑 footprint，
-      for (let occupyCol = 0; occupyCol < 3; occupyCol += 1) {
-        for (let occupyRow = 0; occupyRow < 4; occupyRow += 1) {
-          reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1] - 1 + occupyCol); // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
+      // 考虑 footprint，按照现在的划格子方法，横向占位4格，竖向占位6格。pathnode是左下角的点。
+      for (let occupyCol = 0; occupyCol < 4; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < 6; occupyRow += 1) {
+          reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1] + occupyCol);
+          // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
           // reservedNode.walkable = false; 注意这里已经删除了 walkable,这里仅仅会影响到 getNeighbors 方法。
           reservedNode.unitWalkable = false; // 把横向的三个点都设为 unitWalkable 为 false
           reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
             row: pathNode[0] - occupyRow,
-            col: pathNode[1] - 1 + occupyCol
-          } : {row: pathTable[i][j + 1][0] - occupyRow, col: pathTable[i][j + 1][1] - 1 + occupyCol} // 存上下一时刻的动作。
+            col: pathNode[1] + occupyCol
+          } : {row: pathTable[i][j + 1][0] - occupyRow, col: pathTable[i][j + 1][1] + occupyCol} // 存上下一时刻的动作。
         }
       } // 每一个点有4行3列的占位。
     } // 对于每条路径中的每个点，都有一个4 * 3格的占位
