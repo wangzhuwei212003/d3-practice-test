@@ -46,8 +46,20 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       // 考虑 footprint，按照现在的划格子方法，横向占位4格，竖向占位6格。pathnode是左下角的点。
       for (let occupyCol = 0; occupyCol < occupyColConfig; occupyCol += 1) {
         for (let occupyRow = 0; occupyRow < occupyRowConfig; occupyRow += 1) {
-          reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1] + occupyCol);
           // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
+          // 如果是超过了就直接跳过。
+          let nodeRow = pathNode[0] - occupyRow; // for循环里的row
+          let nodeCol = pathNode[1] + occupyCol; // for循环里的col
+
+          if (
+              nodeRow < 0 || nodeRow > CONFIG.rowNum - 1 ||
+              nodeCol < 0 || nodeCol > CONFIG.colNum - 1
+          ) {
+            continue
+          }
+
+          reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1] + occupyCol);
+
           // reservedNode.walkable = false; 注意这里已经删除了 walkable,这里仅仅会影响到 getNeighbors 方法。
           reservedNode.unitWalkable = false; // 把横向的三个点都设为 unitWalkable 为 false
           reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
@@ -126,8 +138,8 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
      *
      */
     if (
-      node.row >= 1 && node.row <= CONFIG.rowNum - 2 &&
-      node.col >= 8 && node.col <= CONFIG.colNum - 12
+        node.row >= 1 && node.row <= CONFIG.rowNum - 2 &&
+        node.col >= 8 && node.col <= CONFIG.colNum - 12
     ) {
       // 在中间货位部分，能够上下移动
       neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWN');

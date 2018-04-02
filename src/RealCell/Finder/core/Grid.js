@@ -3,7 +3,7 @@
  */
 
 import Node from './Node';
-import * as CONFIG from '../config';
+import * as CONFIG from '../../config';
 
 
 function Grid(width_or_matrix, height, matrix) {
@@ -86,7 +86,13 @@ Grid.prototype.isWalkableAt = function (row, col) {
 
 Grid.prototype.isUnitWalkableAt = function (row, col) {
   //console.log(this.nodes[row][col].unitWalkable);
-  return this.isInside(row, col) && this.nodes[row][col].unitWalkable;
+  // return this.isInside(row, col) && this.nodes[row][col].unitWalkable;
+  if(this.isInside(row, col)){
+    return this.nodes[row][col].unitWalkable; // 如果是在这个矩阵里
+  }else {
+    return true; // 如果不在这个矩阵里，是直接就可以走的。
+  }
+
 };
 
 Grid.prototype.isInside = function (row, col) {

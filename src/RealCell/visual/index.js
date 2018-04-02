@@ -276,16 +276,16 @@ class Visual extends Component {
     this.movingSpotOuter.selectAll('rect').data(pathTable)
         .enter().append('rect')
         .attr('x', function (d) {
-          return scales.x(d[nowTimeStep][1] - 1);
+          return scales.x(d[nowTimeStep][1]);
         })
         .attr('y', function (d) {
-          return scales.y(d[nowTimeStep][0] - 4);
+          return scales.y(d[nowTimeStep][0] - 5);
         })
         .attr('width', function (d) {
-          return cellW * 3;
+          return cellW * 4;
         })
         .attr('height', function (d) {
-          return cellH * 4;
+          return cellH * 6;
         })
         .style('fill', 'none')
         .style('stroke-width', '2px')
@@ -294,10 +294,10 @@ class Visual extends Component {
     this.movingSpotOuter.selectAll('rect').data(pathTable)
         .transition()
         .attr("x", function (d) {
-          return scales.x(d[nowTimeStep][1] - 1);
+          return scales.x(d[nowTimeStep][1]);
         })
         .attr("y", function (d) {
-          return scales.y(d[nowTimeStep][0] - 3);
+          return scales.y(d[nowTimeStep][0] - 5);
         })
         .duration(duration);
   }
@@ -306,9 +306,17 @@ class Visual extends Component {
   //那其实每次都是画、算，是不是就直接就 setInterval 就可以了？
   testInterval() {
     this.coopInterval = setInterval(() => {
+
+      const startT = Date.now();
       this.initialNextTimeStep(); // 画、算。
+      const endT = Date.now();
+      console.log('calculate time: ', endT - startT);
     }, 1000)
   }
+
+  testOneStep(){
+    this.initialNextTimeStep(); // 画、算，测试用。
+  };
 
   initialNextTimeStep() {
     /*
@@ -320,9 +328,8 @@ class Visual extends Component {
     dispatch.initialNextTimeStep(); // 应该先算，再画，第一次是要初始化的。
 
     // 画点，画路径.
-    // this.drawNextStepMovingSpot(0, this.scales, dispatch.getPathTable(), timeGap);
-    // this.drawPath(this.scales, dispatch.getPathTable());
-
+     this.drawNextStepMovingSpot(0, this.scales, dispatch.getPathTable(), timeGap);
+     this.drawPath(this.scales, dispatch.getPathTable());
 
   }
 
