@@ -339,10 +339,21 @@ class Visual extends Component {
     //dispatch.testSet();
   }
 
+  calcTeethTest(){
+    console.log('calc teeth and pin action');
+
+    const startT = Date.now();
+    dispatch.calTeethAndPinAction(0, [26,27], [4,8]);
+    const endT = Date.now();
+    console.log('算齿数用时：', endT - startT);
+  }
+
   render() {
     return (
         <div ref={ele => this.grid = ele} >
           <Button type="primary" onClick={() => this.testInterval()}> test </Button>
+          <Button type="primary" onClick={() => this.testOneStep()}> test ONE step </Button>
+          <Button type="primary" onClick={() => this.calcTeethTest()}> calc teeth and pin action </Button>
           <br/>
         </div>
     )

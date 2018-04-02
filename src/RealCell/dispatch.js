@@ -17,6 +17,8 @@ import {
   timeGap,
   searchDeepth,
 
+  pickStationRow,
+
 } from './config';
 import * as Util from './Finder/core/Util';
 
@@ -70,6 +72,48 @@ export const getPathTable = function () {
   return pathTable;
 };
 
+export const calTeethAndPinAction = function (optIndex, startNode, endNode) {
+  // 这个方法，更改了
+
+  // endNode 是终点，但是终点不能是任意的，中间货位或者是拣货台
+  // startNode:[row, col]; endNode:[row, col]
+  const endRow = endNode[0];
+  const endCol = endNode[1];
+
+  // 排错
+  if (endRow === pickStationRow && (endCol === 0 || endCol === colNum - 4)) {
+    //console.log('目标为拣货台');
+  } else if (
+      endRow >= 1 && endRow <= rowNum - 2 &&
+      endCol >= 8 && endCol <= colNum - 12
+  ) {
+    //console.log('目标为中间货位'); // 目标是中间货位，这个是 HCPriority 一致的计算方法。
+  } else {
+    console.log('目标设置错误。');
+    debugger;
+    return 0; // 除了拣货台和中间的货位，其他位置的目标都是不允许的。
+  }
+
+  // 根据起点、终点算路径。调用这个方法的时候，其实是设置 goalTable 的一个过程。
+  let _goalTable = JSON.parse(JSON.stringify(goalTable));
+  let _pathTable = Array(shuttleAmount).fill([]);
+
+  _goalTable[optIndex] = [startNode, endNode];
+  goalTable = _goalTable; // 更改 goalTable 里面的路径。
+
+  const finder = new HCCoopFinder();
+  const path = finder.findPath(optIndex, _goalTable, rowNum *2 + colNum*2, _pathTable, matrixZero, rowNum, colNum, true);
+  // 注意这里是应该要确保 matrixZero 是有的
+
+  console.log(path);
+
+  let teethAndPinAction = Util.calcTeeth(path);
+
+  console.log(teethAndPinAction);
+
+  return teethAndPinAction;
+};
+
 export const initializePathTable = function () {
   /*
    * 初始化路径。
@@ -113,6 +157,8 @@ export const initializePathTable = function () {
 
   pathTable = _pathTable; // 更新当前保存的数据里的 pathtable。
 
+  console.log(_pathTable);
+
 };
 
 export const initialNextTimeStep = function () {
@@ -125,18 +171,18 @@ export const initialNextTimeStep = function () {
    * 3. 更新 pathtable
    */
 
-  if(!checkGoalTable(goalTable)){
+  if (!checkGoalTable(goalTable)) {
     // 如果是没有通过测试，那么就是应该是报错了！
     console.log('goalTable illegal');
     debugger;
     return
   }
 
-  if(!checkPathTable(pathTable)){
+  if (!checkPathTable(pathTable)) {
     // 如果是 pathTable 为空，那么是应该 initialize path，否则就不用了。
     console.log('直接初始化路径。');
     initializePathTable();
-  }else{
+  } else {
     // 如果是正在进行中，就是应该有更新 goalTable 之后再去算路径、更新 pathTable。
     //console.log('initial next step occurred!!');
     let _goalTable = JSON.parse(JSON.stringify(goalTable)); // deep copy 当前的 goalTable
@@ -158,7 +204,7 @@ const checkGoalTable = function (goalTable) {
 
   return goalTable.length === shuttleAmount &&
       goalTable[0].length === 2 && goalTable[0][1].length === 2 &&
-      goalTable[shuttleAmount-1].length === 2 && goalTable[shuttleAmount-1][1].length === 2;
+      goalTable[shuttleAmount - 1].length === 2 && goalTable[shuttleAmount - 1][1].length === 2;
 
 };
 const checkPathTable = function (pathTable) {
@@ -167,7 +213,7 @@ const checkPathTable = function (pathTable) {
 
   return pathTable.length === shuttleAmount &&
       pathTable[0][1].length === 2 &&
-      pathTable[shuttleAmount-1][1].length === 2;
+      pathTable[shuttleAmount - 1][1].length === 2;
 
 };
 

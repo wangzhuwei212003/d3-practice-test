@@ -21,7 +21,7 @@ function HCCoopFinder(opt) {
 
 }
 
-HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, pathTable, matrix, rowNum, colNum) {
+HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, pathTable, matrix, rowNum, colNum, ignoreOthers = false) {
 
   const startRow = goalTable[index][0][0];
   const startCol = goalTable[index][0][1];
@@ -35,41 +35,46 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
 
   let pathNode, reservedNode;
 
-  for (let i = 0; i < pathTable.length; i += 1) { // i is the index of unit
-    if (i === index) {
-      continue
-    }
-    for (let j = 0; j < pathTable[i].length; j += 1) {
-      pathNode = pathTable[i][j]; // [row, col]
-      // j时刻的grid
+  if(ignoreOthers){
+    // do nothing
+  }else{
+    for (let i = 0; i < pathTable.length; i += 1) { // i is the index of unit
+      if (i === index) {
+        continue
+      }
+      for (let j = 0; j < pathTable[i].length; j += 1) {
+        pathNode = pathTable[i][j]; // [row, col]
+        // j时刻的grid
 
-      // 考虑 footprint，按照现在的划格子方法，横向占位4格，竖向占位6格。pathnode是左下角的点。
-      for (let occupyCol = 0; occupyCol < occupyColConfig; occupyCol += 1) {
-        for (let occupyRow = 0; occupyRow < occupyRowConfig; occupyRow += 1) {
-          // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
-          // 如果是超过了就直接跳过。
-          let nodeRow = pathNode[0] - occupyRow; // for循环里的row
-          let nodeCol = pathNode[1] + occupyCol; // for循环里的col
+        // 考虑 footprint，按照现在的划格子方法，横向占位4格，竖向占位6格。pathnode是左下角的点。
+        for (let occupyCol = 0; occupyCol < occupyColConfig; occupyCol += 1) {
+          for (let occupyRow = 0; occupyRow < occupyRowConfig; occupyRow += 1) {
+            // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
+            // 如果是超过了就直接跳过。
+            let nodeRow = pathNode[0] - occupyRow; // for循环里的row
+            let nodeCol = pathNode[1] + occupyCol; // for循环里的col
 
-          if (
-              nodeRow < 0 || nodeRow > CONFIG.rowNum - 1 ||
-              nodeCol < 0 || nodeCol > CONFIG.colNum - 1
-          ) {
-            continue
+            if (
+                nodeRow < 0 || nodeRow > CONFIG.rowNum - 1 ||
+                nodeCol < 0 || nodeCol > CONFIG.colNum - 1
+            ) {
+              continue
+            }
+
+            reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1] + occupyCol);
+
+            // reservedNode.walkable = false; 注意这里已经删除了 walkable,这里仅仅会影响到 getNeighbors 方法。
+            reservedNode.unitWalkable = false; // 把横向的三个点都设为 unitWalkable 为 false
+            reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
+              row: pathNode[0] - occupyRow,
+              col: pathNode[1] + occupyCol
+            } : {row: pathTable[i][j + 1][0] - occupyRow, col: pathTable[i][j + 1][1] + occupyCol} // 存上下一时刻的动作。
           }
+        } // 每一个点有4行3列的占位。
+      } // 对于每条路径中的每个点，都有一个4 * 3格的占位
+    } // end for loop，所有pathtable里的点占位情况更新完毕。
 
-          reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1] + occupyCol);
-
-          // reservedNode.walkable = false; 注意这里已经删除了 walkable,这里仅仅会影响到 getNeighbors 方法。
-          reservedNode.unitWalkable = false; // 把横向的三个点都设为 unitWalkable 为 false
-          reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
-            row: pathNode[0] - occupyRow,
-            col: pathNode[1] + occupyCol
-          } : {row: pathTable[i][j + 1][0] - occupyRow, col: pathTable[i][j + 1][1] + occupyCol} // 存上下一时刻的动作。
-        }
-      } // 每一个点有4行3列的占位。
-    } // 对于每条路径中的每个点，都有一个4 * 3格的占位
-  } // end for loop，所有pathtable里的点占位情况更新完毕。
+  }
   // reservation table ready ！！！
 
   // 1. Heap 还是 heap，push、pop 都是要用到的。
@@ -118,6 +123,14 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       //console.log('规划出来的路径：', Util.backtraceNode(node));
       return Util.backtrace(node);
     }
+
+    if(ignoreOthers){
+      if(node.row === endRow && node.col === endCol){
+        console.log('已经到达终点'); // 如果是仅仅为了计算总齿数，这个找到终点就能够直接返回。
+        return Util.backtrace(node);
+      }
+    }
+
 
     // 根据当前的这个格子找下一个要搜索的点，这些点应该是下一个 timestep 里的，也就是下一个 grid。
     // 这里的点应该是包括自身node + 周围的node。分别对应的就是在原处停止 wait，和其他的 action。

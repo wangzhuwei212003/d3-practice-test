@@ -11,7 +11,6 @@ import {
   boxRowNum,
   boxColNum,
   pickStationRow,
-  shelfColLen,
 
 
 } from '../../config';
@@ -47,7 +46,6 @@ export default {
 
     const pickRow = pickStationRow; // 这个是根据UI测试的图里定的。可以说是写死了。拣货台的行数。22
 
-    const ShelfCol = shelfColLen; // 一共有这么多列, 23 列，不从 0 开始。
 
     // 排错
     if(endRow === pickRow && (endCol === 0 || endCol === colNum - 4)){

@@ -8,14 +8,24 @@ import {
   rowNum,
   colNum,
 
-  topLeftRow,
-  topLeftCol,
-  boxRowNum,
-  boxColNum,
   pickStationRow,
-  shelfColLen,
 
-} from '../../config';
+  normalWidth, //水平方向一格的宽度
+  normalHeight, // 一般货位高度是 66.83
+  topBoxNormalHeight, // 最上面一行货位的高度是 60.23
+  specialHeight, // 底部特殊高度，31.62
+  compensate, // 方向改变的时候，齿数补偿，25 + 90度
+
+  specialBottomPart, // 底部的特殊部分
+  specialTopPart, // 顶部的特殊部分
+
+  SUPPart, // S形弯道上部分齿数
+  SDownPart, // S形弯道下部分齿数
+
+  pickStationHigh
+}
+  from
+      '../../config';
 
 export const backtrace = function (node) {
   const path = [[node.row, node.col]];
@@ -53,18 +63,8 @@ export const backtraceNode = function (node) {
  */
 export const HCPriority = function (row, col) {
 
-  const topTurnRow = topLeftRow;
-  const topTurnCol = topLeftCol;
-
-  const boxRow = boxRowNum;
-  const boxCol = boxColNum;
-
-  const btmTurnRow = topTurnRow + boxRow * 3;
-  const topEndTurnCol = topTurnCol + (boxCol - 1) * 2;
-
   const pickRow = pickStationRow; // 这个是根据UI测试的图里定的。可以说是写死了。拣货台的行数。22
 
-  const ShelfCol = shelfColLen;
 
   // 排错
   if (row > rowNum - 1 || row < 0 || col < 0 || col > colNum - 3) {
@@ -150,5 +150,193 @@ export const generateMatrix = function () {
   // debugger;
   return matrixData;
 };
+
+export const calcTeeth = function (path) {
+  // 传进来的是一个 path，二维数组
+  // [[row, col], [row, col], [row, col], ... , [row, col]]
+
+  // 目前的做法是加一个判断，是否需要补偿。除此之外，CellToTeeth就不用考虑补偿了。
+
+  // 算总齿数是设目标的时候，就算好。但是和行进过程中没有关系。这个是基于齿数的，所以是不存在不停的重新规划的。
+  // 所以是还得有一个 ignore 其他所有小车的寻路的方法。所以在 findPath 里添加了一个 ignore 的 flag。一般情况下是不会 ignore 的
+
+  // 算出总齿数，以及什么时候伸 pin、缩 pin。
+
+  /* 返回的数据格式
+  * {
+  *   totalTeeth：double数值
+  *   stretchPin：[], 伸pin的点，是齿数，到达相应的齿数开始伸pin
+  *   retrivePin: []
+  * }
+  *
+  * */
+  let totalTeeth = 0;
+  let stretchPin = [];
+  let retrivePin = [];
+
+  for (let step = 0; step < path.length; step += 1) {
+    let cell = path[step]; // 这个是 [row, col]
+    let cellNext;
+    if (step !== path.length - 1) {
+      cellNext = path[step + 1];
+    } else {
+      cellNext = path[step];
+    }
+
+    let cellRow = cell[0];
+    let cellCol = cell[1];
+    let cellNextRow = cellNext[0];
+    let cellNextCol = cellNext[1];
+
+    if(cellRow === cellNextRow && cellCol === cellNextCol){
+      // 如果是已经到达终点了，就停止计算。
+      break
+    }
+
+    totalTeeth += CellToTeeth(cellRow, cellCol); // 没有考虑补偿的。
+
+    //判断如果是转弯了，就加补偿
+  /*  // 首先判断是潜在的补偿点。
+    if (
+        cellRow === 1 && cellCol === 0 ||
+        (cellRow === rowNum - 1 && cellCol === 0) ||
+        (
+            cellRow === rowNum - 2 && cellCol >= 8 && cellCol <= colNum - 12 && (cellCol - 8) % 4 === 0
+        ) ||
+        (
+            cellRow === rowNum - 2 && cellCol === colNum - 4
+        ) ||
+        (
+            cellRow === 0 && cellCol >= 8 && cellCol <= colNum - 12 && (cellCol - 8) % 4 === 0
+        ) ||
+        (
+            cellRow === 0 && cellCol === colNum - 4
+        )
+    ) {
+      // 这个里面是可能走到的点
+
+
+    }*/
+
+    if (
+        cellRow === 1 && cellCol === 0 &&
+        cellNextRow === 0 && cellNextCol === 0
+    ) {
+      // 这里不需要伸 pin
+      totalTeeth += compensate; // 如果是有拐角就是添加补偿。
+    } else if (
+        (cellRow === rowNum - 1 && cellCol === 0) &&
+        cellNextRow === rowNum - 2 && cellNextCol === 0
+    ) {
+      // 这里需要在前两格伸pin
+      stretchPin.push(totalTeeth - 2*normalWidth);
+      totalTeeth += compensate;
+      retrivePin.push(totalTeeth);
+    } else if (
+        (
+            cellRow === rowNum - 2 && cellCol >= 8 && cellCol <= colNum - 12 && (cellCol - 8) % 4 === 0
+        ) &&
+        cellNextRow === rowNum - 1 && cellNextCol === cellCol
+    ) {
+      // 下降列转弯了。下来不需要伸 pin，缩 pin。
+      totalTeeth += compensate;
+    } else if (
+        cellRow === rowNum - 2 && cellCol === colNum - 4 &&
+        cellNextRow === rowNum - 1 && cellNextCol === cellCol
+    ) {
+      // 最后一列下降列。下来不需要伸 pin，缩 pin
+      totalTeeth += compensate;
+    } else if (
+        cellRow === 0 && cellCol >= 8 && cellCol <= colNum - 12 && (cellCol - 8) % 4 === 0 &&
+        cellNextRow === 1 && cellNextCol === cellCol
+    ) {
+      // 顶部一行下降列，方向改变
+      if(cellCol === 8){
+        // 特殊处理
+        stretchPin.push(totalTeeth - normalWidth - 2*specialTopPart );
+        totalTeeth += compensate;
+        retrivePin.push(totalTeeth);
+      }else{
+        stretchPin.push(totalTeeth - 3*normalWidth );
+        totalTeeth += compensate;
+        retrivePin.push(totalTeeth);
+      }
+    } else if (
+        cellRow === 0 && cellCol === colNum - 4
+    ){
+      // 最后一列下降，方向改变
+      stretchPin.push(totalTeeth - 3*normalWidth );
+      totalTeeth += compensate;
+      retrivePin.push(totalTeeth);
+    }
+
+    console.log('total teeth: ', totalTeeth);
+    console.log('cellRow cellCol: ', cellRow, cellCol);
+  } // end for loop 根据一条路径算总齿数、伸pin、缩pin点，算完。
+
+  // 返回一个 object
+  return {
+    totalTeeth: totalTeeth,
+    stretchPin: stretchPin,
+    retrivePin: retrivePin
+  }
+};
+
+const CellToTeeth = function (cellRow, cellCol) {
+  // 根据行列，对应出齿数。没有考虑补偿。
+  // 特殊的先来，从上到下
+  if (
+      cellRow === 0 &&
+      cellCol >= 4 && cellCol <= 7
+  ) {
+    // 顶部特殊长度 52/4
+    return specialTopPart
+  } else if (
+      cellRow === 0
+  ) {
+    // 除此之外，上面的都是 normal
+    return normalWidth
+  } else if (
+      cellRow >= 1 && cellRow <= 4
+  ) {
+    // 剩下的最上面一行的货位里的格子
+    return topBoxNormalHeight
+  } else if (
+      cellRow >= rowNum - 10 && cellRow <= rowNum - 7 &&
+      (cellCol === 0 || cellCol === colNum - 4)
+  ) {
+    // S形弯道下部分
+    return SDownPart
+  } else if (
+      cellRow >= rowNum - 14 && cellRow <= rowNum - 11 &&
+      (cellCol === 0 || cellCol === colNum - 4)
+  ) {
+    // S形弯道上部分
+    return SUPPart
+  } else if (
+      cellRow >= 5 && cellRow <= rowNum - 3
+  ) {
+    // 中间正常部分
+    return normalHeight
+  } else if (
+      cellRow === rowNum - 2
+  ) {
+    // 倒数第二行 特殊高度部分，其他的都不需要补偿
+    return specialHeight
+  } else if (
+      cellRow === rowNum - 1 &&
+      cellCol >= 4 && cellCol <= 7
+  ) {
+    // 倒数第一行 特殊宽度部分
+    return specialBottomPart
+  } else if (cellRow === rowNum - 1) {
+    return normalWidth
+  } else {
+    console.log('some situation senario not considered!!');
+    debugger;
+  }
+
+};
+
 
 export default {}
