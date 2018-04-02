@@ -14,6 +14,8 @@ import {
   pickStationRow,
   shelfColLen,
 
+  occupyRowConfig,
+  occupyColConfig
 } from '../config';
 
 const topTurnRow = topLeftRow;
@@ -59,8 +61,8 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       // j时刻的grid
 
       // 考虑 footprint，按照现在的划格子方法，横向占位4格，竖向占位6格。pathnode是左下角的点。
-      for (let occupyCol = 0; occupyCol < 4; occupyCol += 1) {
-        for (let occupyRow = 0; occupyRow < 6; occupyRow += 1) {
+      for (let occupyCol = 0; occupyCol < occupyColConfig; occupyCol += 1) {
+        for (let occupyRow = 0; occupyRow < occupyRowConfig; occupyRow += 1) {
           reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1] + occupyCol);
           // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
           // reservedNode.walkable = false; 注意这里已经删除了 walkable,这里仅仅会影响到 getNeighbors 方法。
