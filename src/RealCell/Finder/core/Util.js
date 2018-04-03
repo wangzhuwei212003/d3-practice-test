@@ -175,7 +175,7 @@ export const calcTeeth = function (path) {
   let retrivePin = [];
   let actions = [];
 
-  console.log(path);
+  //console.log(path);
 
   for (let step = 0; step < path.length; step += 1) {
     let cell = path[step]; // 这个是 [row, col]
@@ -281,8 +281,8 @@ export const calcTeeth = function (path) {
         }); // 伸pin动作
         totalTeeth += compensate;
         totalTeeth -= CellToTeeth(cellRow, cellCol); // 多算了一个，横向的这一个是不用算的。
-        console.log(CellToTeeth(cellRow, cellCol));
-        debugger;
+        //console.log(CellToTeeth(cellRow, cellCol));
+        //debugger;
         //retrivePin.push(totalTeeth);
         actions.push({
           position: totalTeeth,

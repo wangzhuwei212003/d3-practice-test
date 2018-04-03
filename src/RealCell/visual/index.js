@@ -343,7 +343,8 @@ class Visual extends Component {
     console.log('calc teeth and pin action');
 
     const startT = Date.now();
-    dispatch.calTeethAndPinAction(0, [26,3], [4,8]); // 从起点到 25 号箱位
+    // dispatch.calTeethAndPinAction(0, [26,3], [4,8]); // 从起点到 25 号箱位
+    dispatch.calTeethAndPinAction(0, [26,3], [24,24]); // 从起点到 4 号箱位
     const endT = Date.now();
     console.log('算齿数用时：', endT - startT);
   }
