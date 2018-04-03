@@ -349,12 +349,22 @@ class Visual extends Component {
     console.log('算齿数用时：', endT - startT);
   }
 
+  testInterval(){
+    dispatch.initializeInterval();
+  }
+
+  testClearInterval(){
+    dispatch.clearInitialInterval();
+  }
+
   render() {
     return (
         <div ref={ele => this.grid = ele} >
           <Button type="primary" onClick={() => this.testInterval()}> test </Button>
           <Button type="primary" onClick={() => this.testOneStep()}> test ONE step </Button>
           <Button type="primary" onClick={() => this.calcTeethTest()}> calc teeth and pin action </Button>
+          <Button type="primary" onClick={() => this.testInterval()}> initialize interval </Button>
+          <Button type="primary" onClick={() => this.testClearInterval()}> clear initialize interval </Button>
           <br/>
         </div>
     )

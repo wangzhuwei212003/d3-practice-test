@@ -47,14 +47,28 @@ let pathTable = [];
 let goalTable = [];
 let matrixZero = []; // 0-1矩阵，用来记录除其他小车之外的障碍。
 
-let asdf = 1;
+let initialInterval;
 
-export const testSet = function () {
-  asdf += 1
+export const initializeInterval = function () {
+  // 自己循环算
+  initialInterval = setInterval(() => {
+    console.log('in the interval.')
+  }, 500)
+
 };
-export const testGet = function () {
-  return asdf;
+
+export const clearInitialInterval = function () {
+  clearInterval(initialInterval);
 };
+
+// let asdf = 1;
+//
+// export const testSet = function () {
+//   asdf += 1
+// };
+// export const testGet = function () {
+//   return asdf;
+// };
 
 export const setPathTable = function (newPathTable) {
   pathTable = newPathTable;
