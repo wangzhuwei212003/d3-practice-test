@@ -173,6 +173,9 @@ export const calcTeeth = function (path) {
   let totalTeeth = 0;
   let stretchPin = [];
   let retrivePin = [];
+  let actions = [];
+
+  console.log(path);
 
   for (let step = 0; step < path.length; step += 1) {
     let cell = path[step]; // 这个是 [row, col]
@@ -188,10 +191,10 @@ export const calcTeeth = function (path) {
     let cellNextRow = cellNext[0];
     let cellNextCol = cellNext[1];
 
-    if(cellRow === cellNextRow && cellCol === cellNextCol){
-      // 如果是已经到达终点了，就停止计算。
-      break
-    }
+    // if(cellRow === cellNextRow && cellCol === cellNextCol){
+    //   // 如果是已经到达终点了，就停止计算。
+    //   break
+    // } 这句话不能写，会导致不算最后一个终点。而且，起点的设置也是有讲究的。
 
     totalTeeth += CellToTeeth(cellRow, cellCol); // 没有考虑补偿的。
 
@@ -223,51 +226,104 @@ export const calcTeeth = function (path) {
         cellNextRow === 0 && cellNextCol === 0
     ) {
       // 这里不需要伸 pin
-      totalTeeth += compensate; // 如果是有拐角就是添加补偿。
+      totalTeeth += compensate; // 如果是有拐角就是添加补偿。第一行上升列
     } else if (
         (cellRow === rowNum - 1 && cellCol === 0) &&
         cellNextRow === rowNum - 2 && cellNextCol === 0
     ) {
-      // 这里需要在前两格伸pin
-      stretchPin.push(totalTeeth - 2*normalWidth);
+      // 这里需要在前两格伸pin，第一列上升列
+      // stretchPin.push(totalTeeth - 2*normalWidth);
+      // totalTeeth += compensate;
+      // retrivePin.push(totalTeeth);
+
+      //stretchPin.push(totalTeeth - 2 * normalWidth);
+      actions.push({
+        position: totalTeeth - 2 * normalWidth,
+        action: 'stretchPin'
+      }); // 伸pin动作
       totalTeeth += compensate;
-      retrivePin.push(totalTeeth);
+      //retrivePin.push(totalTeeth);
+      actions.push({
+        position: totalTeeth,
+        action: 'retrivePin'
+      }); // 缩pin动作
+
     } else if (
         (
             cellRow === rowNum - 2 && cellCol >= 8 && cellCol <= colNum - 12 && (cellCol - 8) % 4 === 0
         ) &&
         cellNextRow === rowNum - 1 && cellNextCol === cellCol
     ) {
-      // 下降列转弯了。下来不需要伸 pin，缩 pin。
+      // 下降列转弯了。下来不需要伸 pin，缩 pin。下降列，下降到最底部一行
       totalTeeth += compensate;
+      totalTeeth -= CellToTeeth(cellNextRow, cellCol); // 多算了一个，最底部的横向的这一个是不用算的。
     } else if (
         cellRow === rowNum - 2 && cellCol === colNum - 4 &&
         cellNextRow === rowNum - 1 && cellNextCol === cellCol
     ) {
       // 最后一列下降列。下来不需要伸 pin，缩 pin
       totalTeeth += compensate;
+      totalTeeth -= CellToTeeth(cellNextRow, cellCol); // 多算了一个，最底部的横向的这一个是不用算的。
     } else if (
         cellRow === 0 && cellCol >= 8 && cellCol <= colNum - 12 && (cellCol - 8) % 4 === 0 &&
         cellNextRow === 1 && cellNextCol === cellCol
     ) {
       // 顶部一行下降列，方向改变
       if(cellCol === 8){
-        // 特殊处理
-        stretchPin.push(totalTeeth - normalWidth - 2*specialTopPart );
+        // // 特殊处理
+        // stretchPin.push(totalTeeth - normalWidth - 2*specialTopPart );
+        // totalTeeth += compensate;
+        // retrivePin.push(totalTeeth);
+
+        actions.push({
+          position: totalTeeth - normalWidth - 2 * specialTopPart,
+          action: 'stretchPin'
+        }); // 伸pin动作
         totalTeeth += compensate;
-        retrivePin.push(totalTeeth);
+        totalTeeth -= CellToTeeth(cellRow, cellCol); // 多算了一个，横向的这一个是不用算的。
+        console.log(CellToTeeth(cellRow, cellCol));
+        debugger;
+        //retrivePin.push(totalTeeth);
+        actions.push({
+          position: totalTeeth,
+          action: 'retrivePin'
+        }); // 缩pin动作
       }else{
-        stretchPin.push(totalTeeth - 3*normalWidth );
+        // stretchPin.push(totalTeeth - 3*normalWidth );
+        // totalTeeth += compensate;
+        // retrivePin.push(totalTeeth);
+
+        actions.push({
+          position: totalTeeth - 3 * normalWidth,
+          action: 'stretchPin'
+        }); // 伸pin动作
         totalTeeth += compensate;
-        retrivePin.push(totalTeeth);
+        totalTeeth -= CellToTeeth(cellRow, cellCol); // 多算了一个，横向的这一个是不用算的。
+        //retrivePin.push(totalTeeth);
+        actions.push({
+          position: totalTeeth,
+          action: 'retrivePin'
+        }); // 缩pin动作
       }
     } else if (
         cellRow === 0 && cellCol === colNum - 4
     ){
       // 最后一列下降，方向改变
-      stretchPin.push(totalTeeth - 3*normalWidth );
+      // stretchPin.push(totalTeeth - 3*normalWidth );
+      // totalTeeth += compensate;
+      // retrivePin.push(totalTeeth);
+
+      actions.push({
+        position: totalTeeth - 3 * normalWidth,
+        action: 'stretchPin'
+      }); // 伸pin动作
       totalTeeth += compensate;
-      retrivePin.push(totalTeeth);
+      totalTeeth -= CellToTeeth(cellRow, cellCol); // 多算了一个，横向的这一个是不用算的。
+      //retrivePin.push(totalTeeth);
+      actions.push({
+        position: totalTeeth,
+        action: 'retrivePin'
+      }); // 缩pin动作
     }
 
     console.log('total teeth: ', totalTeeth);
@@ -275,11 +331,16 @@ export const calcTeeth = function (path) {
   } // end for loop 根据一条路径算总齿数、伸pin、缩pin点，算完。
 
   // 返回一个 object
+  // return {
+  //   totalTeeth: totalTeeth,
+  //   stretchPin: stretchPin,
+  //   retrivePin: retrivePin
+  // }
+
   return {
     totalTeeth: totalTeeth,
-    stretchPin: stretchPin,
-    retrivePin: retrivePin
-  }
+    actions: actions,
+  };
 };
 
 const CellToTeeth = function (cellRow, cellCol) {
