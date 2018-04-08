@@ -526,7 +526,7 @@ class RowsByColumn extends Component {
       const finder = new CoopAstarFinder();
       const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero, rowNum, colNum);
       console.log(path);
-      console.log(path === []); // false ?
+      console.log(path === []); // false ? 没错，这个是 fatal error，即使是 [] === [] 也是 false
       if (path.length === 0) {
         this.goalTable[optIndex][0] = this.pathTable[optIndex][0];
         this.initializePathTable();
