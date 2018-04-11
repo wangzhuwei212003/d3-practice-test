@@ -115,7 +115,7 @@ export const RCTransform = function (odom) {
     }
   } else {
     // 3. 中间部分，odom.current_row 范围是 2 - 6，中间货位部分。
-    rowSmall = CONFIG.smallRowNum - 2 - (odom.current_row - 1) * 4;
+    rowSmall = CONFIG.smallRowNum - 3 - (odom.current_row - 1) * 4;
 
     // 上升列、下降列，包含S形弯道部分。
     if (

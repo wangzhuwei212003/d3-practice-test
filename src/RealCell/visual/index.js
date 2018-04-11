@@ -368,7 +368,7 @@ class Visual extends Component {
       horizontal_offset_from_nearest_coordinate: 0,
       vertical_offset_from_nearest_coordinate: 0,
       theoretical_moving_direction: 3,
-      current_row: 1,
+      current_row: 2,
       current_column: 2,
       turning: false
     });
