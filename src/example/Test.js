@@ -9,7 +9,6 @@
 import React, {Component} from 'react';
 import {Table, InputNumber, Button} from 'antd';
 
-
 //首尾距离
 const headTail = 37;
 

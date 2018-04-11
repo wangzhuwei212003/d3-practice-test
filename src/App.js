@@ -17,9 +17,6 @@ import './App.css';
 import 'antd/dist/antd.css';
 
 import Home from './example/Home';
-import BarChart from './example/BarChart';
-import SimpleBarChart from './Tutorials/SimpleBarChart/SimpleBarChart';
-import DynamicTable from './Tutorials/DynamicTable/DynamicTable';
 import Grid from './Tutorials/MakeGrid';
 import Mower from './Tutorials/mowerDemo';
 import Tetris from './Tutorials/Tetris';
@@ -29,8 +26,7 @@ import Test from './example/Test';
 import BasicAStar from './MAPF/BasicAStar';
 import Coop4 from './MAPF/Coop4';
 import Coop30 from './MAPF/Coop30';
-import RowByCol from './MAPF/RowsByColumns';
-import Visual from './RealSituation/visual';
+
 import CellVisual from './RealCell/visual';
 
 const SubMenu = Menu.SubMenu;
@@ -70,23 +66,17 @@ class App extends Component {
                     <Icon type="inbox"/>
                     <span><Link to='/MAPF/Coop30'>Coop 30</Link></span>
                   </Menu.Item>
-                  <Menu.Item key="5">
-                    <Icon type="inbox"/>
-                    <span><Link to='/MAPF/RowByCol'>Rows by columns</Link></span>
-                  </Menu.Item>
-                  <Menu.Item key="6">
-                    <Icon type="inbox"/>
-                    <span><Link to='/RealSituation/visual'>Real situation</Link></span>
-                  </Menu.Item>
+
+
                   <Menu.Item key="7">
                     <Icon type="inbox"/>
                     <span><Link to='/Cell/visual'>Real cell</Link></span>
                   </Menu.Item>
                   <SubMenu key="sub1" title={<span><Icon type="mail"/><span>D3 example</span></span>}>
-                    <Menu.Item key="5"><Link to='/Tutorials/DynamicTable'>DynamicTable</Link></Menu.Item>
+
                     <Menu.Item key="6"><Link to='/Tutorials/MakeGrid'>Grid</Link></Menu.Item>
                     <Menu.Item key="7"><Link to='/Tutorials/mowerDemo'>Mower</Link></Menu.Item>
-                    <Menu.Item key="8"><Link to='/Tutorials/SimpleBarChart'>SimpleBarChart</Link></Menu.Item>
+
                     <Menu.Item key="8-1"><Link to='/Tutorials/Tetris'>Tetris</Link></Menu.Item>
                   </SubMenu>
                   <SubMenu key="sub2" title={<span><Icon type="appstore"/><span>D3 Util</span></span>}>
@@ -101,20 +91,17 @@ class App extends Component {
               </Sider>
               <Content>
                 <Route exact path="/" component={Home}/>
-                <Route path="/example/BarChart" component={BarChart}/>
                 <Route path="/example/Test" component={Test}/>
 
                 <Route path="/MAPF/BasicAStar" component={BasicAStar}/>
                 <Route path="/MAPF/Coop4" component={Coop4}/>
                 <Route path="/MAPF/Coop30" component={Coop30}/>
-                <Route path="/MAPF/RowByCol" component={RowByCol}/>
-                <Route path="/RealSituation/visual" component={Visual}/>
+
                 <Route path="/Cell/visual" component={CellVisual}/>
 
-                <Route path="/Tutorials/DynamicTable" component={DynamicTable}/>
                 <Route path="/Tutorials/MakeGrid" component={Grid}/>
                 <Route path="/Tutorials/mowerDemo" component={Mower}/>
-                <Route path="/Tutorials/SimpleBarChart" component={SimpleBarChart}/>
+
                 <Route path="/Tutorials/Tetris" component={Tetris}/>
 
               </Content>

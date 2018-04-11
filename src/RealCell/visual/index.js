@@ -22,6 +22,11 @@ import * as dispatch from '../dispatch';
 import * as Util from '../Finder/core/Util';
 import './index.css';
 
+import {
+  RCTransform,
+  calcTeeth
+} from '../TestFunction/RCTransform';
+
 class Visual extends Component {
   constructor(props) {
     super(props);
@@ -72,25 +77,25 @@ class Visual extends Component {
         // 因为看起来是有障碍的点比较多，默认就是有障碍。
 
         // 我这边是为了显示的方便，使用的 web 里的坐标系，左上角是（0，0），往右往下变大。
-        if(
+        if (
             (row === 0 && column < colNum - 3) ||
             (row === rowNum - 1 && column < colNum - 3)
-        ){
+        ) {
           // 第一行、最后一行的点，没有障碍的点
           ob = 0;
         }
-        if(
+        if (
             column === 0 ||
             column === colNum - 4
 
-        ){
+        ) {
           ob = 0; // 第一列，最后一列没有障碍
         }
-        if(
+        if (
             column > 7 &&
             column < colNum - 11 &&
             (column - 8) % 4 === 0
-        ){
+        ) {
           // 中间正常货位部分，没有障碍
           ob = 0;
         }
@@ -314,7 +319,7 @@ class Visual extends Component {
     }, 1000)
   }
 
-  testOneStep(){
+  testOneStep() {
     this.initialNextTimeStep(); // 画、算，测试用。
   };
 
@@ -328,8 +333,8 @@ class Visual extends Component {
     dispatch.initialNextTimeStep(); // 应该先算，再画，第一次是要初始化的。
 
     // 画点，画路径.
-     this.drawNextStepMovingSpot(0, this.scales, dispatch.getPathTable(), timeGap);
-     this.drawPath(this.scales, dispatch.getPathTable());
+    this.drawNextStepMovingSpot(0, this.scales, dispatch.getPathTable(), timeGap);
+    this.drawPath(this.scales, dispatch.getPathTable());
 
   }
 
@@ -339,32 +344,55 @@ class Visual extends Component {
     //dispatch.testSet();
   }
 
-  calcTeethTest(){
+  calcTeethTest() {
     console.log('calc teeth and pin action');
 
     const startT = Date.now();
     // dispatch.calTeethAndPinAction(0, [26,3], [4,8]); // 从起点到 25 号箱位
-    dispatch.calTeethAndPinAction(0, [26,3], [24,24]); // 从起点到 4 号箱位
+    dispatch.calTeethAndPinAction(0, [26, 3], [24, 24]); // 从起点到 4 号箱位
     const endT = Date.now();
     console.log('算齿数用时：', endT - startT);
   }
 
-  testInterval(){
+  testIntervalDispatch() {
     dispatch.initializeInterval();
   }
 
-  testClearInterval(){
+  testClearInterval() {
     dispatch.clearInitialInterval();
+  }
+
+  testRCTransform() {
+    console.log('RCTransform!');
+    RCTransform({
+      horizontal_offset_from_nearest_coordinate: 0,
+      vertical_offset_from_nearest_coordinate: 0,
+      theoretical_moving_direction: 3,
+      current_row: 1,
+      current_column: 2,
+      turning: false
+    });
+  }
+
+  testCalcTeeth(){
+    const path = [
+      [15, 8], [16, 8], [17, 8], [18, 8], [19, 8], [20, 8], [21, 8], [22, 8], [23, 8], [24, 8], [24, 8]
+    ];
+    let distToStop_obj = calcTeeth(path.slice(1, 9));
+    let distToStop = distToStop_obj.total_teeth;
+    console.log(distToStop);
   }
 
   render() {
     return (
-        <div ref={ele => this.grid = ele} >
-          <Button type="primary" onClick={() => this.testInterval()}> test </Button>
-          <Button type="primary" onClick={() => this.testOneStep()}> test ONE step </Button>
-          <Button type="primary" onClick={() => this.calcTeethTest()}> calc teeth and pin action </Button>
-          <Button type="primary" onClick={() => this.testInterval()}> initialize interval </Button>
-          <Button type="primary" onClick={() => this.testClearInterval()}> clear initialize interval </Button>
+        <div ref={ele => this.grid = ele}>
+          {/*<Button type="primary" onClick={() => this.testInterval()}> test </Button>*/}
+          {/*<Button type="primary" onClick={() => this.testOneStep()}> test ONE step </Button>*/}
+          {/*<Button type="primary" onClick={() => this.calcTeethTest()}> calc teeth and pin action </Button>*/}
+          {/*<Button type="primary" onClick={() => this.testIntervalDispatch()}> initialize interval </Button>*/}
+          {/*<Button type="primary" onClick={() => this.testClearInterval()}> clear initialize interval </Button>*/}
+          <Button type="primary" onClick={() => this.testRCTransform()}> RCTransform! </Button>
+          <Button type="primary" onClick={() => this.testCalcTeeth()}> calcTeeth! </Button>
           <br/>
         </div>
     )
