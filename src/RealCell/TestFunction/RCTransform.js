@@ -61,16 +61,20 @@ export const RCTransform = function (odom) {
       odom.current_row === 1
   ) {
     // 2-1. 倒数第二行，就是特殊列的一行
-    rowSmall = CONFIG.smallRowNum - 2;
 
     // 除了第一列 -- 上升列 都没有问题。
     if (odom.current_column === 0) {
+      rowSmall = CONFIG.smallRowNum - 2; //
+
       shiftNum = Math.floor(odom.vertical_offset_from_nearest_coordinate / CONFIG.normalHeight);
       rowSmall -= shiftNum;
       shiftLeft = odom.vertical_offset_from_nearest_coordinate - shiftNum * CONFIG.normalHeight;
     } else {
-      shiftNum = 0;
-      shiftLeft = odom.vertical_offset_from_nearest_coordinate;
+      // 下降列，
+      rowSmall = CONFIG.smallRowNum - 3; // 小格子应该是相当于大格子的货位的位置报告。
+
+      shiftNum = Math.floor(odom.vertical_offset_from_nearest_coordinate / CONFIG.specialHeight);
+      shiftLeft = odom.vertical_offset_from_nearest_coordinate - shiftNum * CONFIG.specialHeight;
     }
   } else if (
       odom.current_row === 0
@@ -111,7 +115,7 @@ export const RCTransform = function (odom) {
     }
   } else {
     // 3. 中间部分，odom.current_row 范围是 2 - 6，中间货位部分。
-    rowSmall = CONFIG.smallRowNum - 2 - (odom.current_row - 1) * 4
+    rowSmall = CONFIG.smallRowNum - 2 - (odom.current_row - 1) * 4;
 
     // 上升列、下降列，包含S形弯道部分。
     if (
