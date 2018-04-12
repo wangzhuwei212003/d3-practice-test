@@ -28,7 +28,8 @@ import './index.css';
 import {
   RCTransform,
   calcTeeth,
-  setGoal
+  setGoal,
+  backToPickUpSite
 } from '../TestFunction/RCTransform';
 
 // const SpecificActionsEnum = {
@@ -415,6 +416,17 @@ class Visual extends Component {
     }
   }
 
+  testAllCargoBoxToPickUpSite() {
+    //测试从 30个箱位 到 起点 的齿数、action是否正确，
+    // 起点位置用标准的odom，终点仅仅是拣货台-位置报告的两个行列数。
+    // 起点默认位置报告是 0，1, 起点转换过来小格子位置报告是 26，4
+    for (let bigRow = 1; bigRow <= 6; bigRow += 1) {
+      for (let bigColumn = 2; bigColumn <= 6; bigColumn += 1) {
+        backToPickUpSite(bigRow, bigColumn);
+      }
+    }
+  }
+
 
 
   testCalcTeeth() {
@@ -437,15 +449,16 @@ class Visual extends Component {
     return (
         <div ref={ele => this.grid = ele}>
           {/*<Button type="primary" onClick={() => this.testInterval()}> test </Button>*/}
-          {/*<Button type="primary" onClick={() => this.testOneStep()}> test ONE step </Button>*/}
+          <Button type="primary" onClick={() => this.testOneStep()}> test ONE step </Button>
           {/*<Button type="primary" onClick={() => this.calcTeethTest()}> calc teeth and pin action </Button>*/}
           {/*<Button type="primary" onClick={() => this.testIntervalDispatch()}> initialize interval </Button>*/}
           {/*<Button type="primary" onClick={() => this.testClearInterval()}> clear initialize interval </Button>*/}
-          <Button type="primary" onClick={() => this.testRCTransform(0, 1)}> RCTransform! </Button>
+          <Button type="primary" onClick={() => this.testRCTransform(2, 0)}> RCTransform! </Button>
           <Button type="primary" onClick={() => this.testCalcTeeth()}> calcTeeth! </Button>
           <Button type="primary" onClick={() => this.testBoxTeeth()}> calcTeeth A0 ! </Button>
           <Button type="primary" onClick={() => this.testAllCellTransform()}> testAllCellTransform ! </Button>
           <Button type="primary" onClick={() => this.testStartNodeToAllCargoBox()}> test StartNode To AllCargoBox ! </Button>
+          <Button type="primary" onClick={() => this.testAllCargoBoxToPickUpSite()}> test AllCargoBox To PickUpSite! </Button>
           <br/>
         </div>
     )

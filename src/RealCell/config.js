@@ -9,7 +9,7 @@ module.exports = {
   cellW: 25, // for visual 这个是为了显示的格子
   cellH: 25,
 
-  pickStationRow: 27 - 6, // 拣货台所在行的index，
+  pickStationRow: 21, // 拣货台所在行的index，
 
   colorSet: ['#D7263D', '#F46036', '#C5D86D', '#1B998B', '#2E294E'],
   colorSetPath: ['#E16171', '#F78B6C', '#D4E294', '#59B4AA', '#67637E'],

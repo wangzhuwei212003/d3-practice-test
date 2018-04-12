@@ -44,7 +44,7 @@ export default {
     const btmTurnRow = topTurnRow + boxRow * 3; // 中间部分最底一行的格子行数
     const topEndTurnCol = topTurnCol + (boxCol - 1) * 2; // 中间部分最右侧一列的格子列数
 
-    const pickRow = pickStationRow; // 这个是根据UI测试的图里定的。可以说是写死了。拣货台的行数。22
+    const pickRow = pickStationRow; // 这个是暂时写死了， 21
 
 
     // 排错

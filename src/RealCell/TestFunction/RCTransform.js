@@ -418,6 +418,28 @@ export const setGoal = function (rowInput, colInput) {
   return result;
 };
 
+export const backToPickUpSite = function (rowInput, colInput, shiftLeft = 0) {
+  // 回到拣货台，这里接收的是起点的位置，实际auto-pick中，是直接读位置报告里的起点。。
+
+  // 2. 传进来的 row、col 需要转换成我这里的坐标系
+  // let endNode = rowColTransform(CONFIG.PickUPSite[0], CONFIG.PickUPSite[1]); // 这个简单的转换是够用的。拣货台的点。
+  // let endRow = endNode[0];
+  // let endCol = endNode[1];
+  let endNode = [21,0]; // 这个简单的转换是够用的。拣货台的点。
+  let endRow = endNode[0];
+  let endCol = endNode[1];
+
+  let startNode = rowColTransform(rowInput, colInput); // 这个简单的转换是够用的。拣货台的点。
+  let startRow = startNode[0];
+  let startCol = startNode[1];
+
+  // 5. 根据goalTable里的起点，接收输入的终点，更新goalTable里的终点，算出总齿数以及action
+  let result = calTeethAndPinAction(0, endNode, startNode);
+
+  // 6. 结果发给小车。 返回{totalLenghth，actions}
+  return result;
+};
+
 const rowColTransform = function (rowInput, colInput) {
   // 输入的行列数，转为适用的行列数。这里针对的是设置终点对应的我这里的位置。
   // 这个transform是适用于设置终点，货位、拣货台。
@@ -437,13 +459,28 @@ const calTeethAndPinAction = function (optIndex = 0, endNode, startnode = [26, 4
   let matrixZero = generateMatrix();
 
   const finder = new HCCoopFinder();
-  const path = finder.findPath(optIndex, goalTable, CONFIG.smallRowNum * 2 + CONFIG.smallColNum * 2, _pathTable, matrixZero, CONFIG.smallRowNum, CONFIG.smallColNum, true); // 因为算齿数不考虑其他小车，这里ignore为true。
+  const path = finder.findPath(optIndex, goalTable, CONFIG.smallRowNum * 4 + CONFIG.smallColNum * 4, _pathTable, matrixZero, CONFIG.smallRowNum, CONFIG.smallColNum, true); // 因为算齿数不考虑其他小车，这里ignore为true。
 
-  // console.log(path);
-  console.log(JSON.stringify(path)); // for save as in console
 
-  let teethAndPinAction = calcTeeth(path, 0); // 根据 path 算齿数。
+  // console.log(JSON.stringify(path)); // for save as in console
 
+  //去掉相同的点
+  let calcPath = path.reduce(function (accu, currentV, currentInx, arr) {
+    if (accu.length === 0) {
+      accu.push(currentV);
+      return accu;
+    } else if (accu[accu.length - 1][0] !== currentV[0] || accu[accu.length - 1][1] !== currentV[1]) {
+      accu.push(currentV);
+      return accu;
+    } else {
+      return accu;
+    }
+  }, []);
+  console.log(JSON.stringify(path), JSON.stringify(calcPath));
+
+  let teethAndPinAction = calcTeeth(calcPath, 0); // 根据 path 算齿数。
+
+  // console.log(teethAndPinAction);
   console.log(JSON.stringify(teethAndPinAction)); // for save console
 
   return teethAndPinAction;
