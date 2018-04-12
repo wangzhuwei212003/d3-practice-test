@@ -27,7 +27,8 @@ import './index.css';
 
 import {
   RCTransform,
-  calcTeeth
+  calcTeeth,
+  setGoal
 } from '../TestFunction/RCTransform';
 
 // const SpecificActionsEnum = {
@@ -403,6 +404,19 @@ class Visual extends Component {
     }
   }
 
+  testStartNodeToAllCargoBox() {
+    //测试从起点到30个箱位的齿数、action是否正确，
+    // 起点位置用标准的odom，终点仅仅是位置报告的两个行列数。
+    // 起点默认位置报告是 0，1, 起点转换过来小格子位置报告是 26，4
+    for (let bigRow = 1; bigRow <= 6; bigRow += 1) {
+      for (let bigColumn = 2; bigColumn <= 6; bigColumn += 1) {
+        setGoal(bigRow, bigColumn);
+      }
+    }
+  }
+
+
+
   testCalcTeeth() {
     const path = [
       [15, 8], [16, 8], [17, 8], [18, 8], [19, 8], [20, 8], [21, 8], [22, 8], [23, 8], [24, 8], [24, 8]
@@ -427,10 +441,11 @@ class Visual extends Component {
           {/*<Button type="primary" onClick={() => this.calcTeethTest()}> calc teeth and pin action </Button>*/}
           {/*<Button type="primary" onClick={() => this.testIntervalDispatch()}> initialize interval </Button>*/}
           {/*<Button type="primary" onClick={() => this.testClearInterval()}> clear initialize interval </Button>*/}
-          <Button type="primary" onClick={() => this.testRCTransform(1, 3)}> RCTransform! </Button>
+          <Button type="primary" onClick={() => this.testRCTransform(0, 1)}> RCTransform! </Button>
           <Button type="primary" onClick={() => this.testCalcTeeth()}> calcTeeth! </Button>
           <Button type="primary" onClick={() => this.testBoxTeeth()}> calcTeeth A0 ! </Button>
           <Button type="primary" onClick={() => this.testAllCellTransform()}> testAllCellTransform ! </Button>
+          <Button type="primary" onClick={() => this.testStartNodeToAllCargoBox()}> test StartNode To AllCargoBox ! </Button>
           <br/>
         </div>
     )

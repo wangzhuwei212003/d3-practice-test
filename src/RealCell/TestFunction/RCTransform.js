@@ -2,6 +2,7 @@
  * Created by zhuweiwang on 10/04/2018.
  */
 import * as CONFIG from './configDATA';
+import HCCoopFinder from '../Finder/HCCoopFinder';
 
 const SpecificActionsEnum = {
   "SA_PIN_OUTSTRETCH": 0,
@@ -164,7 +165,7 @@ export const RCTransform = function (odom) {
     }
   } // 中间部分结束。
 
-  console.log('current_row', odom.current_row,'current_col', odom.current_column,  'rowSmall: ', rowSmall, 'colSmall: ', colSmall, 'shift: ', shiftLeft)
+  console.log('current_row', odom.current_row, 'current_col', odom.current_column, 'rowSmall: ', rowSmall, 'colSmall: ', colSmall, 'shift: ', shiftLeft)
 };
 
 export const calcTeeth = function (path, shiftLeft = 0) {
@@ -397,4 +398,85 @@ const CellToTeeth = function (cellRow, cellCol) {
     console.debug('some situation senario not considered!!');
   }
 
+};
+
+// 和实际使用情况一致，在设置终点的时候根据两个点来算路径以及总齿数
+export const setGoal = function (rowInput, colInput) {
+  // 更新目标接口，设置终点。更新 goalTable，算出总齿数以及Action发给小车。
+  // 测试条件下，不需要更新 goalTable，仅仅是根据两个点，规划出路径，算出总齿数以及action
+
+
+  // 2. 传进来的 row、col 需要转换成我这里的坐标系
+  let endNode = rowColTransform(rowInput, colInput); // 因为这里终点都是货位，所以能够这样简单的转换
+  let endRow = endNode[0];
+  let endCol = endNode[1];
+
+  // 5. 根据goalTable里的起点，接收输入的终点，更新goalTable里的终点，算出总齿数以及action
+  let result = calTeethAndPinAction(0, endNode);
+
+  // 6. 结果发给小车。 返回{totalLenghth，actions}
+  return result;
+};
+
+const rowColTransform = function (rowInput, colInput) {
+  // 输入的行列数，转为适用的行列数。这里针对的是设置终点对应的我这里的位置。
+  // 这个transform是适用于设置终点，货位、拣货台。
+  let col = colInput * 4;
+  let row = CONFIG.smallRowNum - 1 - (rowInput * 4 - 2); // 转换为 从上到下 由0开始增大
+
+  return [row, col];
+};
+
+const calTeethAndPinAction = function (optIndex = 0, endNode, startnode = [26, 4]) {
+
+  let _pathTable = Array(1).fill([]); // 这里应该是根据当前已注册的小车数量，目前是一个车
+  //goalTable[optIndex][1] = endNode; // 更改 goalTable 里面的路径。
+  let goalTable = [
+    [startnode, endNode]
+  ]; // 目前是一个小车
+  let matrixZero = generateMatrix();
+
+  const finder = new HCCoopFinder();
+  const path = finder.findPath(optIndex, goalTable, CONFIG.smallRowNum * 2 + CONFIG.smallColNum * 2, _pathTable, matrixZero, CONFIG.smallRowNum, CONFIG.smallColNum, true); // 因为算齿数不考虑其他小车，这里ignore为true。
+
+  // console.log(path);
+  console.log(JSON.stringify(path)); // for save as in console
+
+  let teethAndPinAction = calcTeeth(path, 0); // 根据 path 算齿数。
+
+  console.log(JSON.stringify(teethAndPinAction)); // for save console
+
+  return teethAndPinAction;
+};
+
+const generateMatrix = function () {
+  const matrixData = [];
+  for (let row = 0; row < CONFIG.smallRowNum; row += 1) {
+    matrixData.push([]);
+    for (let column = 0; column < CONFIG.smallColNum; column += 1) {
+      let ob = 1;
+      if (
+          (row === 0 && column < CONFIG.smallColNum - 3) ||
+          (row === CONFIG.smallRowNum - 1 && column < CONFIG.smallColNum - 3)
+      ) {
+        ob = 0;
+      }
+      if (
+          column === 0 ||
+          column === CONFIG.smallColNum - 4
+      ) {
+        ob = 0;
+      }
+      if (
+          column > 7 &&
+          column < CONFIG.smallColNum - 11 &&
+          (column - 8) % 4 === 0
+      ) {
+        ob = 0;
+      }
+      matrixData[row].push(ob);
+    }
+  }
+  // logger.debug(matrixData);
+  return matrixData;
 };
