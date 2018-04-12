@@ -15,8 +15,11 @@ import {
   colorSet,
   colorSetPath,
 
-  timeGap
+  timeGap,
 } from '../config';
+import {
+  A0
+} from '../TestFunction/configDATA';
 
 import * as dispatch from '../dispatch';
 import * as Util from '../Finder/core/Util';
@@ -26,6 +29,16 @@ import {
   RCTransform,
   calcTeeth
 } from '../TestFunction/RCTransform';
+
+// const SpecificActionsEnum = {
+//   "SA_PIN_OUTSTRETCH": 0,
+//   "SA_PIN_RETRIEVE": 1,
+//   "SA_ODOM_FORWARD_GROUND_AS_REFERENCE": 2,
+//   "SA_ODOM_BACKWARD_GROUND_AS_REFERENCE": 3,
+//   "SA_ODOM_UP_GROUND_AS_REFERENCE": 4,
+//   "SA_ODOM_DOWN_GROUND_AS_REFERENCE": 5,
+//   "SA_TURNING_BEGIN_POINT": 6,
+// };
 
 class Visual extends Component {
   constructor(props) {
@@ -362,23 +375,46 @@ class Visual extends Component {
     dispatch.clearInitialInterval();
   }
 
-  testRCTransform() {
-    console.log('RCTransform!');
+  testRCTransform(bigRow, bigCol) {
+    console.log('bigRow: ', bigRow, 'bigCol: ', bigCol);
     RCTransform({
       horizontal_offset_from_nearest_coordinate: 0,
       vertical_offset_from_nearest_coordinate: 0,
-      theoretical_moving_direction: 3,
-      current_row: 2,
-      current_column: 2,
+      theoretical_moving_direction: 5, // moving down
+      current_row: bigRow,
+      current_column: bigCol,
       turning: false
     });
   }
 
-  testCalcTeeth(){
+  testAllCellTransform() {
+    for (let bigRow = 1; bigRow <= 6; bigRow += 1) {
+      for (let bigColumn = 2; bigColumn <= 6; bigColumn += 1) {
+        //console.log('bigRow: ', bigRow, 'bigColumn: ', bigColumn);
+        RCTransform({
+          horizontal_offset_from_nearest_coordinate: 0,
+          vertical_offset_from_nearest_coordinate: 0,
+          theoretical_moving_direction: 5, // moving down
+          current_row: bigRow,
+          current_column: bigColumn,
+          turning: false
+        });
+      }
+    }
+  }
+
+  testCalcTeeth() {
     const path = [
       [15, 8], [16, 8], [17, 8], [18, 8], [19, 8], [20, 8], [21, 8], [22, 8], [23, 8], [24, 8], [24, 8]
     ];
     let distToStop_obj = calcTeeth(path.slice(1, 9));
+    let distToStop = distToStop_obj.total_teeth;
+    console.log(distToStop);
+  }
+
+  testBoxTeeth() {
+    const path = A0;
+    let distToStop_obj = calcTeeth(path, 0);
     let distToStop = distToStop_obj.total_teeth;
     console.log(distToStop);
   }
@@ -391,8 +427,10 @@ class Visual extends Component {
           {/*<Button type="primary" onClick={() => this.calcTeethTest()}> calc teeth and pin action </Button>*/}
           {/*<Button type="primary" onClick={() => this.testIntervalDispatch()}> initialize interval </Button>*/}
           {/*<Button type="primary" onClick={() => this.testClearInterval()}> clear initialize interval </Button>*/}
-          <Button type="primary" onClick={() => this.testRCTransform()}> RCTransform! </Button>
+          <Button type="primary" onClick={() => this.testRCTransform(1, 3)}> RCTransform! </Button>
           <Button type="primary" onClick={() => this.testCalcTeeth()}> calcTeeth! </Button>
+          <Button type="primary" onClick={() => this.testBoxTeeth()}> calcTeeth A0 ! </Button>
+          <Button type="primary" onClick={() => this.testAllCellTransform()}> testAllCellTransform ! </Button>
           <br/>
         </div>
     )
