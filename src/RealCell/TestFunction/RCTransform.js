@@ -465,6 +465,7 @@ const calTeethAndPinAction = function (optIndex = 0, endNode, startnode = [26, 4
   // console.log(JSON.stringify(path)); // for save as in console
 
   //去掉相同的点
+
   let calcPath = path.reduce(function (accu, currentV, currentInx, arr) {
     if (accu.length === 0) {
       accu.push(currentV);
@@ -476,12 +477,15 @@ const calTeethAndPinAction = function (optIndex = 0, endNode, startnode = [26, 4
       return accu;
     }
   }, []);
-  console.log(JSON.stringify(path), JSON.stringify(calcPath));
 
-  let teethAndPinAction = calcTeeth(calcPath, 0); // 根据 path 算齿数。
+  //console.log(path, calcPath);
+  // console.log(JSON.stringify(path), JSON.stringify(calcPath));
 
-  // console.log(teethAndPinAction);
-  console.log(JSON.stringify(teethAndPinAction)); // for save console
+  // let teethAndPinAction = calcTeeth(path, 0); // 根据 path 算齿数。
+  let teethAndPinAction = calcTeeth(calcPath, 0); // 根据 path 算齿数。用不用 reduce 影响的时间 10- 20ms
+
+  //console.log(teethAndPinAction);
+  // console.log(JSON.stringify(teethAndPinAction)); // for save console
 
   return teethAndPinAction;
 };
