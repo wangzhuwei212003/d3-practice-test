@@ -478,7 +478,7 @@ const calTeethAndPinAction = function (optIndex = 0, endNode, startnode = [26, 4
     }
   }, []);
 
-  //console.log(path, calcPath);
+  console.log(path, calcPath);
   // console.log(JSON.stringify(path), JSON.stringify(calcPath));
 
   // let teethAndPinAction = calcTeeth(path, 0); // 根据 path 算齿数。

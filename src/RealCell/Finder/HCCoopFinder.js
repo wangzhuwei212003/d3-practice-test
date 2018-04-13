@@ -138,7 +138,7 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
     // find the node in which grid. 直接查node的index比较直接。还是直接在同一个 grid 里的所有node里添加一个 t 字段比较方便。
     gridNextStep = reservationTable[node.t + 1];
     if (!gridNextStep) {
-      console.log(node.t);
+      console.log('没有找到相应的时间片，index：', node.t);
       console.log(reservationTable);
       debugger;
     }
@@ -216,33 +216,38 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
     // 这里所有的点都是根据上面 pop 出来的点得出的一系列的相关的点。
     if (nodeNextStep.walkable && nodeNextStep.unitWalkable && testArray.length === 0) {
       // if(nodeNextStep.walkable ){
+      //console.log('待在原地是合法的，且没有其他可走的点了。当前点：', node.row, node.col, '添加下一个点：', nodeNextStep);
       testArray.push(nodeNextStep); // 如果待在原地是合法的，且没有其他可走的点了.... HC 中，要你能够待在原地。
       nodeNextStep.t = node.t + 1;
     } else if (nodeNextStep.walkable && nodeNextStep.unitWalkable && endRow === node.row && endCol === node.col) {
+      //console.log('已到达终点：', node.row, node.col, '添加下一个点：', nodeNextStep);
       testArray.push(nodeNextStep); // 如果已到达终点
       nodeNextStep.t = node.t + 1;
-    } else if (nodeNextStep.walkable && nodeNextStep.unitWalkable && testArray.length === 1 &&
-        node.row >= 1 && node.row <= CONFIG.rowNum - 2 &&
-        node.col >= 8 && node.col <= CONFIG.colNum - 12
-    ) {
-      // 如果如果是中间列只有一个 neighbor 可走，那应该就是堵住了，这个时候应该停。
-      // 这个地方有个bug，就是上面的车下来的时候，可能会挡道，导致停止。
-
-      // 目前想到的方法，如果是 neighbor 只有一个，但是不是下面的一个，那就是下面堵住了，要后退了，这个时候是要停的。
-      // 如果 neighbor 的 neighbor 还是只有一个，那就待在原地。
-      let nei = testArray[0];
-      // 判断 nei方向和终点的方向，如果是方向相同，那就运动，但是如果是方向相反，那么就老实待在原点。
-      if (
-          (nei.row - node.row <= 0 && endRow - node.row <= 0) ||
-          (nei.row - node.row > 0 && endRow - node.row > 0)
-      ) {
-        // 方向相同，do nothing，no need to push the nodeNextStep
-      } else {
-        // 否则方向不同，就待在原地
-        testArray.push(nodeNextStep);
-        nodeNextStep.t = node.t + 1;
-      }
     }
+
+    // else if (nodeNextStep.walkable && nodeNextStep.unitWalkable && testArray.length === 1 &&
+    //     node.row >= 1 && node.row <= CONFIG.rowNum - 3 &&
+    //     node.col >= 8 && node.col <= CONFIG.colNum - 12
+    // ) {
+    //   // 如果如果是中间列只有一个 neighbor 可走，那应该就是堵住了，这个时候应该停。
+    //   // 这个地方有个bug，就是上面的车下来的时候，可能会挡道，导致停止。
+    //
+    //   // 目前想到的方法，如果是 neighbor 只有一个，但是不是下面的一个，那就是下面堵住了，要后退了，这个时候是要停的。
+    //   // 如果 neighbor 的 neighbor 还是只有一个，那就待在原地。
+    //   let nei = testArray[0];
+    //   // 判断 nei方向和终点的方向，如果是方向相同，那就运动，但是如果是方向相反，那么就老实待在原点。
+    //   if (
+    //       (nei.row - node.row <= 0 && endRow - node.row <= 0) ||
+    //       (nei.row - node.row > 0 && endRow - node.row > 0)
+    //   ) {
+    //     // 方向相同，do nothing，no need to push the nodeNextStep
+    //   } else {
+    //     // 否则方向不同，就待在原地
+    //     console.log('这里不知道什么情况，当前点：', node.row, node.col, '添加下一个点：', nodeNextStep);
+    //     testArray.push(nodeNextStep);
+    //     nodeNextStep.t = node.t + 1;
+    //   }
+    // }
 
     // 下面这句是罪恶之源，上面那么多行就是为了确保不随便加原地点。
     // 如果经过上面的判断都没加上，那就是不应该加。除非上面的判断考虑的不够。

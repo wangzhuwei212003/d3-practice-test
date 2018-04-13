@@ -430,6 +430,13 @@ class Visual extends Component {
     console.log('计算用时：', endT - startT);
   }
 
+  testCargoBoxToPickSite(bigRow, bigColumn){
+    const startT = Date.now();
+    // 取值范围，row 1-6，col 2-6
+  backToPickUpSite(bigRow, bigColumn);
+    const endT = Date.now();
+    console.log('计算用时：', endT - startT);
+  }
 
 
   testCalcTeeth() {
@@ -462,6 +469,7 @@ class Visual extends Component {
           <Button type="primary" onClick={() => this.testAllCellTransform()}> testAllCellTransform ! </Button>
           <Button type="primary" onClick={() => this.testStartNodeToAllCargoBox()}> test StartNode To AllCargoBox ! </Button>
           <Button type="primary" onClick={() => this.testAllCargoBoxToPickUpSite()}> test AllCargoBox To PickUpSite! </Button>
+          <Button type="primary" onClick={() => this.testCargoBoxToPickSite(1,2)}> test Single CargoBox To PickUpSite! </Button>
           <br/>
         </div>
     )
