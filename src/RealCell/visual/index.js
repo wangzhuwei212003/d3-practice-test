@@ -378,7 +378,7 @@ class Visual extends Component {
           return cellH * 6;
         })
         .style('fill', 'none')
-        .style('stroke-width', '2px')
+        .style('stroke-width', '5px')
         .style('stroke', 'red');
 
     this.movingSpotOuter.selectAll('rect').data(pathTable)
@@ -392,7 +392,6 @@ class Visual extends Component {
         .duration(duration);
   }
 
-
   //那其实每次都是画、算，是不是就直接就 setInterval 就可以了？
   testInterval() {
     this.coopInterval = setInterval(() => {
@@ -404,6 +403,7 @@ class Visual extends Component {
     }, 1000)
   }
 
+  // 向前模拟一步
   testOneStep() {
     this.initialNextTimeStep(); // 画、算，测试用。
   };
@@ -447,6 +447,7 @@ class Visual extends Component {
     dispatch.clearInitialInterval();
   }
 
+  // 大格子转小格子
   testRCTransform(bigRow, bigCol) {
     console.log('bigRow: ', bigRow, 'bigCol: ', bigCol);
     RCTransform({
@@ -459,6 +460,7 @@ class Visual extends Component {
     });
   }
 
+  // 测试所有的目标点向小格子的转换。
   testAllCellTransform() {
     for (let bigRow = 1; bigRow <= 6; bigRow += 1) {
       for (let bigColumn = 2; bigColumn <= 6; bigColumn += 1) {
@@ -475,6 +477,7 @@ class Visual extends Component {
     }
   }
 
+  // 测试起点到30个货位的算齿。
   testStartNodeToAllCargoBox() {
     //测试从起点到30个箱位的齿数、action是否正确，
     // 起点位置用标准的odom，终点仅仅是位置报告的两个行列数。
@@ -486,6 +489,7 @@ class Visual extends Component {
     }
   }
 
+  // 测试所有30个箱位到拣货台的算齿
   testAllCargoBoxToPickUpSite() {
     //测试从 30个箱位 到 起点 的齿数、action是否正确，
     // 起点位置用标准的odom，终点仅仅是拣货台-位置报告的两个行列数。
@@ -500,6 +504,7 @@ class Visual extends Component {
     console.log('计算用时：', endT - startT);
   }
 
+  // 单个箱位到拣货台的总齿数
   testCargoBoxToPickSite(bigRow, bigColumn) {
     const startT = Date.now();
     // 取值范围，row 1-6，col 2-6
@@ -508,7 +513,7 @@ class Visual extends Component {
     console.log('计算用时：', endT - startT);
   }
 
-
+  // 特定路径的总齿数
   testCalcTeeth() {
     const path = [
       [15, 8], [16, 8], [17, 8], [18, 8], [19, 8], [20, 8], [21, 8], [22, 8], [23, 8], [24, 8], [24, 8]
@@ -518,6 +523,7 @@ class Visual extends Component {
     console.log(distToStop);
   }
 
+  // 算特定路径的总齿数
   testBoxTeeth() {
     const path = A0;
     let distToStop_obj = calcTeeth(path, 0);
@@ -525,24 +531,30 @@ class Visual extends Component {
     console.log(distToStop);
   }
 
+  // 特殊处理，是在 setGoal 方法前面再加一层判断
+  // 即：现在 没有上面的车子在 目标和要执行的任务路径之间的。优先级还是按照原来的，下面的高。
+
+
   render() {
     return (
         <div ref={ele => this.grid = ele}>
-          {/*<Button type="primary" onClick={() => this.testInterval()}> test </Button>*/}
-          <Button type="primary" onClick={() => this.testOneStep()}> test ONE step </Button>
+          {/*<Button type="primary" onClick={() => this.testInterval()}> 连续的向前模拟 </Button>*/}
+          <Button type="primary" onClick={() => this.testOneStep()}> 向前模拟一步 </Button>
+
           {/*<Button type="primary" onClick={() => this.calcTeethTest()}> calc teeth and pin action </Button>*/}
           {/*<Button type="primary" onClick={() => this.testIntervalDispatch()}> initialize interval </Button>*/}
           {/*<Button type="primary" onClick={() => this.testClearInterval()}> clear initialize interval </Button>*/}
-          <Button type="primary" onClick={() => this.testRCTransform(2, 0)}> RCTransform! </Button>
-          <Button type="primary" onClick={() => this.testCalcTeeth()}> calcTeeth! </Button>
-          <Button type="primary" onClick={() => this.testBoxTeeth()}> calcTeeth A0 ! </Button>
-          <Button type="primary" onClick={() => this.testAllCellTransform()}> testAllCellTransform ! </Button>
-          <Button type="primary" onClick={() => this.testStartNodeToAllCargoBox()}> test StartNode To AllCargoBox
-            ! </Button>
-          <Button type="primary" onClick={() => this.testAllCargoBoxToPickUpSite()}> test AllCargoBox To
-            PickUpSite! </Button>
-          <Button type="primary" onClick={() => this.testCargoBoxToPickSite(1, 2)}> test Single CargoBox To
-            PickUpSite! </Button>
+          {/*<Button type="primary" onClick={() => this.testRCTransform(2, 0)}> RCTransform! </Button>*/}
+          {/*<Button type="primary" onClick={() => this.testCalcTeeth()}> calcTeeth! </Button>*/}
+          {/*<Button type="primary" onClick={() => this.testBoxTeeth()}> calcTeeth A0 ! </Button>*/}
+          {/*<Button type="primary" onClick={() => this.testAllCellTransform()}> testAllCellTransform ! </Button>*/}
+          {/*<Button type="primary" onClick={() => this.testStartNodeToAllCargoBox()}> test StartNode To AllCargoBox*/}
+            {/*! </Button>*/}
+          {/*<Button type="primary" onClick={() => this.testAllCargoBoxToPickUpSite()}> test AllCargoBox To*/}
+            {/*PickUpSite! </Button>*/}
+          {/*<Button type="primary" onClick={() => this.testCargoBoxToPickSite(1, 2)}> test Single CargoBox To*/}
+            {/*PickUpSite! </Button>*/}
+
           <br/>
         </div>
     )
