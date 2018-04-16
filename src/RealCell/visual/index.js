@@ -12,6 +12,9 @@ import {
   cellW,
   cellH,
 
+  BIGCELL,
+  BIGCELLTEXT,
+
   colorSet,
   colorSetPath,
 
@@ -71,6 +74,9 @@ class Visual extends Component {
 
     this.movingSpot = this.gridMouseover.append('g');
     this.movingSpotOuter = this.gridMouseover.append('g');
+
+    this.auxiliary = this.gridMouseover.append('g');
+    this.drawAuxiliary(this.scales);
   }
 
   componentDidUpdate() {
@@ -206,6 +212,70 @@ class Visual extends Component {
 
         });
     dispatch.setGoalTable(inputGoalTable); // 更改dispatch里面的数据。接收用来路径规划的数据。
+  }
+
+  // 画辅助线、辅助文字
+  drawAuxiliary(scales) {
+    this.auxiliary.selectAll('rect').data(BIGCELL[5])
+        .enter().append('rect')
+        .attr('x', function (d, i, arr) {
+          return scales.x(i) * 4;
+        })
+        .attr('y', function (d) {
+          return 0;
+        })
+        .attr('width', function (d) {
+          return cellW * 4;
+        })
+        .attr('height', function (d) {
+          return cellH * rowNum;
+        })
+        .style('fill', 'none')
+        .style('stroke-width', '4px')
+        .style('stroke', 'green');
+
+    this.auxiliary.selectAll('text').data(this.auxiliaryTextData.bind(this, BIGCELLTEXT))
+        .enter().append('g').selectAll('text')
+        .data(function (d) {
+          return d;
+        })
+        .enter().append('text')
+        .attr("x", function (d) {
+          return scales.x(d.x + 0.3);
+        })
+        .attr("y", function (d) {
+          return scales.y(d.y + 0.5);
+        })
+        .attr("dy", "0em")
+        // .attr("dy", ".31em")
+        .text(function (d, i, arr) {
+              return d.num;
+            }
+        );
+  }
+
+  auxiliaryTextData(BIGCELLTEXT) {
+    const data = []; // this is preferrable
+    let xpos = 8; // 0号货位是第8列
+    let ypos = 24; // 0号货位是第24列
+
+    // console.log(BIGCELLTEXT);
+
+    //iterate for rows
+    for (let row = 0; row < BIGCELLTEXT.length; row += 1) {
+      data.push([]);
+      for (let column = 0; column < BIGCELLTEXT[0].length; column += 1) {
+        data[row].push({
+          x: xpos,
+          y: ypos,
+          num: BIGCELLTEXT[BIGCELLTEXT.length - 1 - row][column]
+        });
+        xpos += 4;
+      }
+      xpos = 8;
+      ypos -= 4;
+    }
+    return data;
   }
 
   // 画出 path table 里的规划好的路径。
@@ -430,10 +500,10 @@ class Visual extends Component {
     console.log('计算用时：', endT - startT);
   }
 
-  testCargoBoxToPickSite(bigRow, bigColumn){
+  testCargoBoxToPickSite(bigRow, bigColumn) {
     const startT = Date.now();
     // 取值范围，row 1-6，col 2-6
-  backToPickUpSite(bigRow, bigColumn);
+    backToPickUpSite(bigRow, bigColumn);
     const endT = Date.now();
     console.log('计算用时：', endT - startT);
   }
@@ -467,9 +537,12 @@ class Visual extends Component {
           <Button type="primary" onClick={() => this.testCalcTeeth()}> calcTeeth! </Button>
           <Button type="primary" onClick={() => this.testBoxTeeth()}> calcTeeth A0 ! </Button>
           <Button type="primary" onClick={() => this.testAllCellTransform()}> testAllCellTransform ! </Button>
-          <Button type="primary" onClick={() => this.testStartNodeToAllCargoBox()}> test StartNode To AllCargoBox ! </Button>
-          <Button type="primary" onClick={() => this.testAllCargoBoxToPickUpSite()}> test AllCargoBox To PickUpSite! </Button>
-          <Button type="primary" onClick={() => this.testCargoBoxToPickSite(1,2)}> test Single CargoBox To PickUpSite! </Button>
+          <Button type="primary" onClick={() => this.testStartNodeToAllCargoBox()}> test StartNode To AllCargoBox
+            ! </Button>
+          <Button type="primary" onClick={() => this.testAllCargoBoxToPickUpSite()}> test AllCargoBox To
+            PickUpSite! </Button>
+          <Button type="primary" onClick={() => this.testCargoBoxToPickSite(1, 2)}> test Single CargoBox To
+            PickUpSite! </Button>
           <br/>
         </div>
     )
