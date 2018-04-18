@@ -212,6 +212,7 @@ class Visual extends Component {
 
         });
     dispatch.setGoalTable(inputGoalTable); // 更改dispatch里面的数据。接收用来路径规划的数据。
+    console.log('inputGoalTable', inputGoalTable);
   }
 
   // 画辅助线、辅助文字
@@ -231,8 +232,8 @@ class Visual extends Component {
           return cellH * rowNum;
         })
         .style('fill', 'none')
-        .style('stroke-width', '4px')
-        .style('stroke', 'green');
+        .style('stroke-width', '2px')
+        .style('stroke', 'grey');
 
     this.auxiliary.selectAll('text').data(this.auxiliaryTextData.bind(this, BIGCELLTEXT))
         .enter().append('g').selectAll('text')
@@ -241,13 +242,12 @@ class Visual extends Component {
         })
         .enter().append('text')
         .attr("x", function (d) {
-          return scales.x(d.x + 0.3);
+          return scales.x(d.x + 0.2);
         })
         .attr("y", function (d) {
-          return scales.y(d.y + 0.5);
+          return scales.y(d.y + 0.8);
         })
-        .attr("dy", "0em")
-        // .attr("dy", ".31em")
+        .attr("class", "cargoBoxNum")
         .text(function (d, i, arr) {
               return d.num;
             }

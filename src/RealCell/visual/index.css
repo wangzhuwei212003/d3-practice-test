@@ -64,6 +64,13 @@ Button{
   font-size: 1.2em;
 }
 
+.cargoBoxNum{
+  font-size: 20px;
+  font-weight: 500;
+  stroke: red;
+  fill: black;
+}
+
 .goalText{
   fill: #222;
   /*fill: #fff;*/

@@ -113,7 +113,7 @@ export const calTeethAndPinAction = function (optIndex, startNode, endNode) {
   goalTable = _goalTable; // 更改 goalTable 里面的路径。
 
   const finder = new HCCoopFinder();
-  const path = finder.findPath(optIndex, _goalTable, rowNum *2 + colNum*2, _pathTable, matrixZero, rowNum, colNum, true);
+  const path = finder.findPath(optIndex, _goalTable, rowNum * 2 + colNum * 2, _pathTable, matrixZero, rowNum, colNum, true);
   // 注意这里是应该要确保 matrixZero 是有的
 
   console.log(path);
@@ -160,6 +160,7 @@ export const initializePathTable = function () {
     let obj = priorityHeap.pop();
     let optIndex = obj['index'];
     //console.log(optIndex);
+    console.info('optIndex', optIndex, '_goalTable', _goalTable, '_searchDeepth + 1', _searchDeepth + 1, '_pathTable', _pathTable);
     const finder = new HCCoopFinder();
     const path = finder.findPath(optIndex, _goalTable, _searchDeepth + 1, _pathTable, _matrixZero, rowNum, colNum);
 
@@ -192,6 +193,7 @@ export const initialNextTimeStep = function () {
   if (!checkPathTable(pathTable)) {
     // 如果是 pathTable 为空，那么是应该 initialize path，否则就不用了。
     console.log('直接初始化路径。');
+    console.log('当前 goalTable：', goalTable);
     initializePathTable();
   } else {
     // 如果是正在进行中，就是应该有更新 goalTable 之后再去算路径、更新 pathTable。
@@ -227,7 +229,6 @@ const checkPathTable = function (pathTable) {
       pathTable[shuttleAmount - 1][1].length === 2;
 
 };
-
 
 
 export default {}
