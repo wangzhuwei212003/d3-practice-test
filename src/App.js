@@ -9,19 +9,11 @@ import {
 import {Menu, Icon, Button, Layout} from 'antd';
 
 import logo from './logo.svg';
-import box from './SvgFile/box.svg';
-import marked from './SvgFile/marked.svg';
-import markedBox from './SvgFile/markedBox.svg';
 import './App.css';
 
 import 'antd/dist/antd.css';
 
 import Home from './example/Home';
-import Grid from './Tutorials/MakeGrid';
-import Mower from './Tutorials/mowerDemo';
-import Tetris from './Tutorials/Tetris';
-
-import Test from './example/Test';
 
 import BasicAStar from './MAPF/BasicAStar';
 import Coop4 from './MAPF/Coop4';
@@ -30,7 +22,6 @@ import Coop30 from './MAPF/Coop30';
 import CellVisual from './RealCell/visual';
 
 const SubMenu = Menu.SubMenu;
-
 const {Header, Footer, Sider, Content} = Layout;
 
 class App extends Component {
@@ -67,31 +58,15 @@ class App extends Component {
                     <span><Link to='/MAPF/Coop30'>Coop 30</Link></span>
                   </Menu.Item>
 
-
                   <Menu.Item key="7">
                     <Icon type="inbox"/>
                     <span><Link to='/Cell/visual'>Real cell</Link></span>
                   </Menu.Item>
-                  <SubMenu key="sub1" title={<span><Icon type="mail"/><span>D3 example</span></span>}>
 
-                    <Menu.Item key="6"><Link to='/Tutorials/MakeGrid'>Grid</Link></Menu.Item>
-                    <Menu.Item key="7"><Link to='/Tutorials/mowerDemo'>Mower</Link></Menu.Item>
-
-                    <Menu.Item key="8-1"><Link to='/Tutorials/Tetris'>Tetris</Link></Menu.Item>
-                  </SubMenu>
-                  <SubMenu key="sub2" title={<span><Icon type="appstore"/><span>D3 Util</span></span>}>
-                    <Menu.Item key="9">Option 9</Menu.Item>
-                    <Menu.Item key="10">Option 10</Menu.Item>
-                    <SubMenu key="sub3" title="Mouseover">
-                      <Menu.Item key="11"></Menu.Item>
-                      <Menu.Item key="12">Option 12</Menu.Item>
-                    </SubMenu>
-                  </SubMenu>
                 </Menu>
               </Sider>
               <Content>
                 <Route exact path="/" component={Home}/>
-                <Route path="/example/Test" component={Test}/>
 
                 <Route path="/MAPF/BasicAStar" component={BasicAStar}/>
                 <Route path="/MAPF/Coop4" component={Coop4}/>
@@ -99,10 +74,6 @@ class App extends Component {
 
                 <Route path="/Cell/visual" component={CellVisual}/>
 
-                <Route path="/Tutorials/MakeGrid" component={Grid}/>
-                <Route path="/Tutorials/mowerDemo" component={Mower}/>
-
-                <Route path="/Tutorials/Tetris" component={Tetris}/>
 
               </Content>
             </Layout>
