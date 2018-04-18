@@ -531,8 +531,6 @@ class Visual extends Component {
     console.log(distToStop);
   }
 
-  // 特殊处理，是在 setGoal 方法前面再加一层判断
-  // 即：现在 没有上面的车子在 目标和要执行的任务路径之间的。优先级还是按照原来的，下面的高。
 
 
   render() {

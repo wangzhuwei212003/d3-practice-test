@@ -425,7 +425,7 @@ export const backToPickUpSite = function (rowInput, colInput, shiftLeft = 0) {
   // let endNode = rowColTransform(CONFIG.PickUPSite[0], CONFIG.PickUPSite[1]); // 这个简单的转换是够用的。拣货台的点。
   // let endRow = endNode[0];
   // let endCol = endNode[1];
-  let endNode = [21,0]; // 这个简单的转换是够用的。拣货台的点。
+  let endNode = [21, 0]; // 这个简单的转换是够用的。拣货台的点。
   let endRow = endNode[0];
   let endCol = endNode[1];
 
@@ -520,4 +520,55 @@ const generateMatrix = function () {
   }
   // logger.debug(matrixData);
   return matrixData;
+};
+
+// 特殊处理，是在 setGoal 方法前面再加一层判断
+// 即：现在 没有上面的车子在 目标和要执行的任务路径之间的。优先级还是按照原来的，下面的高。
+// 这个方法返回的是 true or false，判断是否应该往上运动。
+const checkGoUp = function (uid, rowInput, colInput, goalTable) {
+  // 对于一个目标，根据 uid、目标判断是否进一步判断
+
+  // 转换大格子到小格子
+  const smallCellGoal = rowColTransform(rowInput, colInput); // [smallRow, smallCol]
+  const goalRow = smallCellGoal[0];
+  const goalCol = smallCellGoal[1]; // 目标位置的小格子行列数
+
+  if (goalCol < 8 || goalCol > CONFIG.smallColNum - 12) {
+    console.log('目标不是中间货位，不需要上升拣货');
+    return false
+  }
+
+  // 1. 根据 uid 找出对应小车在dispatch文件里的 index
+  let optIndex;
+
+  const currentRow = goalTable[optIndex][0][0];
+  const currentCol = goalTable[optIndex][0][1]; // 选中的小车的小格子行列数
+
+
+  // 2. goaltable里的第一个值是小车起点。判断
+  //    2-1. 小车当前的位置 和 目标的位置是同一列，
+  //    2-2. 且中间没有其他小车，这个时候是认为能够向上走了
+
+  if (goalTable[optIndex][0][1] === smallCellGoal[1]) {
+    // 2-1. 小车当前的位置 和 目标的位置是同一列，
+    for (let i = 0; i < goalTable.length; i += 1) {
+      if(i === optIndex){
+        continue // 如果是当前的小车，继续
+      }
+      let obRow = goalTable[i][0][0]; // 循环中的小车的小格子行数
+      let obCol = goalTable[i][0][1]; // 循环中的小车的小格子列数
+      if(
+          obCol >= currentCol - 1 && obCol <= currentCol + 1 &&
+          obRow <= currentRow && obRow >= goalRow - 4
+      ){
+        // 如果是和当前的小车相邻 && 在小车和目标行之间。那就不能够向上走。保护的行数是4行。
+        return false
+      }
+    } // end of for loop
+
+    return true; // 如果for循环下来没有 false，就判断能够向上走。
+  }else{
+    // 小车当前的位置 和 目标的位置不是同一列，直接就 return false
+    return false;
+  }
 };

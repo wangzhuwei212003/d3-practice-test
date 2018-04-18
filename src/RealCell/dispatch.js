@@ -70,18 +70,6 @@ export const clearInitialInterval = function () {
 //   return asdf;
 // };
 
-export const setPathTable = function (newPathTable) {
-  pathTable = newPathTable;
-};
-
-export const setGoalTable = function (newGoalTable) {
-  goalTable = newGoalTable;
-};
-
-export const setMatrixZero = function (newMatrixZero) {
-  matrixZero = newMatrixZero;
-};
-
 export const getPathTable = function () {
   return pathTable;
 };
@@ -166,7 +154,7 @@ export const initializePathTable = function () {
     const finder = new HCCoopFinder();
     const path = finder.findPath(optIndex, _goalTable, _searchDeepth + 1, _pathTable, _matrixZero, rowNum, colNum);
 
-    _pathTable[optIndex] = path.slice(0, path.length - optIndex); // 当 i = 0 的时候，就是整个 path
+    _pathTable[optIndex] = path.slice(0, path.length); // 当 i = 0 的时候，就是整个 path
   } // end for loop 所以 searchDeepth 必须要比 unit 的个数多。
 
   pathTable = _pathTable; // 更新当前保存的数据里的 pathtable。
@@ -230,5 +218,7 @@ const checkPathTable = function (pathTable) {
       pathTable[shuttleAmount - 1][1].length === 2;
 
 };
+
+
 
 export default {}

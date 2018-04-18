@@ -16,7 +16,7 @@ module.exports = {
 
   timeGap: 500,
 
-  searchDeepth: 10,
+  searchDeepth: 9,
 
   // grid 相关
   verticalAvoidRow: 4,
