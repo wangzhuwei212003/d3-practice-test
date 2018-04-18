@@ -70,6 +70,15 @@ export const clearInitialInterval = function () {
 //   return asdf;
 // };
 
+export const setGoalTable = function (newGoalTable) {
+  goalTable = newGoalTable;
+};
+
+export const setMatrixZero = function (newMatrixZero) {
+  matrixZero = newMatrixZero;
+};
+
+
 export const getPathTable = function () {
   return pathTable;
 };
