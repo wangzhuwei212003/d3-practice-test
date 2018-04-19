@@ -3,7 +3,7 @@
  */
 
 module.exports = {
-  shuttleAmount: 4,
+  shuttleAmount: 2,
   rowNum: 27, // 整个地图转换成寻路的地图，27行36列。注意的一点是，上升列是左边第 0 列。
   colNum: 36,
   cellW: 25, // for visual 这个是为了显示的格子

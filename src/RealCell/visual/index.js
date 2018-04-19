@@ -143,13 +143,11 @@ class Visual extends Component {
 
   drawGridNotInteractive(gridMouseover, scales) {
     let me = this;
-    let inputGoalTable = [
-      [],
-      [],
-      [],
-      [],
-    ];
-    // let inputGoalTable = Array(this.unitsNum).fill([]); // fill 和这种写法有这么大区别吗？
+    let inputGoalTable = [];
+    for(let i = 1; i<=shuttleAmount; i+=1){
+      inputGoalTable.push([]);
+    }
+    // let inputGoalTable = Array(shuttleAmount).fill([]); // fill 和这种写法有这么大区别吗？
     console.log(inputGoalTable);
     const gridRef = this.grid;
 
