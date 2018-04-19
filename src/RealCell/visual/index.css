@@ -1,13 +1,4 @@
-.RealBGRowByCol{
-  /*background-color: #C5D86D;*/
-  background-image: url("../../image/real.jpg");
-  background-repeat: no-repeat;
-  background-position: 8px -5px;
-  background-size: calc(-10px + 23 * 50px) calc(27 * 25px);
-  /*算每一格是 25px 宽，15px 高*/
 
-  width: calc(23 * 50px);
-}
 
 body {
   background-color: #EEEEEE;
