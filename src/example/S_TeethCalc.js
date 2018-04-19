@@ -48,49 +48,53 @@ const errorAccept = 0;
 // }];
 
 const columns = [{
-  title: 'radius_1',
+  title: '半径1',
   dataIndex: 'radius_1',
   sorter: (a, b) => a.radius_1 - b.radius_1,
 }, {
-  title: 'radius_2',
+  title: '半径2',
   dataIndex: 'radius_2',
   sorter: (a, b) => a.radius_2 - b.radius_2,
 }, {
-  title: 'degree',
+  title: '角度',
   dataIndex: 'degree',
   sorter: (a, b) => a.degree - b.degree,
 }, {
-  title: 'arc_1',
+  title: '弧长1',
   dataIndex: 'arc_1',
   sorter: (a, b) => a.arc_1 - b.arc_1,
 }, {
-  title: 'remainder_1',
+  title: '弧长1余数',
   dataIndex: 'remainder_1',
   sorter: (a, b) => a.remainder_1 - b.remainder_1,
 }, {
-  title: 'arc_2',
+  title: '弧长2',
   dataIndex: 'arc_2',
   sorter: (a, b) => a.arc_2 - b.arc_2,
 }, {
-  title: 'remainder_2',
+  title: '弧长2余数',
   dataIndex: 'remainder_2',
   sorter: (a, b) => a.remainder_2 - b.remainder_2,
 }, {
-  title: 'slash',
+  title: '斜杠',
   dataIndex: 'slash',
   sorter: (a, b) => a.slash - b.slash,
 }, {
-  title: 'slash_remainder',
+  title: '斜杠余数',
   dataIndex: 'slash_remainder',
   sorter: (a, b) => a.slash_remainder - b.slash_remainder,
 }, {
-  title: 'verticalDist',
+  title: '竖直高度',
   dataIndex: 'verticalDist',
   sorter: (a, b) => a.verticalDist - b.verticalDist,
 }, {
-  title: 'verticalDist_remainder',
+  title: '竖直高度余数',
   dataIndex: 'verticalDist_remainder',
   sorter: (a, b) => a.verticalDist_remainder - b.verticalDist_remainder,
+}, {
+  title: '水平宽度',
+  dataIndex: 'horizontalDist',
+  sorter: (a, b) => a.horizontalDist - b.horizontalDist,
 }];
 
 const data = [{
@@ -403,7 +407,8 @@ class Test extends Component {
       slash: slash.toFixed(5),
       slash_remainder: slash_remainder.toFixed(5),
       verticalDist: verticalDist.toFixed(5),
-      verticalDist_remainder: verticalDist_remainder.toFixed(5)
+      verticalDist_remainder: verticalDist_remainder.toFixed(5),
+      horizontalDist: horizontalDist.toFixed(5)
     }
   }
 
