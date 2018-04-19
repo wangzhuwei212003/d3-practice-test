@@ -61,16 +61,24 @@ export const backtraceNode = function (node) {
  * 4. 最底一行 到 左边拣货台
  *
  */
-export const HCPriority = function (row, col) {
+export const HCPriority = function (row, col, endRow, endCol) {
 
-  const pickRow = pickStationRow; // 这个是根据UI测试的图里定的。可以说是写死了。拣货台的行数。22
-
+  const pickRow = pickStationRow; // 这个是根据UI测试的图里定的。可以说是写死了。拣货台的行数。21
 
   // 排错
   if (row > rowNum - 1 || row < 0 || col < 0 || col > colNum - 3) {
     console.log('行列数超出范围'); // 当前点的行数、列数。
     debugger;
     return 0; //
+  }
+
+  let extra = 0;
+  // 加餐，如果是目标点就是在最下面一行，就 priority + （912 - 32）保证priority比横向过来的大。
+  if (
+      endRow === rowNum - 3 && endCol === col
+  ) {
+    // 目标终点是最下面一行拣货位，当前列数和目标终点的列数一致。
+    extra = 880;
   }
 
   if (
@@ -86,7 +94,7 @@ export const HCPriority = function (row, col) {
       col >= 8 && col <= colNum - 12
   ) {
     // 2 中间货位部分, 32 - 0 = 32 是上个部分最大的值
-    return 32 + (row ) * (colNum - 4) - col;
+    return extra + 32 + (row ) * (colNum - 4) - col;
 
   } else if (
       row <= rowNum - 2 && row >= 1 &&
@@ -99,7 +107,7 @@ export const HCPriority = function (row, col) {
       (row <= rowNum - 1 && row >= pickRow && col === 0 ) ||
       (row === rowNum - 1)
   ) {
-    // 4. 最底一行 到 左边拣货台 。上面最大priority是 824 + 25 = 849
+    // 4. 最底一行 到 左边拣货台 。上面最大priority是 824 + 25 = 849。最底部一行的上限是 849 + 36 + 27 = 912
     return 849 + colNum - col + rowNum - row
 
   } else {
@@ -107,6 +115,7 @@ export const HCPriority = function (row, col) {
     console.log('row, col', row, col);
     debugger;
   }
+
 };
 
 export const generateMatrix = function () {
@@ -163,13 +172,13 @@ export const calcTeeth = function (path) {
   // 算出总齿数，以及什么时候伸 pin、缩 pin。
 
   /* 返回的数据格式
-  * {
-  *   totalTeeth：double数值
-  *   stretchPin：[], 伸pin的点，是齿数，到达相应的齿数开始伸pin
-  *   retrivePin: []
-  * }
-  *
-  * */
+   * {
+   *   totalTeeth：double数值
+   *   stretchPin：[], 伸pin的点，是齿数，到达相应的齿数开始伸pin
+   *   retrivePin: []
+   * }
+   *
+   * */
   let totalTeeth = 0;
   let stretchPin = [];
   let retrivePin = [];
@@ -199,27 +208,27 @@ export const calcTeeth = function (path) {
     totalTeeth += CellToTeeth(cellRow, cellCol); // 没有考虑补偿的。
 
     //判断如果是转弯了，就加补偿
-  /*  // 首先判断是潜在的补偿点。
-    if (
-        cellRow === 1 && cellCol === 0 ||
-        (cellRow === rowNum - 1 && cellCol === 0) ||
-        (
-            cellRow === rowNum - 2 && cellCol >= 8 && cellCol <= colNum - 12 && (cellCol - 8) % 4 === 0
-        ) ||
-        (
-            cellRow === rowNum - 2 && cellCol === colNum - 4
-        ) ||
-        (
-            cellRow === 0 && cellCol >= 8 && cellCol <= colNum - 12 && (cellCol - 8) % 4 === 0
-        ) ||
-        (
-            cellRow === 0 && cellCol === colNum - 4
-        )
-    ) {
-      // 这个里面是可能走到的点
+    /*  // 首先判断是潜在的补偿点。
+     if (
+     cellRow === 1 && cellCol === 0 ||
+     (cellRow === rowNum - 1 && cellCol === 0) ||
+     (
+     cellRow === rowNum - 2 && cellCol >= 8 && cellCol <= colNum - 12 && (cellCol - 8) % 4 === 0
+     ) ||
+     (
+     cellRow === rowNum - 2 && cellCol === colNum - 4
+     ) ||
+     (
+     cellRow === 0 && cellCol >= 8 && cellCol <= colNum - 12 && (cellCol - 8) % 4 === 0
+     ) ||
+     (
+     cellRow === 0 && cellCol === colNum - 4
+     )
+     ) {
+     // 这个里面是可能走到的点
 
 
-    }*/
+     }*/
 
     if (
         cellRow === 1 && cellCol === 0 &&
@@ -269,7 +278,7 @@ export const calcTeeth = function (path) {
         cellNextRow === 1 && cellNextCol === cellCol
     ) {
       // 顶部一行下降列，方向改变
-      if(cellCol === 8){
+      if (cellCol === 8) {
         // // 特殊处理
         // stretchPin.push(totalTeeth - normalWidth - 2*specialTopPart );
         // totalTeeth += compensate;
@@ -288,7 +297,7 @@ export const calcTeeth = function (path) {
           position: totalTeeth,
           action: 'retrivePin'
         }); // 缩pin动作
-      }else{
+      } else {
         // stretchPin.push(totalTeeth - 3*normalWidth );
         // totalTeeth += compensate;
         // retrivePin.push(totalTeeth);
@@ -307,7 +316,7 @@ export const calcTeeth = function (path) {
       }
     } else if (
         cellRow === 0 && cellCol === colNum - 4
-    ){
+    ) {
       // 最后一列下降，方向改变
       // stretchPin.push(totalTeeth - 3*normalWidth );
       // totalTeeth += compensate;

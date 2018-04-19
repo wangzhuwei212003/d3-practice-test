@@ -138,7 +138,7 @@ export const initializePathTable = function () {
   const _searchDeepth = searchDeepth;
   const _matrixZero = matrixZero; // matrixZero 是不会变的。
   let _goalTable = JSON.parse(JSON.stringify(goalTable)); // deep copy 深拷贝当前的 goalTable
-  let startRow, startCol; // 这个是为了寻找当前点的 priority，是 this.goalTable 里的第一个元素
+  let startRow, startCol, endRow, endCol; // 这个是为了寻找当前点的 priority，是 this.goalTable 里的第一个元素
   let _pathTable = Array(_unitsNum).fill([]); // 重置 pathtable，初始化当前的 pathTable。
 
   const priorityHeap = new Heap(function (nodeA, nodeB) {
@@ -151,9 +151,11 @@ export const initializePathTable = function () {
   for (let i = 0; i < _goalTable.length; i += 1) {
     startRow = _goalTable[i][0][0]; // 起点的行数，当前点的行数
     startCol = _goalTable[i][0][1]; // 起点的列数，当前点的列数
+    endRow = _goalTable[i][1][0]; // 起点的行数，当前点的行数
+    endCol = _goalTable[i][1][1]; // 起点的列数，当前点的列数
     priorityHeap.push({
       index: i,
-      p: Util.HCPriority(startRow, startCol)
+      p: Util.HCPriority(startRow, startCol, endRow, endCol)
     });
   }
   for (let i = 0; i < _unitsNum; i += 1) {
