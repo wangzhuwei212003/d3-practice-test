@@ -381,10 +381,10 @@ class Test extends Component {
     // 4. 整个的竖直高度；
 
     let arc_1 = r1 * radian;
-    let remainder_1 = r1 % (5 * Math.PI); // 第一段弧长除以 5 pi 的余数
+    let remainder_1 = arc_1 % (5 * Math.PI); // 第一段弧长除以 5 pi 的余数
 
     let arc_2 = r2 * radian;
-    let remainder_2 = r2 % (5 * Math.PI); // 第二段弧长除以 5 pi 的余数
+    let remainder_2 = arc_2 % (5 * Math.PI); // 第二段弧长除以 5 pi 的余数
 
     let slash = (horizontalDist - r1 + r1 * Math.cos(radian) - r2 + r2 * Math.cos(radian)) / Math.sin(radian); // 中间倾斜的长条
     let slash_remainder = slash % (5 * Math.PI); // 斜条余数
