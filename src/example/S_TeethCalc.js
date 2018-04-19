@@ -305,9 +305,16 @@ class Test extends Component {
 
   S_inputNumChange = (v) => {
     console.log('onchange', v);
-    this.calc(v); // 还是直接传进来了？
+    //this.calc(v); // 还是直接传进来了？
+    this.setState({
+      errorAccept: v
+    });
 
   }; // 上面那个函数能 不用箭头函数，但是这个函数必须要。
+
+  startCalc = () => {
+    this.calc(this.state.errorAccept);
+  }
 
   download = () => {
     this.JSON2CSV(this.state.result, "resultData", true)
@@ -325,32 +332,34 @@ class Test extends Component {
      * 最后的结果是一个数组，里面是 obj，放进 this.state.result
      *
      */
-    const horizontalDist = 37 * 5 * Math.PI;
+
 
     const temp = [];
 
-
-    for (let degree = 30; degree <= 80; degree += 1) {
-      // degree [30, 70]
-      const radian = degree * Math.PI / 180; // 将角度转为弧度，以下 Math 三角函数参数是弧度。
-      for (let radius_1 = 10; radius_1 <= 300; radius_1 += 2.5) {
-        for (let radius_2 = 10; radius_2 <= 300; radius_2 += 2.5) {
-          // 直径被5整除，就是半径被2.5整除。
-          let sample = self.calcBy3(radius_1, radius_2, radian, horizontalDist);
-          if (
-              sample.remainder_1 < acceptErr &&
-              sample.remainder_2 < acceptErr &&
-              sample.slash_remainder < acceptErr &&
-              sample.verticalDist_remainder < acceptErr
-          ) {
-            console.log('pass +1');
-            temp.push(sample);
-          } else {
-            continue
-          }
-        } // r2 loop
-      } // r1 loop
-    } // degree loop
+    for (let horizontalDiv = 37; horizontalDiv <= 40; horizontalDiv += 1) {
+      const horizontalDist = horizontalDiv * 5 * Math.PI;
+      for (let degree = 65; degree <= 80; degree += 0.01) {
+        // degree [30, 70]
+        const radian = degree * Math.PI / 180; // 将角度转为弧度，以下 Math 三角函数参数是弧度。
+        for (let radius_1 = 100; radius_1 <= 300; radius_1 += 2.5) {
+          for (let radius_2 = 100; radius_2 <= 300; radius_2 += 2.5) {
+            // 直径被5整除，就是半径被2.5整除。
+            let sample = self.calcBy3(radius_1, radius_2, radian, horizontalDist);
+            if (
+                sample.remainder_1 < acceptErr &&
+                sample.remainder_2 < acceptErr &&
+                sample.slash_remainder < acceptErr &&
+                sample.verticalDist_remainder < acceptErr
+            ) {
+              console.log('pass +1');
+              temp.push(sample);
+            } else {
+              continue
+            }
+          } // r2 loop
+        } // r1 loop
+      } // degree loop
+    }
 
     console.log(temp);
 
@@ -421,6 +430,7 @@ class Test extends Component {
           <InputNumber min={0} max={10} defaultValue={0} step={0.1} onChange={this.S_inputNumChange}/>
           {/*<Button type="primary" size={'small'} onClick={this.testMath_Trigonometric}>Test Trigonometric</Button>*/}
           {/*<Button type="primary" size={'small'} onClick={() => this.calc()}>Test calc</Button>*/}
+          <Button type="primary" size={'small'} onClick={this.startCalc}>start calc</Button>
           <Button type="primary" size={'small'} onClick={this.download}>download</Button>
           <Table columns={columns} dataSource={this.state.result} size={"small"} pagination={{pageSize: 25}}/>
         </div>
