@@ -8,6 +8,11 @@ module.exports = {
   smallRowNum: 27,
   smallColNum: 36, // 小格子的总行列数
 
+  pickStationRow: 21, // 拣货台所在行的index，
+
+  occupyRowConfig: 5,
+  occupyColConfig: 5, // 实际每列划分为4格，避免相邻列，使用5列。
+
   // 计算齿数
   normalWidth: 23, //水平方向一格的宽度
   normalHeight: 16.7075, // 一般货位高度是 66.83

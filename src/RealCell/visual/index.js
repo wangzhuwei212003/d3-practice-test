@@ -21,7 +21,10 @@ import {
   timeGap,
 } from '../config';
 import {
-  A0
+  A0,
+
+  smallRowNum,
+  smallColNum
 } from '../TestFunction/configDATA';
 
 import * as dispatch from '../dispatch';
@@ -34,6 +37,10 @@ import {
   setGoal,
   backToPickUpSite
 } from '../TestFunction/RCTransform';
+
+import {
+  CalcPriority
+} from '../TestFunction/CalcPriority';
 
 // const SpecificActionsEnum = {
 //   "SA_PIN_OUTSTRETCH": 0,
@@ -75,8 +82,11 @@ class Visual extends Component {
     this.movingSpot = this.gridMouseover.append('g');
     this.movingSpotOuter = this.gridMouseover.append('g');
 
-    this.auxiliary = this.gridMouseover.append('g');
-    this.drawAuxiliary(this.scales);
+    // this.auxiliary = this.gridMouseover.append('g');
+    // this.drawAuxiliary(this.scales);
+
+    this.priority = this.gridMouseover.append('g');
+    this.drawPriority(this.scales);
   }
 
   componentDidUpdate() {
@@ -275,6 +285,52 @@ class Visual extends Component {
     }
     return data;
   }
+
+  priorityTextData() {
+    const data = []; // this is preferrable
+    let xpos = 0; // 0号货位是第8列
+    let ypos = 0; // 0号货位是第24列
+
+    // console.log(BIGCELLTEXT);
+
+    //iterate for rows
+    for (let row = 0; row < smallRowNum; row += 1) {
+      data.push([]);
+      for (let column = 0; column < smallColNum; column += 1) {
+        data[row].push({
+          x: xpos,
+          y: ypos,
+          num: CalcPriority(row, column)
+        });
+        xpos += 1;
+      }
+      xpos = 0;
+      ypos += 1;
+    }
+    return data;
+  }
+
+  // 画出 priority，
+  drawPriority(scales) {
+    this.priority.selectAll('text').data(this.priorityTextData())
+        .enter().append('g').selectAll('text')
+        .data(function (d) {
+          return d;
+        })
+        .enter().append('text')
+        .attr("x", function (d) {
+          return scales.x(d.x + 0.2);
+        })
+        .attr("y", function (d) {
+          return scales.y(d.y + 0.8);
+        })
+        .attr("class", "priorityNum")
+        .text(function (d, i, arr) {
+              return d.num;
+            }
+        );
+  }
+
 
   // 画出 path table 里的规划好的路径。
   drawPath(scales, pathTable) {
