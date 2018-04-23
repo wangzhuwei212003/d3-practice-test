@@ -44,7 +44,7 @@ export const CalcPriority = function (cellRow, cellCol) {
       cellCol < 8
   ) {
     // 最后到拣货台部分
-    return 667 - (8 - cellCol) - (CONFIG.smallRowNum - 1 - cellRow)
+    return 667 + 8 - cellCol + (CONFIG.smallRowNum - 1 - cellRow)
   } else {
     console.log('some scenario not considered!');
   }
