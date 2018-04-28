@@ -20,6 +20,7 @@ import Coop4 from './MAPF/Coop4';
 import Coop30 from './MAPF/Coop30';
 
 import CellVisual from './RealCell/visual';
+import OdomForShow from './OdomForShow/visual';
 
 const SubMenu = Menu.SubMenu;
 const {Header, Footer, Sider, Content} = Layout;
@@ -62,6 +63,10 @@ class App extends Component {
                     <Icon type="inbox"/>
                     <span><Link to='/Cell/visual'>Real cell</Link></span>
                   </Menu.Item>
+                  <Menu.Item key="8">
+                    <Icon type="inbox"/>
+                    <span><Link to='/OdomForShow'>Odom For Show</Link></span>
+                  </Menu.Item>
 
                 </Menu>
               </Sider>
@@ -73,6 +78,7 @@ class App extends Component {
                 <Route path="/MAPF/Coop30" component={Coop30}/>
 
                 <Route path="/Cell/visual" component={CellVisual}/>
+                <Route path="/OdomForShow" component={OdomForShow}/>
 
 
               </Content>
