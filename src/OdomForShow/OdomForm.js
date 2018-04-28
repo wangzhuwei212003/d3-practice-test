@@ -5,6 +5,8 @@
 import React, {Component} from 'react';
 import {Form, Row, Col, Input, Button, Icon, Switch, InputNumber, Select} from 'antd';
 
+import {RCTransform} from './CalcOdom';
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 
@@ -18,6 +20,9 @@ class OdomForm extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       console.log('Received values of form: ', values);
+
+      RCTransform(values);
+
     });
   };
 
@@ -116,7 +121,7 @@ class OdomForm extends Component {
               message: 'Input something!',
             }],
           })(
-              <Input placeholder="placeholder"/>
+              <InputNumber placeholder="placeholder"/>
           )}
         </FormItem>
       </Col>,
@@ -129,7 +134,7 @@ class OdomForm extends Component {
               message: 'Input something!',
             }],
           })(
-              <Input placeholder="placeholder"/>
+              <InputNumber placeholder="placeholder"/>
           )}
         </FormItem>
       </Col>,
