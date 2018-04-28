@@ -4,7 +4,7 @@
 
 import React, {Component} from 'react';
 import * as d3 from 'd3';
-import {Button} from 'antd';
+import {Button, Form} from 'antd';
 import {
   shuttleAmount,
   rowNum,
@@ -24,6 +24,7 @@ import {
 } from '../config';
 
 import './index.css';
+import OdomForm from '../OdomForm';
 
 // const SpecificActionsEnum = {
 //   "SA_PIN_OUTSTRETCH": 0,
@@ -34,6 +35,8 @@ import './index.css';
 //   "SA_ODOM_DOWN_GROUND_AS_REFERENCE": 5,
 //   "SA_TURNING_BEGIN_POINT": 6,
 // };
+
+const OdomFormComponent = Form.create()(OdomForm);
 
 class Visual extends Component {
   constructor(props) {
@@ -279,11 +282,10 @@ class Visual extends Component {
   }
 
   render() {
+
     return (
         <div ref={ele => this.grid = ele}>
-          {/*<Button type="primary" onClick={() => this.testInterval()}> 连续的向前模拟 </Button>*/}
-          <Button type="primary" onClick={() => this.testOneStep()}> 向前模拟一步 </Button>
-
+          <OdomFormComponent/>
           <br/>
         </div>
     )
