@@ -57,7 +57,7 @@ export const RCTransform = function (odom) {
 
     } else if (odom.turning) {
       if (odom.horizontal_offset_from_nearest_coordinate > 4 * CONFIG.normalWidth) {
-        percent = 1;
+        percent = 1; // 判断大格子位置变化的规则，没有弄清楚。
       } else {
         percent = odom.horizontal_offset_from_nearest_coordinate / 4 * CONFIG.normalWidth;
       }
