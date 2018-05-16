@@ -10,7 +10,7 @@ module.exports = {
 
   pickStationRow: 21, // 拣货台所在行的index，
 
-  occupyRowConfig: 7,
+  occupyRowConfig: 6,
   occupyColConfig: 5, // 实际每列划分为4格，避免相邻列，使用5列。
 
   // 计算齿数

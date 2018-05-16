@@ -5,16 +5,15 @@ import * as CONFIG from './configDATA';
 
 // TODO: 死数字改配置
 export const CalcPriority = function (cellRow, cellCol) {
-  let priority = 1;
 
-  const pickStationRow = CONFIG.pickStationRow; // 拣货台的行数
-  const firstGoDownCol = 8; // 开始下降的第一列列数
-  const lastGoDownCol = CONFIG.smallColNum - 12; // 开始下降的有货位的最后一列列数
-  const lastGoDownPickCol = CONFIG.smallColNum - 4; // 下降列拣货台的列数
-  const btmInterBeginRow = CONFIG.smallRowNum - 1 - CONFIG.occupyRowConfig; // 底部开始有交汇的行数，开始进入底部的通道
-  const btmRow = CONFIG.smallRowNum - 1; // 最底部一行行数
-  const lastCol = CONFIG.smallColNum - 1; // 最后一列列数
-  const occupyRow = CONFIG.occupyRowConfig; // 占位的行数
+  const pickStationRow = CONFIG.pickStationRow; // 拣货台的行数 21
+  const firstGoDownCol = 8; // 开始下降的第一列列数 8
+  const lastGoDownCol = CONFIG.smallColNum - 12; // 开始下降的有货位的最后一列列数 24
+  const lastGoDownPickCol = CONFIG.smallColNum - 4; // 下降列拣货台的列数 32
+  const btmInterBeginRow = CONFIG.smallRowNum - 1 - CONFIG.occupyRowConfig; // 底部开始有交汇的行数，开始进入底部的通道 20
+  const btmRow = CONFIG.smallRowNum - 1; // 最底部一行行数 26
+  const lastCol = CONFIG.smallColNum - 1; // 最后一列列数 35
+  const occupyRow = CONFIG.occupyRowConfig; // 占位的行数 6
 
   if (
       cellRow >= 0 && cellRow < pickStationRow &&

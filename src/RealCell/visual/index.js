@@ -291,11 +291,13 @@ class Visual extends Component {
     let xpos = 0; // 0号货位是第8列
     let ypos = 0; // 0号货位是第24列
 
+    const testData = [];
     // console.log(BIGCELLTEXT);
 
     //iterate for rows
     for (let row = 0; row < smallRowNum; row += 1) {
       data.push([]);
+      testData.push([]);
       for (let column = 0; column < smallColNum; column += 1) {
         data[row].push({
           x: xpos,
@@ -303,10 +305,13 @@ class Visual extends Component {
           num: CalcPriority(row, column)
         });
         xpos += 1;
+
+        testData[row].push(CalcPriority(row, column));
       }
       xpos = 0;
       ypos += 1;
     }
+    console.log(JSON.stringify(testData));
     return data;
   }
 
