@@ -11,19 +11,11 @@ import {Menu, Icon, Button, Layout} from 'antd';
 import logo from './logo.svg';
 
 import './App.css';
-
 import 'antd/dist/antd.css';
 
 import Home from './example/Home';
-
 import Test from './example/Test';
 import S_TeethCalc from './example/S_TeethCalc';
-
-import BasicAStar from './MAPF/BasicAStar';
-import Coop4 from './MAPF/Coop4';
-import Coop30 from './MAPF/Coop30';
-
-import CellVisual from './RealCell/visual';
 
 const SubMenu = Menu.SubMenu;
 
@@ -50,25 +42,6 @@ class App extends Component {
                     <Icon type="pie-chart"/>
                     <span><Link to='/'>Home</Link></span>
                   </Menu.Item>
-                  <Menu.Item key="2">
-                    <Icon type="desktop"/>
-                    <span><Link to='/MAPF/BasicAStar'>Basic A star</Link></span>
-                  </Menu.Item>
-                  <Menu.Item key="3">
-                    <Icon type="inbox"/>
-                    <span><Link to='/MAPF/Coop4'>Coop 4</Link></span>
-                  </Menu.Item>
-                  <Menu.Item key="4">
-                    <Icon type="inbox"/>
-                    <span><Link to='/MAPF/Coop30'>Coop 30</Link></span>
-                  </Menu.Item>
-
-
-                  <Menu.Item key="7">
-                    <Icon type="inbox"/>
-                    <span><Link to='/Cell/visual'>Real cell</Link></span>
-                  </Menu.Item>
-
 
                   <Menu.Item key="6"><Link to='/example/Test'>test 算总齿数</Link></Menu.Item>
                   <Menu.Item key="6-1"><Link to='/example/S_TeethCalc'>test 算S形弯道齿数</Link></Menu.Item>
@@ -80,12 +53,6 @@ class App extends Component {
                 <Route exact path="/" component={Home}/>
                 <Route path="/example/Test" component={Test}/>
                 <Route path="/example/S_TeethCalc" component={S_TeethCalc}/>
-
-                <Route path="/MAPF/BasicAStar" component={BasicAStar}/>
-                <Route path="/MAPF/Coop4" component={Coop4}/>
-                <Route path="/MAPF/Coop30" component={Coop30}/>
-
-                <Route path="/Cell/visual" component={CellVisual}/>
 
               </Content>
             </Layout>
