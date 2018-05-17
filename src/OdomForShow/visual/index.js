@@ -5,23 +5,7 @@
 import React, {Component} from 'react';
 import * as d3 from 'd3';
 import {Button, Form} from 'antd';
-import {
-  shuttleAmount,
-  rowNum,
-  colNum,
-  cellW,
-  cellH,
 
-  BIGCELL,
-  BIGCELLTEXT,
-
-  BIGmainShelfMap,
-
-  colorSet,
-  colorSetPath,
-
-  timeGap,
-} from '../config';
 
 import './index.css';
 import OdomForm from '../OdomForm';
@@ -35,6 +19,21 @@ import OdomForm from '../OdomForm';
 //   "SA_ODOM_DOWN_GROUND_AS_REFERENCE": 5,
 //   "SA_TURNING_BEGIN_POINT": 6,
 // };
+
+const rowNum = 27;
+const colNum = 36;
+const cellW = 20;
+const cellH = 20;
+const BIGCELLTEXT = [
+    [25,26,27,28,29],
+    [20,21,22,23,24],
+    [15,16,17,18,19],
+    [10,11,12,13,14],
+    [5,6,7,8,9],
+    [0,1,2,3,4],
+];
+
+const colorSet = ['#D7263D', '#F46036', '#C5D86D', '#1B998B', '#2E294E'];
 
 const OdomFormComponent = Form.create()(OdomForm);
 
@@ -75,7 +74,7 @@ class Visual extends Component {
     console.log('component did update')
   }
 
-  //小格子每个格子的信息
+  //小格子每个格子的信息，像素坐标、长宽、是否有障碍。
   gridDataMax = (reactDom) => {
     const data = []; // this is preferrable
     let xpos = 1;
@@ -133,8 +132,8 @@ class Visual extends Component {
 
   // 大格子的辅助线的信息
   gridDataBigCell() {
-    const bigRow = BIGmainShelfMap.length;
-    const bigCol = BIGmainShelfMap[0].length;
+    const bigRow = 8;
+    const bigCol = 9;
 
     const data = []; // this is preferrable
     let xpos = 1;
@@ -236,7 +235,7 @@ class Visual extends Component {
         })
         .style('fill', colorSet[1])
         .style('stroke', 'blue')
-        .style('opacity', '0.9');
+        .style('opacity', '0.6');
 
     this.auxiliary.selectAll('text').data(this.auxiliaryTextData.bind(this, BIGCELLTEXT))
         .enter().append('g').selectAll('text')

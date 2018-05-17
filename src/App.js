@@ -65,7 +65,7 @@ class App extends Component {
                   </Menu.Item>
                   <Menu.Item key="8">
                     <Icon type="inbox"/>
-                    <span><Link to='/OdomForShow'>Odom For Show</Link></span>
+                    <span><Link to='/OdomForShow'>用odom算位置报告超出的百分比</Link></span>
                   </Menu.Item>
 
                 </Menu>
