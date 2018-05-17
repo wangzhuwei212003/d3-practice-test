@@ -595,8 +595,9 @@ class Visual extends Component {
   render() {
     return (
         <div ref={ele => this.grid = ele}>
+          <p>格子里是对应的 priority</p>
           {/*<Button type="primary" onClick={() => this.testInterval()}> 连续的向前模拟 </Button>*/}
-          <Button type="primary" onClick={() => this.testOneStep()}> 向前模拟一步 </Button>
+          {/*<Button type="primary" onClick={() => this.testOneStep()}> 向前模拟一步 </Button>*/}
 
           {/*<Button type="primary" onClick={() => this.calcTeethTest()}> calc teeth and pin action </Button>*/}
           {/*<Button type="primary" onClick={() => this.testIntervalDispatch()}> initialize interval </Button>*/}
