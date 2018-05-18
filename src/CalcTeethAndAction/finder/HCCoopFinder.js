@@ -21,7 +21,7 @@ function HCCoopFinder(opt) {
 
 }
 
-HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, pathTable, matrix, rowNum, colNum, ignoreOthers = false, goingUp = false) {
+HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, matrix, rowNum, colNum, ignoreOthers = false, goingUp = false) {
 
   const startRow = goalTable[index][0][0];
   const startCol = goalTable[index][0][1];
@@ -33,47 +33,7 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
     reservationTable[index] = new Grid(colNum, rowNum, matrix);
   }
 
-  let pathNode, reservedNode;
-
-  if (ignoreOthers) {
-    // do nothing
-  } else {
-    for (let i = 0; i < pathTable.length; i += 1) { // i is the index of unit
-      if (i === index) {
-        continue
-      }
-      for (let j = 0; j < pathTable[i].length; j += 1) {
-        pathNode = pathTable[i][j]; // [row, col]
-        // j时刻的grid
-
-        // 考虑 footprint，按照现在的划格子方法，横向占位4格，竖向占位6格。pathnode是左下角的点。
-        for (let occupyCol = 0; occupyCol < occupyColConfig; occupyCol += 1) {
-          for (let occupyRow = 0; occupyRow < occupyRowConfig; occupyRow += 1) {
-            // 根据路径中的 row、col 得到相对应的点 {row: col: walkable:}
-            // 如果是超过了就直接跳过。
-            let nodeRow = pathNode[0] - occupyRow; // for循环里的row
-            let nodeCol = pathNode[1] + occupyCol; // for循环里的col
-
-            if (
-                nodeRow < 0 || nodeRow > CONFIG.rowNum - 1 ||
-                nodeCol < 0 || nodeCol > CONFIG.colNum - 1
-            ) {
-              continue
-            }
-
-            reservedNode = reservationTable[j].getNodeAt(pathNode[0] - occupyRow, pathNode[1] + occupyCol);
-            reservedNode.unitWalkable = false; // 把横向的三个点都设为 unitWalkable 为 false
-            reservedNode.moveTo = (j === pathTable[i].length - 1) ? {
-              row: pathNode[0] - occupyRow,
-              col: pathNode[1] + occupyCol
-            } : {row: pathTable[i][j + 1][0] - occupyRow, col: pathTable[i][j + 1][1] + occupyCol} // 存上下一时刻的动作。
-          }
-        } // 每一个点有4行3列的占位。
-      } // 对于每条路径中的每个点，都有一个4 * 3格的占位
-    } // end for loop，所有pathtable里的点占位情况更新完毕。
-
-  }
-  // reservation table ready ！！！
+  // ignoreOthers do nothing
 
   const openList = new Heap(function (nodeA, nodeB) {
         return nodeA.f - nodeB.f;
@@ -121,9 +81,6 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       }
     }
 
-    // 根据当前的这个格子找下一个要搜索的点，这些点应该是下一个 timestep 里的，也就是下一个 grid。
-    // 这里的点应该是包括自身node + 周围的node。分别对应的就是在原处停止 wait，和其他的 action。
-
     // find the node in which grid. 直接查node的index比较直接。还是直接在同一个 grid 里的所有node里添加一个 t 字段比较方便。
     gridNextStep = reservationTable[node.t + 1];
     if (!gridNextStep) {
@@ -138,10 +95,10 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
         node.col >= 8 && node.col <= CONFIG.colNum - 12
     ) {
       // 在中间货位部分，能够上下移动
-      if(goingUp){
+      if (goingUp) {
         // 如果是向上，那么做出相应的改变。
-         neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UP');
-      }else{
+        neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'UP');
+      } else {
         neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWN');
       }
     } else if (
@@ -161,8 +118,6 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
        */
       if (node.col === endCol) {
         neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'DOWN');
-        // logger.debug(nodeNextStep);
-        // logger.debug(neighbors);
       } else {
         neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'RIGHT');
       }
@@ -177,7 +132,7 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       neighbors = gridNextStep.HCgetNeighborsOneDirection(nodeNextStep, 'LEFT');
     }
 
-    if(neighbors === undefined){
+    if (neighbors === undefined) {
       //经常报这个错
       logger.warn('不合法的行列数？node.row', node.row, 'node.col', node.col);
     }
@@ -222,27 +177,22 @@ HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, path
       if (node.row === row && node.col === col) {
         ng = node.g; // 停留在原地没有新增 cost
       }
-
       if (!neighbor.opened || ng < neighbor.g) {
         neighbor.g = ng;
         neighbor.h = neighbor.h || weight * heuristic(row, col, endRow, endCol);
-        // neighbor.h = neighbor.h || weight * heuristic(abs(col - endCol), abs(row - endRow));
         neighbor.f = neighbor.g + neighbor.h;
         neighbor.parent = node;
-
         if (!neighbor.opened) {
           openList.push(neighbor);
           neighbor.opened = true;
           neighbor.t = node.t + 1;
-
         } else { // 这里是需要更新 g 的 neighbor。
-
           openList.updateItem(neighbor);
         }
       }
     } // end for
   } // end while not open list empty
-  logger.warn('fail to find the path');
+  console.warn('fail to find the path');
   return [];
 };
 

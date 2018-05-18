@@ -5,11 +5,6 @@ import HCCoopFinder from '../finder/HCCoopFinder';
 import {calcTeeth} from './calcTeeth';
 
 export const calTeethAndPinAction = function (optIndex, startNode, endNode, startShift = 0, endShift = 0, goingUp = false) {
-  // goingUp 默认是 false
-
-  // 根据起点、终点算路径。调用这个方法的时候，其实是设置 goalTable 的一个过程。
-  // let _pathTable = Array(shuttleAmount).fill([]);
-  let _pathTable = Array(uidArr.length).fill([]); // 这里应该是根据当前已注册的小车数量
 
   // 注意这里是应该要确保 matrixZero 是有的
   if (matrixZero.length === 0) {
@@ -18,7 +13,7 @@ export const calTeethAndPinAction = function (optIndex, startNode, endNode, star
   }
 
   const finder = new HCCoopFinder();
-  const path = finder.findPath(optIndex, goalTable, rowNum * 4 + colNum * 4, _pathTable, matrixZero, rowNum, colNum, true, goingUp); // 因为算齿数不考虑其他小车，这里ignore为true。
+  const path = finder.findPath(optIndex, goalTable, rowNum * 4 + colNum * 4, matrixZero, rowNum, colNum, true, goingUp); // 因为算齿数不考虑其他小车，这里ignore为true。
 
   let calcPath = path.reduce(function (accu, currentV, currentInx, arr) {
     if (accu.length === 0) {
