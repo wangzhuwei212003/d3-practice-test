@@ -16,6 +16,7 @@ import Home from './example/Home';
 
 import CellVisual from './RealCell/visual';
 import OdomForShow from './OdomForShow/visual';
+import calcTeeth from './CalcTeethAndAction/visual';
 
 const SubMenu = Menu.SubMenu;
 const {Header, Footer, Sider, Content} = Layout;
@@ -50,6 +51,10 @@ class App extends Component {
                     <Icon type="inbox"/>
                     <span><Link to='/OdomForShow'>percent for frontUI</Link></span>
                   </Menu.Item>
+                  <Menu.Item key="9">
+                    <Icon type="inbox"/>
+                    <span><Link to='/calcTeeth'>calcTeeth</Link></span>
+                  </Menu.Item>
 
                 </Menu>
               </Sider>
@@ -58,6 +63,7 @@ class App extends Component {
 
                 <Route path="/Cell/visual" component={CellVisual}/>
                 <Route path="/OdomForShow" component={OdomForShow}/>
+                <Route path="/calcTeeth" component={calcTeeth}/>
 
 
               </Content>

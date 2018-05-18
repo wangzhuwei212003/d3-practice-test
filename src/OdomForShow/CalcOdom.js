@@ -1,5 +1,7 @@
 /**
  * Created by zhuweiwang on 2018/4/28.
+ *
+ * 根据大格子位置报告，算出odom中偏移量占下一个格子的百分比。用来给前端显示。
  */
 
 import * as CONFIG from './configDATA';
