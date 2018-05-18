@@ -53,7 +53,7 @@ class App extends Component {
                   </Menu.Item>
                   <Menu.Item key="9">
                     <Icon type="inbox"/>
-                    <span><Link to='/calcTeeth'>calcTeeth</Link></span>
+                    <span><Link to='/calcTeeth'>calTeethAndPinAction</Link></span>
                   </Menu.Item>
 
                 </Menu>

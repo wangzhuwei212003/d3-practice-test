@@ -10,7 +10,7 @@ import {
 } from '../configTeeth';
 
 export const calTeethAndPinAction = function (startNode, endNode, startShift = 0, endShift = 0, goingUp = false) {
-  
+
   const matrixZero = Util.generateMatrix();
 
   const finder = new HCCoopFinder();

@@ -24,14 +24,7 @@ import {CellToTeeth} from './CellToTeeth';
 export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = false) {
   // 传进来的是一个 path，二维数组
   // [[row, col], [row, col], [row, col], ... , [row, col]]
-
-  // 目前的做法是加一个判断，是否需要补偿。除此之外，CellToTeeth就不用考虑补偿了。
-
-  // 算总齿数是设目标的时候，就算好。但是和行进过程中没有关系。这个是基于齿数的，所以是不存在不停的重新规划的。
-  // 所以是还得有一个 ignore 其他所有小车的寻路的方法。所以在 findPath 里添加了一个 ignore 的 flag。一般情况下是不会 ignore 的
-
-  // 算出总齿数，以及什么时候伸 pin、缩 pin，外加方向变化。
-  //logger.info('shiftLeft', shiftLeft, 'endShift', endShift);
+  // shiftLeft 是当前的偏移量。
 
   if (!goingUp) {
     // 没有变化，按照正常回拣货台
