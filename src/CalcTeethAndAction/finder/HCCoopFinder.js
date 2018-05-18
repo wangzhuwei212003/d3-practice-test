@@ -21,12 +21,12 @@ function HCCoopFinder(opt) {
 
 }
 
-HCCoopFinder.prototype.findPath = function (index, goalTable, searchDeepth, matrix, rowNum, colNum, ignoreOthers = false, goingUp = false) {
+HCCoopFinder.prototype.findPath = function (startN, endNode, searchDeepth, matrix, rowNum, colNum, ignoreOthers = false, goingUp = false) {
 
-  const startRow = goalTable[index][0][0];
-  const startCol = goalTable[index][0][1];
-  const endRow = goalTable[index][1][0];
-  const endCol = goalTable[index][1][1];
+  const startRow = startN[0];
+  const startCol = startN[1];
+  const endRow = endNode[0];
+  const endCol = endNode[1];
 
   const reservationTable = new Array(searchDeepth + 1); // 这个值应该是 pathtable 最长的一个数组长度
   for (let index = 0; index < reservationTable.length; index += 1) {
