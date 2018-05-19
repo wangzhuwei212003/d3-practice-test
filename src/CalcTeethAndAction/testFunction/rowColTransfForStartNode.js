@@ -50,6 +50,14 @@ export const rowColTransfForStartNode = function (odom) {
   if (odom.current_row === bigRowNum - 1) {
     // 1. 特殊处理的部分，顶部一行. bigRowNum - 1 === 7
     rowSmall = 0;
+
+    // 顶部一行的运动方向，决定了和底部一行的水平移动换算方式不一样。
+    if(odom.current_column === 0){
+      colSmall = 0 ;
+    }else{
+      colSmall = 3 + (odom.current_column - 1) * divideCell;
+    }
+    
     if (
         odom.theoretical_moving_direction.toString() === SpecificActionsEnum['SA_ODOM_FORWARD_GROUND_AS_REFERENCE'].toString() &&
         !odom.turning
