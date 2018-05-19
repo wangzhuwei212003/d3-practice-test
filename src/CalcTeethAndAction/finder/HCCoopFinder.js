@@ -12,7 +12,6 @@ import {
 } from '../configTeeth';
 
 import * as CONFIG from '../configTeeth';
-import {logger} from '@root/logger';
 
 function HCCoopFinder(opt) {
   opt = opt || {};
@@ -76,7 +75,7 @@ HCCoopFinder.prototype.findPath = function (startN, endNode, searchDeepth, matri
 
     if (ignoreOthers) {
       if (node.row === endRow && node.col === endCol) {
-        logger.debug('已经到达终点, from pathFinder'); // 如果是仅仅为了计算总齿数，这个找到终点就能够直接返回。
+        console.debug('已经到达终点, from pathFinder'); // 如果是仅仅为了计算总齿数，这个找到终点就能够直接返回。
         return Util.backtrace(node);
       }
     }
@@ -134,7 +133,7 @@ HCCoopFinder.prototype.findPath = function (startN, endNode, searchDeepth, matri
 
     if (neighbors === undefined) {
       //经常报这个错
-      logger.warn('不合法的行列数？node.row', node.row, 'node.col', node.col);
+      console.warn('不合法的行列数？node.row', node.row, 'node.col', node.col);
     }
 
     let testArray = [];
@@ -152,7 +151,7 @@ HCCoopFinder.prototype.findPath = function (startN, endNode, searchDeepth, matri
       let nodeBeforeTest = reservationTable[node.t].getNodeAt(test.row, test.col); // 得到正确的 timestep 的点。
       if (nodeBeforeTest.moveTo && nodeBeforeTest.moveTo.row === node.row && nodeBeforeTest.moveTo.col === node.col) {
         // 判断为相对互换位置，不合法，跳过
-        logger.debug('检测到 相对方向');
+        console.debug('检测到 相对方向');
         continue;
       }
       testArray.push(test);

@@ -36,10 +36,10 @@ export const setGoal = function (rowInput, colInput, SA_ODOM_DOWN_GROUND_AS_REFE
   let endShift = positionObj.shiftLeft; // 设置货位目标的时候，下沉距离
 
   // 5. 根据goalTable里的起点，接收输入的终点，更新goalTable里的终点，算出总齿数以及action
-  let result = calTeethAndPinAction(checkIndex, startNode, endNode, startShift, endShift, goingUp);
+  let result = calTeethAndPinAction(startNode, endNode, startShift, endShift, goingUp);
 
   // 6. 结果发给小车。 返回{totalLenghth，actions}
-  console.log('设置目标后规划出的总齿数和动作：', result);
+  console.log('设置箱位目标后规划出的总齿数和动作：', result);
   return result;
 };
 
@@ -53,7 +53,7 @@ export const goToPickUpSite = function (pickSite, startNode, startShift) {
   const endShift = 0; // 拣货台的终点的偏移量设为 0
 
   // 3. 得出结果。
-  const result = calTeethAndPinAction(checkIndex, startNode, endNode, startShift, endShift, goingUp);
+  const result = calTeethAndPinAction(startNode, endNode, startShift, endShift, goingUp);
   console.info('目标为拣货台，规划出的总齿数和动作：', result);
   return result;
 };
@@ -73,7 +73,7 @@ export const preGoUp = async function (startNode, startShift) {
     };
     console.info('目标为顶部停靠点，且小车当前位置在顶部一行，规划出的总齿数和动作：', pathinfo);
   } else {
-    const pathinfo = calTeethAndPinAction(checkIndex, startNode, endNode, startShift, endShift, goingUp);
+    const pathinfo = calTeethAndPinAction(startNode, endNode, startShift, endShift, goingUp);
     console.info('目标为顶部停靠点，规划出的总齿数和动作：', pathinfo);
   }
 };
@@ -86,6 +86,6 @@ export const preShutdownGoDown = async function (startNode, startShift) {
   const endShift = 0; // 拣货台的终点的偏移量设为 0
 
   // 3. 得出结果。
-  const pathinfo = calTeethAndPinAction(checkIndex, startNode, endNode, startShift, endShift, goingUp);
+  const pathinfo = calTeethAndPinAction(startNode, endNode, startShift, endShift, goingUp);
   console.info('目标为底部停靠点，规划出的总齿数和动作：', pathinfo);
 };

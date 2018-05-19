@@ -4,7 +4,6 @@
 import {
   rowNum,
   colNum,
-  usedRowNum,
 
   pickStationRow,
   firstGoDownCol,
@@ -13,53 +12,10 @@ import {
   divideCell,
   lookUpRowNum,
 
-  h2vUpPinOutStretchCell,
-  h2vDownSpecialPinOutStretchCell,
-  h2vDownNormalPinOutStretchCell,
-
-  specialTopStartCellCol,
-  specialBtmStartCellCol,
-  topBoxNormalHeightStartRow,
-  topBoxNormalHeightEndRow,
-  SDownPartStartRow,
-  SDownPartEndRow,
-  SUPPartStartRow,
-  SUPPartEndRow,
-  specialHeightStartRow,
-  specialHeightEndRow,
-
-  normalWidth, //水平方向一格的宽度
-  normalHeight, // 一般货位高度是 66.83
-  topBoxNormalHeight, // 最上面一行货位的高度是 60.23
-  specialHeight, // 底部特殊高度，31.62
-  compensate, // 方向改变的时候，齿数补偿，25 + 90度
-  specialBottomPart, // 底部的特殊部分
-  doubleBottomPart,
-  specialTopPart, // 顶部的特殊部分
-  SUPPart, // S形弯道上部分齿数
-  SDownPart, // S形弯道下部分齿数
-  timeGap,
-  PSBrakeDis,
-  BrakeDis,
-
-  pickSitesSmallRow,
-  pickSitesRowGap,
-
   occupyRowConfig,
   occupyColConfig,
-  delayGap
 } from '../configTeeth';
-import {logger} from '@root/logger';
-import {getEnums} from "@backend/lib/ddsEnums";
-import {showDispatchLog} from '@root/config/config.js';
-import {shuttles} from '@backend/shuttle/shuttleInstances.js';
 
-import {
-  findIdleUidOb,
-  findIndexByUid,
-  findParkingGoal,
-  setGoal
-} from '../dispatch';
 
 export const backtrace = function (node) {
   const path = [[node.row, node.col]];
@@ -162,7 +118,7 @@ export const CalcPriority = function (cellRow, cellCol) {
     // 最小：688 + 8 - 7 + 0 = 689，
     // 最大：688 + 8 - 0 + 26 - 21 = 701，
   } else {
-    logger.warn('some scenario not considered! 行列数超出范围。');
+    console.warn('some scenario not considered! 行列数超出范围。');
   }
 };
 
@@ -216,68 +172,6 @@ export const generateZeroMatrix = function () {
   // logger.debug(matrixData);
   return matrixData;
 };
-
-export const calSectionLockMapForGeneral = function (row, col) {
-  // 传进来的是小格子的行列数
-  if (
-      row > rowNum - 1 || row < 0 ||
-      col > lastGoDownPickCol || col < 0
-  ) {
-    logger.warn('行列超出范围', row, col);
-  }
-
-  let globalMap = generateZeroMatrix();
-  // 根据 occupyRowConfig、occupyColConfig 数字算出占位
-  for (let occupyCol = 0; occupyCol < occupyColConfig; occupyCol += 1) {
-    for (let occupyRow = 0; occupyRow < occupyRowConfig; occupyRow += 1) {
-      if (!!globalMap[row - occupyRow]) {
-        globalMap[row - occupyRow][col + occupyCol] = 1;
-      }
-    }
-  } // 每一个点有 占位。
-  globalMap[row][col] = 1;
-  return globalMap;
-};
-
-export const checkObstacle = function (uidInx, row, col, trackById) {
-
-  let globalMaps = trackById;
-  let obInTheWay = false; // 默认是没有障碍
-  for (let i = 0; i < globalMaps.length; i += 1) {
-    if (obInTheWay) {
-      break; // 如果是已经有障碍了，直接就跳出循环
-    }
-    if (i === uidInx) {
-      continue; // 如果是自己的 track 就跳过。
-    }
-    let globalMap = globalMaps[i];
-
-    /*
-     中间就靠路径避障。
-     剩下的部分，上升列、（现在看来是上升列是有漏洞的，底部横向的应该是没有问题。）
-     1.
-     */
-    if (col === 0) {
-      // obInTheWay = ((!globalMap[row - occupyRowConfig]) ? false : globalMap[row - occupyRowConfig][0] === 1) ||
-      //     ((!globalMap[row - occupyRowConfig - 1]) ? false : globalMap[row - occupyRowConfig - 1][0] === 1) ||
-      //     ((!globalMap[row - occupyRowConfig - 2]) ? false : globalMap[row - occupyRowConfig - 2][0] === 1) ||
-      //     ((!globalMap[row - occupyRowConfig - 3]) ? false : globalMap[row - occupyRowConfig - 3][0] === 1) ||
-      //     ((!globalMap[row - occupyRowConfig - 4]) ? false : globalMap[row - occupyRowConfig - 4][0] === 1) ||
-      //     ((!globalMap[row - occupyRowConfig - 5]) ? false : globalMap[row - occupyRowConfig - 5][0] === 1) ||
-      //     ((!globalMap[row - occupyRowConfig - 6]) ? false : globalMap[row - occupyRowConfig - 6][0] === 1); //这里只是上升列的判断。往上判断 6 格 TODO：for循环 配置
-
-      for (let i = 0; i <= lookUpRowNum; i += 1) {
-        obInTheWay = obInTheWay ||
-            ((!globalMap[row - occupyRowConfig - i]) ? false : globalMap[row - occupyRowConfig][0] === 1);
-      }
-    } else {
-      // do nothing
-    }
-  }
-  // after for loop return the bool
-  return obInTheWay;
-};
-
 
 
 export default {};

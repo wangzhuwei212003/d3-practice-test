@@ -3,33 +3,8 @@
  */
 
 module.exports = {
-  usedRowNum: 8, // 原来的大格子行列数，不含0
-  usedColNum: 9,
 
-  smallRowNum: 27,
-  smallColNum: 36, // 小格子的总行列数
-
-  pickStationRow: 21, // 拣货台所在行的index，
-
-  occupyRowConfig: 7,
-  occupyColConfig: 5, // 实际每列划分为4格，避免相邻列，使用5列。
-
-  // 计算齿数
-  normalWidth: 23, //水平方向一格的宽度
-  normalHeight: 16.7075, // 一般货位高度是 66.83
-  topBoxNormalHeight: 15.0575, // 最上面一行货位的高度是 60.23
-  specialHeight: 31.62, // 底部特殊高度，31.62
-  compensate: 25 + 29 / 4, // 方向改变的时候，齿数补偿，25 + 90度
-
-  specialBottomPart: 144 / 4, // 底部的特殊部分
-  specialTopPart: 52 / 4, // 顶部的特殊部分
-
-  SUPPart: 78.66 / 4, // S形弯道上部分齿数
-  SDownPart: 112 / 4, // S形弯道下部分齿数
-
-  pickStationHigh: 99, // 拣货台高度（包括特殊高 31.62
-
-  // 模拟路径
+/*  // 模拟路径
   A0: [
     [26, 4], [26, 3], [26, 2], [26, 1], [26, 0], // 开始上升列
     [25, 0], [24, 0], [23, 0], [22, 0], [21, 0], [20, 0],
@@ -49,14 +24,12 @@ module.exports = {
     [1, 8], [2, 8], [3, 8], [4, 8], [5, 8], [6, 8], [7, 8], [8, 8], [9, 8], [10, 8],
     [11, 8], [12, 8], [13, 8], [14, 8], [15, 8], [16, 8], [17, 8], [18, 8], [19, 8], [20, 8],
     [21, 8], [22, 8], [23, 8], [24, 8] // 终点是大格子的行列数：1，2
-  ],
-
-  // 拣货位正好是 小格子21,0
-  PickUPSiteSmallCell: [21, 0],
+  ],*/
 
   /*
    旧版的库，负一楼
    */
+  // 没有用到
   mainShelfMap_V2: [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1],// 实际中的最上面一行
     [-1, -1, 25, 26, 27, 28, 29, -1, -1],
@@ -72,7 +45,6 @@ module.exports = {
   bigRowNum: 8,
   bigColNum: 9,
 
-  divideCell: 4,
   // 小格子行列数
   rowNum: 27,
   colNum: 36,
@@ -112,7 +84,7 @@ module.exports = {
   firstGoDownCol: 8, // 开始下降的第一列列数 8
   lastGoDownCol: 36 - 12, //开始下降的有货位的最后一列列数 24
   lastGoDownPickCol: 36 - 4, // 下降列拣货台的列数 32
-  divideCell:4, // 一大格分4个格子
+  divideCell: 4, // 一大格分4个格子
   lookUpRowNum: 6, // 上升列往上检查有没有小车的方法。
 
   // calcTeeth 用到
@@ -123,12 +95,12 @@ module.exports = {
   // cellToTeeth 用到
   specialTopStartCellCol: 4, // 从第 4 列开始是顶部特殊长度，包含第 4 列。
   specialBtmStartCellCol: 36 - 8, //colNum - 8, // 底部特殊长度，包含第 colNum - 8 列。
-  topBoxNormalHeightStartRow:1,
-  topBoxNormalHeightEndRow:4, // 最上面一行货位的高度是 60.23, 起始行、结束行
+  topBoxNormalHeightStartRow: 1,
+  topBoxNormalHeightEndRow: 4, // 最上面一行货位的高度是 60.23, 起始行、结束行
   SDownPartStartRow: 27 - 10, //rowNum - 10, S形弯道下部分
-  SDownPartEndRow:27 - 7, // rowNum - 7, S形弯道下部分
+  SDownPartEndRow: 27 - 7, // rowNum - 7, S形弯道下部分
   SUPPartStartRow: 27 - 14, //rowNum - 14, S形弯道上部分
-  SUPPartEndRow:27 - 11, // rowNum - 11, S形弯道上部分
+  SUPPartEndRow: 27 - 11, // rowNum - 11, S形弯道上部分
   specialHeightStartRow: 27 - 2, //rowNum - 2, 底部特殊高度一行
   specialHeightEndRow: 27 - 2, //rowNum - 2, 底部特殊高度一行
 
@@ -151,4 +123,12 @@ module.exports = {
   // 起点行列数
   startROW: 26, // 只能是最底下一行，heuristic里面默认
   startCOL: 4,
+
+  colorSet: ['#D7263D', '#F46036', '#C5D86D', '#1B998B', '#2E294E'],
+
+  // 测试相关
+  origin:[26, 4],
+  wheel_to_chain: 21,
+
+
 };

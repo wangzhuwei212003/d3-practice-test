@@ -1,32 +1,42 @@
 /**
  * Created by zhuweiwang on 2018/5/18.
  */
-
 import React, {Component} from 'react';
 import * as d3 from 'd3';
 import {Button, Form} from 'antd';
-
 import './index.css';
-
 import * as config from '../configTeeth';
+import {
+  rowNum,
+  colNum,
+  cellW,
+  cellH,
+  BIGCELLTEXT,
+  bigRowNum,
+  bigColNum,
 
-// const SpecificActionsEnum = {
-//   "SA_PIN_OUTSTRETCH": 0,
-//   "SA_PIN_RETRIEVE": 1,
-//   "SA_ODOM_FORWARD_GROUND_AS_REFERENCE": 2,
-//   "SA_ODOM_BACKWARD_GROUND_AS_REFERENCE": 3,
-//   "SA_ODOM_UP_GROUND_AS_REFERENCE": 4,
-//   "SA_ODOM_DOWN_GROUND_AS_REFERENCE": 5,
-//   "SA_TURNING_BEGIN_POINT": 6,
-// };
+  colorSet,
 
-const rowNum = config.rowNum;
-const colNum = config.colNum;
-const cellW = config.cellW;
-const cellH = config.cellH;
-const BIGCELLTEXT = config.BIGCELLTEXT;
+  origin,
+  wheel_to_chain,
+} from '../configTeeth';
 
-const colorSet = ['#D7263D', '#F46036', '#C5D86D', '#1B998B', '#2E294E'];
+import {
+  setGoal,
+  goToPickUpSite,
+  preGoUp,
+  preShutdownGoDown
+} from '../testFunction/setGoal';
+
+const SpecificActionsEnum = {
+  "SA_PIN_OUTSTRETCH": 0,
+  "SA_PIN_RETRIEVE": 1,
+  "SA_ODOM_FORWARD_GROUND_AS_REFERENCE": 2,
+  "SA_ODOM_BACKWARD_GROUND_AS_REFERENCE": 3,
+  "SA_ODOM_UP_GROUND_AS_REFERENCE": 4,
+  "SA_ODOM_DOWN_GROUND_AS_REFERENCE": 5,
+  "SA_TURNING_BEGIN_POINT": 6,
+};
 
 class Visual extends Component {
   constructor(props) {
@@ -162,9 +172,6 @@ class Visual extends Component {
 
   // 大格子的辅助线的信息，即是按照大格子的分法，画出大格子边界
   gridDataBigCell() {
-    const bigRow = config.bigRowNum;
-    const bigCol = config.bigColNum;
-
     const data = []; // this is preferrable
     let xpos = 1;
     let ypos = 1;
@@ -172,11 +179,11 @@ class Visual extends Component {
     let height = cellH;
 
     //iterate for rows
-    for (let row = 0; row < bigRow; row += 1) {
+    for (let row = 0; row < bigRowNum; row += 1) {
       data.push([]);
       if (row === 0) {
         height = cellH;
-      } else if (row >= 1 && row < bigRow - 1) {
+      } else if (row >= 1 && row < bigRowNum - 1) {
         height = 4 * cellH
       } else {
         height = 2 * cellH;
@@ -272,11 +279,41 @@ class Visual extends Component {
     return data;
   }
 
+  startPointToSingleBoxPoint(rowInput, colInput) {
+    console.info(`起点到${rowInput}行${colInput}列货位.`);
+
+    const goingUp = false;
+    const pathInfo = setGoal(rowInput, colInput, SpecificActionsEnum["SA_ODOM_DOWN_GROUND_AS_REFERENCE"], wheel_to_chain, goingUp, origin, 0);
+    // console.log(pathInfo);
+  }
+  startPointToAllBoxPoint() {
+    console.info(`起点到${BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位.`);
+    for (let row = 0; row < BIGCELLTEXT.length; row += 1) {
+      for (let col = 0; col < BIGCELLTEXT[0].length; col += 1) {
+        console.log('目标箱位行列数：', row + 1, col + 2);
+        this.startPointToSingleBoxPoint(row + 1, col + 2);
+      }
+    }
+
+  }
+  allBoxPointToStartPoint() {
+    console.info(`{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到起点.`);
+    for (let row = 0; row < BIGCELLTEXT.length; row += 1) {
+      for (let col = 0; col < BIGCELLTEXT[0].length; col += 1) {
+        console.log('目标箱位行列数：', row + 1, col + 2);
+        //this.startPointToSingleBoxPoint(row + 1, col + 2);
+      }
+    }
+
+  }
+
   render() {
     return (
         <div ref={ele => this.grid = ele}>
           <p>货位算总齿数、actions，{BIGCELLTEXT.length}行{BIGCELLTEXT[0].length}列</p>
-          <Button>起点到{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位</Button>
+          <Button onClick={() => this.startPointToAllBoxPoint()}>test</Button>
+
+          <Button onClick={this.startPointToAllBoxPoint}>起点到{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位</Button>
           <Button>{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到起点</Button>
           <br/>
           <Button>左边（上升列）拣货台到{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位</Button>
