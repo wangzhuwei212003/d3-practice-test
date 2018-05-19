@@ -43,12 +43,12 @@ export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = fals
   // [[row, col], [row, col], [row, col], ... , [row, col]]
   // shiftLeft 是当前的偏移量。
 
-  // console.log(path);
+  console.log(path);
 
   if (!goingUp) {
     // 没有变化，按照正常回拣货台
     let totalTeeth = 0 - shiftLeft;
-    // console.log('initial totalTeeth:', totalTeeth);
+    console.log('initial totalTeeth:', totalTeeth);
     let actions = [];
 
     /* %%%%%%%%%%% 一个 for 循环遍历整个规划出来的 path %%%%%%%%%%% */
@@ -67,9 +67,9 @@ export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = fals
       let cellNextRow = cellNext[0];
       let cellNextCol = cellNext[1];
 
-      // console.log('last totalTeeth:', totalTeeth);
+      console.log('last totalTeeth:', totalTeeth);
       totalTeeth += CellToTeeth(cellRow, cellCol); // 没有考虑补偿的。
-      // console.log('totalTeeth add:', CellToTeeth(cellRow, cellCol), "totalTeeth:", totalTeeth);
+      console.log('totalTeeth add:',cellRow, cellCol, CellToTeeth(cellRow, cellCol), "totalTeeth:", totalTeeth);
 
 
       //判断如果是转弯了，就加补偿
@@ -83,7 +83,7 @@ export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = fals
           specific_action: 'SA_TURNING_BEGIN_POINT'
         }); // 补偿前添加 开始转弯 flag
         totalTeeth += compensate; // 如果是有拐角就是添加补偿。
-        // console.log('totalTeeth add:', compensate, "totalTeeth:", totalTeeth);
+        console.log('totalTeeth add:',cellRow, cellCol, compensate, "totalTeeth:", totalTeeth);
 
         actions.push({
           target_teeth: totalTeeth,
@@ -103,7 +103,7 @@ export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = fals
           specific_action: 'SA_TURNING_BEGIN_POINT'
         }); // 补偿前添加 开始转弯 flag
         totalTeeth += compensate;
-        // console.log('totalTeeth add:', compensate, "totalTeeth:", totalTeeth);
+        console.log('totalTeeth add:',cellRow, cellCol, compensate, "totalTeeth:", totalTeeth);
 
         actions.push({
           target_teeth: totalTeeth,
@@ -122,14 +122,14 @@ export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = fals
       ) {
         // 3. 下降列转弯为水平。下来不需要伸 pin，缩 pin。
         totalTeeth -= CellToTeeth(cellNextRow, cellCol); // 多算了一个横向的格子，这个格子是不走的
-        // console.log('totalTeeth minus:', CellToTeeth(cellRow, cellCol), "totalTeeth:", totalTeeth);
+        console.log('totalTeeth minus:',cellRow, cellCol, CellToTeeth(cellNextRow, cellCol), "totalTeeth:", totalTeeth);
 
         actions.push({
           target_teeth: totalTeeth > 0 ? totalTeeth : 0,
           specific_action: 'SA_TURNING_BEGIN_POINT'
         }); // 补偿前添加 开始转弯 flag
         totalTeeth += compensate;
-        // console.log('totalTeeth add:', compensate, "totalTeeth:", totalTeeth);
+        console.log('totalTeeth add:',cellRow, cellCol, compensate, "totalTeeth:", totalTeeth);
 
         actions.push({
           target_teeth: totalTeeth,
@@ -141,14 +141,14 @@ export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = fals
       ) {
         // 4. 最后一列下降列转弯为水平。下来不需要伸 pin，缩 pin
         totalTeeth -= CellToTeeth(cellNextRow, cellCol); // 多算了一个横向的格子，这个格子是不走的
-        // console.log('totalTeeth minus:', CellToTeeth(cellNextRow, cellCol), "totalTeeth:", totalTeeth);
+        console.log('totalTeeth minus:',cellRow, cellCol, CellToTeeth(cellNextRow, cellCol), "totalTeeth:", totalTeeth);
 
         actions.push({
           target_teeth: totalTeeth > 0 ? totalTeeth : 0,
           specific_action: 'SA_TURNING_BEGIN_POINT'
         }); // 补偿前添加 开始转弯 flag
         totalTeeth += compensate;
-        // console.log('totalTeeth add:', compensate, "totalTeeth:", totalTeeth);
+        console.log('totalTeeth add:',cellRow, cellCol, compensate, "totalTeeth:", totalTeeth);
 
         actions.push({
           target_teeth: totalTeeth,
@@ -166,14 +166,14 @@ export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = fals
             specific_action: 'SA_PIN_OUTSTRETCH'
           }); // 伸pin动作
           totalTeeth -= CellToTeeth(cellRow, cellCol); // 多算了一个横向的格子，这个格子是不走的
-          // console.log('totalTeeth minus:', CellToTeeth(cellNextRow, cellCol), "totalTeeth:", totalTeeth);
+          console.log('totalTeeth minus:',cellRow, cellCol, CellToTeeth(cellRow, cellCol), "totalTeeth:", totalTeeth);
 
           actions.push({
             target_teeth: totalTeeth,
             specific_action: 'SA_TURNING_BEGIN_POINT'
           }); // 补偿前添加 开始转弯 flag
           totalTeeth += compensate;
-          // console.log('totalTeeth add:', compensate, "totalTeeth:", totalTeeth);
+          console.log('totalTeeth add:',cellRow, cellCol, compensate, "totalTeeth:", totalTeeth);
 
           actions.push({
             target_teeth: totalTeeth,
@@ -190,14 +190,14 @@ export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = fals
             specific_action: 'SA_PIN_OUTSTRETCH'
           }); // 伸pin动作
           totalTeeth -= CellToTeeth(cellRow, cellCol); // 多算了一个横向的格子，这个格子是不走的
-          // console.log('totalTeeth minus:', CellToTeeth(cellNextRow, cellCol), "totalTeeth:", totalTeeth);
+          console.log('totalTeeth minus:',cellRow, cellCol, CellToTeeth(cellRow, cellCol), "totalTeeth:", totalTeeth);
 
           actions.push({
             target_teeth: totalTeeth,
             specific_action: 'SA_TURNING_BEGIN_POINT'
           }); // 补偿前添加 开始转弯 flag
           totalTeeth += compensate;
-          // console.log('totalTeeth add:', compensate, "totalTeeth:", totalTeeth);
+          console.log('totalTeeth add:',cellRow, cellCol, compensate, "totalTeeth:", totalTeeth);
 
           actions.push({
             target_teeth: totalTeeth,
@@ -218,14 +218,14 @@ export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = fals
           specific_action: 'SA_PIN_OUTSTRETCH'
         }); // 伸pin动作
         totalTeeth -= CellToTeeth(cellRow, cellCol); // 多算了一个横向的格子，这个格子是不走的
-        // console.log('totalTeeth minus:', CellToTeeth(cellNextRow, cellCol), "totalTeeth:", totalTeeth);
+        console.log('totalTeeth minus:',cellRow, cellCol, CellToTeeth(cellRow, cellCol), "totalTeeth:", totalTeeth);
 
         actions.push({
           target_teeth: totalTeeth,
           specific_action: 'SA_TURNING_BEGIN_POINT'
         }); // 补偿前添加 开始转弯 flag
         totalTeeth += compensate;
-        // console.log('totalTeeth add:', compensate, "totalTeeth:", totalTeeth);
+        console.log('totalTeeth add:',cellRow, cellCol, compensate, "totalTeeth:", totalTeeth);
 
         actions.push({
           target_teeth: totalTeeth,
@@ -243,7 +243,7 @@ export const calcTeeth = function (path, shiftLeft, endShift = 0, goingUp = fals
 
     // 返回最终结果
     totalTeeth += endShift;
-    // console.log('totalTeeth add endShift:', endShift, "totalTeeth:", totalTeeth);
+    console.log('totalTeeth add endShift:', endShift, "totalTeeth:", totalTeeth);
 
     return {
       total_teeth: totalTeeth,

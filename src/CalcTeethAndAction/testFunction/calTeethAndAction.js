@@ -33,7 +33,7 @@ export const calTeethAndPinAction = function (startNode, endNode, startShift = 0
   }, []);
 
   // console.log('path', path);
-  // console.log('calcPath', calcPath);
+  console.log('calcPath', calcPath);
 
   let teethAndPinAction = calcTeeth(calcPath, startShift, endShift, goingUp); // 根据 path 算齿数。
 

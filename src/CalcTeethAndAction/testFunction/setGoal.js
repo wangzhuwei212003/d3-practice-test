@@ -120,3 +120,27 @@ export const goToOrigin = async function (rowInput, colInput, SA_ODOM_DOWN_GROUN
   const pathinfo = calTeethAndPinAction(startNode, endNode, startShift, endShift, goingUp);
   console.info('目标为原点，规划出的总齿数和动作：', pathinfo);
 };
+
+//  顶部停靠点，到某一个箱位
+export const upToSingleBox = function (rowInput, colInput, SA_ODOM_DOWN_GROUND_AS_REFERENCE, wheel_to_chain, goingUp, startNode, startShift) {
+  let goalOdom = {
+    horizontal_offset_from_nearest_coordinate: 0,
+    vertical_offset_from_nearest_coordinate: wheel_to_chain, //TODO 判断是否为空
+    theoretical_moving_direction: SA_ODOM_DOWN_GROUND_AS_REFERENCE,
+    current_row: rowInput,
+    current_column: colInput,
+    turning: false
+  }; // 生成一个终点的 odom。
+  let positionObj = rowColTransfForStartNode(goalOdom);
+
+  let endNode = [positionObj.rowSmall, positionObj.colSmall];
+  let endShift = positionObj.shiftLeft; // 设置货位目标的时候，下沉距离
+
+  // 5. 根据goalTable里的起点，接收输入的终点，更新goalTable里的终点，算出总齿数以及action
+  let result = calTeethAndPinAction(startNode, endNode, startShift, endShift, goingUp);
+
+  // 6. 结果发给小车。 返回{totalLenghth，actions}
+  console.log('设置箱位目标后规划出的总齿数和动作：', result);
+  return result;
+};
+

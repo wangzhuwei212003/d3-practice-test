@@ -27,7 +27,8 @@ import {
   goToPickUpSite,
   preGoUp,
   preShutdownGoDown,
-  goToOrigin
+  goToOrigin,
+  upToSingleBox
 } from '../testFunction/setGoal';
 import {CellToTeeth} from '../testFunction/CellToTeeth';
 
@@ -370,11 +371,19 @@ class Visual extends Component {
     goToPickUpSite("SiteA" ,rowInput, colInput, SpecificActionsEnum["SA_ODOM_DOWN_GROUND_AS_REFERENCE"], wheel_to_chain, goingUp);
   }
 
+  APIUpToSingleBox(rowInput, colInput){
+    // 复现一下，这个错误
+    const startNode = [0, 44];
+    const startShift = 0.003;
+    const goingUp = false;
+    upToSingleBox(rowInput, colInput, SpecificActionsEnum["SA_ODOM_DOWN_GROUND_AS_REFERENCE"], wheel_to_chain, goingUp, startNode, startShift);
+  }
+
   render() {
     return (
         <div ref={ele => this.grid = ele}>
           <p>货位算总齿数、actions，{BIGCELLTEXT.length}行{BIGCELLTEXT[0].length}列</p>
-          <Button type="primary" onClick={() => this.startPointToSingleBoxPoint(2,2)}>test</Button>
+          <Button type="primary" onClick={() => this.APIUpToSingleBox(3,2)}>test</Button>
 
           <Button type="primary" onClick={() => this.startPointToAllBoxPoint()}>起点到{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位</Button>
           <Button type="primary" onClick={() => this.allBoxPointToStartPoint()}>{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到起点</Button>
