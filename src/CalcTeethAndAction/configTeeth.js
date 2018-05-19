@@ -109,9 +109,6 @@ module.exports = {
     SiteB: [21, 36 - 4],
   },
 
-  pickSitesSmallRow: 21, //回拣货台，上升列开始进入S行弯道的行数
-  pickSitesRowGap: 8, // S形弯道 占有的小格子行数
-
   // 开机、关机相关
   preGoUpPoint: [0, 36 - 9], //顶部停靠的列数，顶部差两格需要开始伸pin
   GoDownPoint: [26, 4 + 2], // 原点前两小格，即是半大格。

@@ -82,23 +82,23 @@ module.exports = {
 
   // 计算齿数
   normalWidth: 23, //水平方向一格的宽度 92/4
-  normalHeight: 16.7075, // 一般货位高度是 66.83/4
-  normalHeightBIG: 66.83, // 一般货位高度是 66.83
-  topBoxNormalHeight: 15.0575, // 最上面一行货位的高度是 60.23/4
-  specialHeight: 31.62, // 底部特殊高度，31.62
-  compensate: 25 + 29 / 4, // 方向改变的时候，齿数补偿，25 + 90度
+  normalHeight: 16.5, // 一般货位高度是 66/4
+  normalHeightBIG: 66, // 一般货位高度是 66
+  topBoxNormalHeight: 52.432516/4, // 最上面一行货位的高度是 52.432516/4
+  specialHeight: 13.567484, // 底部特殊高度，13.567484
+  compensate: 25 + 28 / 4, // 方向改变的时候，齿数补偿，25 + 90度 同一个库里所有车同一个齿数
 
   specialBottomPart: 144 / 4, // 底部的特殊部分
   doubleBottomPart: 2 * 92 / 4, // 下降列底部的特殊部分是两个正常的宽度。
   specialTopPart: 52 / 4, // 顶部的特殊部分
 
-  SUPPart: 78.66 / 4, // S形弯道上部分齿数
-  SDownPart: 112 / 4, // S形弯道下部分齿数
+  SUPPart: 76.567484 / 4, // S形弯道上部分齿数
+  SDownPart: 112.432516 / 4, // S形弯道下部分齿数
 
-  pickStationHigh: 99, // 拣货台高度（包括特殊高 31.62）
+  pickStationHigh: 36, // 拣货台高度（包括特殊高 13.567484）
 
   // 特殊行列数。CalcPriority 用到
-  pickStationRow: 21, // 拣货台所在行的index，这个是根据测试调好的。
+  pickStationRow: 21, // 拣货台所在行的index，这个是根据测试调好的。27 - 3 = 24，加上往上偏移量
   firstGoDownCol: 8, // 开始下降的第一列列数 8
   lastGoDownCol: 36 - 12, //开始下降的有货位的最后一列列数 24
   lastGoDownPickCol: 36 - 4, // 下降列拣货台的列数 32
@@ -127,9 +127,6 @@ module.exports = {
     SiteA: [21, 0],
     SiteB: [21, 36 - 4],
   },
-
-  pickSitesSmallRow: 21, //回拣货台，上升列开始进入S行弯道的行数
-  pickSitesRowGap: 8, // S形弯道 占有的小格子行数
 
   // 开机、关机相关
   preGoUpPoint: [0, 36 - 9], //顶部停靠的列数，顶部差两格需要开始伸pin
