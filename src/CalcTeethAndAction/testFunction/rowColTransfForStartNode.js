@@ -4,9 +4,9 @@
 import {
   divideCell,
 
-  usedRowNum,
-  usedColNum,
-  smallRowNum,
+  bigRowNum,
+  bigColNum,
+  rowNum,
 
   topBoxNormalHeight,
   normalWidth,
@@ -17,7 +17,8 @@ import {
   specialBottomPart,
   doubleBottomPart,
   specialHeight,
-} from '../configTeeth';
+} from '../config_V3';
+// } from '../configTeeth';
 
 const SpecificActionsEnum = {
   "SA_PIN_OUTSTRETCH": 0,
@@ -46,8 +47,8 @@ export const rowColTransfForStartNode = function (odom) {
   let shiftNum; // 算成小格子后还多出的距离 齿数
   let shiftLeft = 0;
 
-  if (odom.current_row === usedRowNum - 1) {
-    // 1. 特殊处理的部分，顶部一行. usedRowNum - 1 === 7
+  if (odom.current_row === bigRowNum - 1) {
+    // 1. 特殊处理的部分，顶部一行. bigRowNum - 1 === 7
     rowSmall = 0;
     if (
         odom.theoretical_moving_direction.toString() === SpecificActionsEnum['SA_ODOM_FORWARD_GROUND_AS_REFERENCE'].toString() &&
@@ -81,7 +82,7 @@ export const rowColTransfForStartNode = function (odom) {
       odom.current_row === 1 && odom.current_column === 0
   ) {
     // 2-1. 倒数第二行，就是特殊列的一行。第一列 -- 上升列
-    rowSmall = smallRowNum - 2;
+    rowSmall = rowNum - 2;
 
     shiftNum = Math.floor(odom.vertical_offset_from_nearest_coordinate / normalHeight);
     rowSmall -= shiftNum;
@@ -90,7 +91,7 @@ export const rowColTransfForStartNode = function (odom) {
       odom.current_row === 1 && odom.theoretical_moving_direction.toString() === SpecificActionsEnum['SA_ODOM_DOWN_GROUND_AS_REFERENCE'].toString()
   ) {
     // 2-1. 倒数第二行，就是特殊列的一行。// 下降列
-    rowSmall = smallRowNum - 3;
+    rowSmall = rowNum - 3;
 
     shiftNum = Math.floor(odom.vertical_offset_from_nearest_coordinate / specialHeight);
     shiftLeft = odom.vertical_offset_from_nearest_coordinate - shiftNum * specialHeight;
@@ -99,7 +100,7 @@ export const rowColTransfForStartNode = function (odom) {
       odom.current_row === 0
   ) {
     // 2-2. 大格子里的倒数第一行。
-    rowSmall = smallRowNum - 1;
+    rowSmall = rowNum - 1;
 
     // 除了第一列 -- 上升列 都没有问题。
     if (odom.current_column === 0) {
@@ -126,7 +127,7 @@ export const rowColTransfForStartNode = function (odom) {
           shiftNum = Math.floor(odom.horizontal_offset_from_nearest_coordinate / specialBottomPart);
           colSmall -= shiftNum;
           shiftLeft = odom.horizontal_offset_from_nearest_coordinate - shiftNum * specialBottomPart;
-        } else if (odom.current_column === usedColNum - 1) {
+        } else if (odom.current_column === bigColNum - 1) {
           // 如果是下降列，特殊宽度
           shiftNum = Math.floor(odom.horizontal_offset_from_nearest_coordinate / doubleBottomPart);
           colSmall -= shiftNum;
@@ -147,7 +148,7 @@ export const rowColTransfForStartNode = function (odom) {
     }
   } else {
     // 3. 中间部分，odom.current_row 范围是 2 - 6，中间货位部分。
-    rowSmall = smallRowNum - 3 - (odom.current_row - 1) * divideCell;
+    rowSmall = rowNum - 3 - (odom.current_row - 1) * divideCell;
 
     // 上升列、下降列，包含S形弯道部分。
     if (
@@ -165,14 +166,14 @@ export const rowColTransfForStartNode = function (odom) {
       rowSmall -= shiftNum;
       shiftLeft = odom.vertical_offset_from_nearest_coordinate - shiftNum * SUPPart;
     } else if (
-        (odom.current_column === usedColNum - 1) &&
+        (odom.current_column === bigColNum - 1) &&
         (odom.current_row === 4)
     ) {
       shiftNum = Math.floor(odom.vertical_offset_from_nearest_coordinate / SUPPart);
       rowSmall += shiftNum;
       shiftLeft = odom.vertical_offset_from_nearest_coordinate - shiftNum * SUPPart;
     } else if (
-        (odom.current_column === usedColNum - 1) &&
+        (odom.current_column === bigColNum - 1) &&
         (odom.current_row === 3)
     ) {
       shiftNum = Math.floor(odom.vertical_offset_from_nearest_coordinate / SDownPart);
@@ -183,7 +184,7 @@ export const rowColTransfForStartNode = function (odom) {
       shiftNum = Math.floor(odom.vertical_offset_from_nearest_coordinate / normalHeight);
       rowSmall -= shiftNum;
       shiftLeft = odom.vertical_offset_from_nearest_coordinate - shiftNum * normalHeight;
-    } else if (odom.current_column === usedColNum - 1) {
+    } else if (odom.current_column === bigColNum - 1) {
       // 最后一列剩下的
       shiftNum = Math.floor(odom.vertical_offset_from_nearest_coordinate / normalHeight);
       rowSmall += shiftNum;

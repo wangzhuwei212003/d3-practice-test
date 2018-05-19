@@ -3,7 +3,8 @@
  */
 
 import Node from './Node';
-import * as CONFIG from '../configTeeth';
+// import * as CONFIG from '../configTeeth';
+import * as CONFIG from '../config_V3';
 
 function Grid(width_or_matrix, height, matrix) {
   let width;

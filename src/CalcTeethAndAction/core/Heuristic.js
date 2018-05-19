@@ -1,6 +1,15 @@
 /**
  * Created by zhuweiwang on 02/04/2018.
  */
+// import {
+//   rowNum,
+//   colNum,
+//   pickStationRow,
+//   startROW,
+//   startCOL,
+//   preGoUpPoint,
+//   GoDownPoint
+// } from '../configTeeth';
 import {
   rowNum,
   colNum,
@@ -8,8 +17,9 @@ import {
   startROW,
   startCOL,
   preGoUpPoint,
-  GoDownPoint
-} from '../configTeeth';
+  GoDownPoint,
+  firstGoDownCol
+} from '../config_V3';
 
 export default {
   /**
@@ -46,13 +56,13 @@ export default {
     if (endRow === pickRow && (endCol === 0 || endCol === colNum - 4)) {
     } else if (
         endRow >= 1 && endRow <= rowNum - 2 &&
-        endCol >= 8 && endCol <= colNum - 12
+        endCol >= firstGoDownCol && endCol <= colNum - 12
     ) {
     } else if (endRow === startROW && endCol === startCOL) {
     } else if (endRow === preGoUpPoint[0] && endCol === preGoUpPoint[1]) {
     } else if (endRow === GoDownPoint[0] && endCol === GoDownPoint[1]) {
     } else {
-      console.log('目标设置错误。');
+      console.log('目标设置错误。', endRow, endCol);
       return 0; // 除了拣货台和中间的货位，其他位置的目标都是不允许的。其实 return 0 在程序中还是发现能够规划出路径。并不是停在原点。和pathFinder里的openList里的点是否有当前点有关。
     }
 

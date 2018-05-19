@@ -6,12 +6,9 @@ import Heap from 'heap';
 import * as Util from '../core/Util';
 import Heuristic from '../core/Heuristic';
 import Grid from '../core/Grid';
-import {
-  occupyRowConfig,
-  occupyColConfig
-} from '../configTeeth';
 
-import * as CONFIG from '../configTeeth';
+// import * as CONFIG from '../configTeeth';
+import * as CONFIG from '../config_V3';
 
 function HCCoopFinder(opt) {
   opt = opt || {};

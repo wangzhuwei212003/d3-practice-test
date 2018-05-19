@@ -4,10 +4,14 @@
 import HCCoopFinder from '../finder/HCCoopFinder';
 import {calcTeeth} from './calcTeeth';
 import * as Util from '../core/Util';
+// import {
+//   rowNum,
+//   colNum
+// } from '../configTeeth';
 import {
   rowNum,
   colNum
-} from '../configTeeth';
+} from '../config_V3';
 
 export const calTeethAndPinAction = function (startNode, endNode, startShift = 0, endShift = 0, goingUp = false) {
 

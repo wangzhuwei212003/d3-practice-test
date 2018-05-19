@@ -1,6 +1,20 @@
 /**
  * Created by zhuweiwang on 02/04/2018.
  */
+// import {
+//   rowNum,
+//   colNum,
+//
+//   pickStationRow,
+//   firstGoDownCol,
+//   lastGoDownCol,
+//   lastGoDownPickCol,
+//   divideCell,
+//   lookUpRowNum,
+//
+//   occupyRowConfig,
+//   occupyColConfig,
+// } from '../configTeeth';
 import {
   rowNum,
   colNum,
@@ -14,7 +28,7 @@ import {
 
   occupyRowConfig,
   occupyColConfig,
-} from '../configTeeth';
+} from '../config_V3';
 
 
 export const backtrace = function (node) {

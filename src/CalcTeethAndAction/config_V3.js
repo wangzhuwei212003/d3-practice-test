@@ -67,8 +67,8 @@ module.exports = {
   rowNum: 27, // 顶部一行，中间货箱每行4小行，特殊高度1行，底部1行，1 + 4 * (8 - 2) + 1 + 1 = 27
   colNum: 13 * 4, // 52
   //显示的像素长宽
-  cellW: 20,
-  cellH: 20,
+  cellW: 30,
+  cellH: 30,
 
   // 中间货位的数字
   BIGCELLTEXT: [
@@ -98,10 +98,10 @@ module.exports = {
   pickStationHigh: 36, // 拣货台高度（包括特殊高 13.567484）
 
   // 特殊行列数。CalcPriority 用到
-  pickStationRow: 21, // 拣货台所在行的index，这个是根据测试调好的。27 - 3 = 24，加上往上偏移量
+  pickStationRow: 24, // 拣货台所在行的index，这个是根据测试调好的。27 - 3 = 24，加上往上偏移量
   firstGoDownCol: 8, // 开始下降的第一列列数 8
-  lastGoDownCol: 36 - 12, //开始下降的有货位的最后一列列数 24
-  lastGoDownPickCol: 36 - 4, // 下降列拣货台的列数 32
+  lastGoDownCol: 52 - 12, //开始下降的有货位的最后一列列数 24
+  lastGoDownPickCol: 52 - 4, // 下降列拣货台的列数 32
   divideCell: 4, // 一大格分4个格子
   lookUpRowNum: 6, // 上升列往上检查有没有小车的方法。
 
@@ -112,24 +112,24 @@ module.exports = {
 
   // 特殊的格子数，cellToTeeth 用到
   specialTopStartCellCol: 4, // 从第 4 列开始是顶部特殊长度，包含第 4 列。
-  specialBtmStartCellCol: 36 - 8, //colNum - 8, // 底部特殊长度，包含第 colNum - 8 列。
+  specialBtmStartCellCol: 52 - 8, //colNum - 8, // 底部特殊长度，包含第 colNum - 8 列。
   topBoxNormalHeightStartRow: 1,
   topBoxNormalHeightEndRow: 4, // 最上面一行货位的高度是 60.23, 起始行、结束行
-  SDownPartStartRow: 27 - 10, //rowNum - 10, S形弯道下部分
-  SDownPartEndRow: 27 - 7, // rowNum - 7, S形弯道下部分
-  SUPPartStartRow: 27 - 14, //rowNum - 14, S形弯道上部分
-  SUPPartEndRow: 27 - 11, // rowNum - 11, S形弯道上部分
+  SDownPartStartRow: 27 - 6, //rowNum - 10, S形弯道下部分
+  SDownPartEndRow: 27 - 3, // rowNum - 7, S形弯道下部分
+  SUPPartStartRow: 27 - 10, //rowNum - 14, S形弯道上部分
+  SUPPartEndRow: 27 - 7, // rowNum - 11, S形弯道上部分
   specialHeightStartRow: 27 - 2, //rowNum - 2, 底部特殊高度一行
   specialHeightEndRow: 27 - 2, //rowNum - 2, 底部特殊高度一行
 
   // 特殊的格子数
   pickSitesPosition: {
-    SiteA: [21, 0],
-    SiteB: [21, 36 - 4],
+    SiteA: [24, 0],
+    SiteB: [24, 52 - 4],
   },
 
   // 开机、关机相关
-  preGoUpPoint: [0, 36 - 9], //顶部停靠的列数，顶部差两格需要开始伸pin
+  preGoUpPoint: [0, 52 - 9], //顶部停靠的列数，顶部差两格需要开始伸pin
   GoDownPoint: [26, 4 + 2], // 原点前两小格，即是半大格。
 
   //相对于左下角的轮子为基准，小车占位行列数。

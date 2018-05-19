@@ -14,7 +14,8 @@ import {
   pickSitesPosition,
   preGoUpPoint,
   GoDownPoint
-} from '../configTeeth';
+// } from '../configTeeth';
+} from '../config_V3';
 import {rowColTransfForStartNode} from './rowColTransfForStartNode';
 import {calTeethAndPinAction} from './calTeethAndAction';
 
@@ -29,6 +30,8 @@ export const setGoal = function (rowInput, colInput, SA_ODOM_DOWN_GROUND_AS_REFE
     turning: false
   }; // 生成一个终点的 odom。
   let positionObj = rowColTransfForStartNode(goalOdom);
+
+  console.log(positionObj);
 
   let endNode = [positionObj.rowSmall, positionObj.colSmall];
   let endRow = endNode[0];

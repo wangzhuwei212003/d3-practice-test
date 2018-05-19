@@ -28,7 +28,8 @@ import {
   SUPPart, // S形弯道上部分齿数
   SDownPart, // S形弯道下部分齿数
 
-} from '../configTeeth';
+// } from '../configTeeth';
+} from '../config_V3';
 
 export const CellToTeeth = function (cellRow, cellCol) {
   // 根据行列，对应出齿数。没有考虑补偿。
