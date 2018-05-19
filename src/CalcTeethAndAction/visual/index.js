@@ -26,7 +26,8 @@ import {
   setGoal,
   goToPickUpSite,
   preGoUp,
-  preShutdownGoDown
+  preShutdownGoDown,
+  goToOrigin
 } from '../testFunction/setGoal';
 import {CellToTeeth} from '../testFunction/CellToTeeth';
 
@@ -303,6 +304,8 @@ class Visual extends Component {
     return data;
   }
 
+
+  // 起点到货位
   startPointToSingleBoxPoint(rowInput, colInput) {
     console.info(`起点到${rowInput}行${colInput}列货位.`);
 
@@ -310,7 +313,6 @@ class Visual extends Component {
     const pathInfo = setGoal(rowInput, colInput, SpecificActionsEnum["SA_ODOM_DOWN_GROUND_AS_REFERENCE"], wheel_to_chain, goingUp, origin, 0);
     // console.log(pathInfo);
   }
-
   startPointToAllBoxPoint() {
     console.info(`起点到${BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位.`);
     for (let row = 0; row < BIGCELLTEXT.length; row += 1) {
@@ -322,27 +324,63 @@ class Visual extends Component {
     }
   }
 
+  // 货位到起点。
   allBoxPointToStartPoint() {
     console.info(`{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到起点.`);
     for (let row = 0; row < BIGCELLTEXT.length; row += 1) {
       for (let col = 0; col < BIGCELLTEXT[0].length; col += 1) {
-        console.log('目标箱位行列数：', row + 1, col + 2);
-        //this.startPointToSingleBoxPoint(row + 1, col + 2);
+        console.log('终点是起点，箱位行列数：', row + 1, col + 2);
+        this.singleBoxGoToOrigin(row + 1, col + 2);
       }
     }
+  }
+  singleBoxGoToOrigin(rowInput, colInput){
+    console.info(`${rowInput}行${colInput}列货位到起点.`);
+    const goingUp = false;
+    goToOrigin(rowInput, colInput, SpecificActionsEnum["SA_ODOM_DOWN_GROUND_AS_REFERENCE"], wheel_to_chain, goingUp, origin, 0);
+  }
+
+  //上升列拣货台 site A 到货位，
+  siteA2AllBoxPoint() {
+    console.info(`{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到起点.`);
+    for (let row = 0; row < BIGCELLTEXT.length; row += 1) {
+      for (let col = 0; col < BIGCELLTEXT[0].length; col += 1) {
+        console.log('，箱位行列数：', row + 1, col + 2);
+      }
+    }
+  }
+  siteA2SingleBox(rowInput, colInput){
+    console.info(`${rowInput}行${colInput}列货位.`);
+    const goingUp = false;
+  }
+
+  //货位到上升列拣货台 site A ，
+  AllBoxPoint2SiteA() {
+    console.info(`{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到起点.`);
+    for (let row = 0; row < BIGCELLTEXT.length; row += 1) {
+      for (let col = 0; col < BIGCELLTEXT[0].length; col += 1) {
+        console.log('终点是SiteA，箱位行列数：', row + 1, col + 2);
+        this.SingleBox2SiteA(row + 1, col + 2);
+      }
+    }
+  }
+  SingleBox2SiteA(rowInput, colInput){
+    console.info(`${rowInput}行${colInput}列货位到上升列拣货台.`);
+    const goingUp = false;
+    goToPickUpSite("SiteA" ,rowInput, colInput, SpecificActionsEnum["SA_ODOM_DOWN_GROUND_AS_REFERENCE"], wheel_to_chain, goingUp);
   }
 
   render() {
     return (
         <div ref={ele => this.grid = ele}>
           <p>货位算总齿数、actions，{BIGCELLTEXT.length}行{BIGCELLTEXT[0].length}列</p>
-          <Button onClick={() => this.startPointToSingleBoxPoint(2,2)}>test</Button>
+          <Button type="primary" onClick={() => this.startPointToSingleBoxPoint(2,2)}>test</Button>
 
-          <Button onClick={this.startPointToAllBoxPoint}>起点到{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位</Button>
-          <Button>{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到起点</Button>
+          <Button type="primary" onClick={() => this.startPointToAllBoxPoint()}>起点到{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位</Button>
+          <Button type="primary" onClick={() => this.allBoxPointToStartPoint()}>{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到起点</Button>
           <br/>
-          <Button>左边（上升列）拣货台到{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位</Button>
-          <Button>{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到左边拣货台</Button>
+          <Button >左边（上升列）拣货台到{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位</Button>
+          <Button type="primary" onClick={() => this.AllBoxPoint2SiteA()}>{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到左边拣货台</Button>
           <br/>
           <Button>右边（下降列）拣货台到{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位</Button>
           <Button>{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到右边拣货台</Button>

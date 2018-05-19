@@ -3,17 +3,19 @@
  *
  * 这里面是能够设置的几个终点
  *
- * 1. 目标是中间货位
+ * 1. 目标是中间货位，起点是原点
  * 2. 目标是拣货台
  * 3. 目标是顶部停靠点
  * 4. 目标是底部停靠点
  *
- * 5. 起点是原点
+ * 5. 目标是原点
  */
 import {
   pickSitesPosition,
   preGoUpPoint,
-  GoDownPoint
+  GoDownPoint,
+  origin,
+
 // } from '../configTeeth';
 } from '../config_V3';
 import {rowColTransfForStartNode} from './rowColTransfForStartNode';
@@ -31,11 +33,7 @@ export const setGoal = function (rowInput, colInput, SA_ODOM_DOWN_GROUND_AS_REFE
   }; // 生成一个终点的 odom。
   let positionObj = rowColTransfForStartNode(goalOdom);
 
-  console.log(positionObj);
-
   let endNode = [positionObj.rowSmall, positionObj.colSmall];
-  let endRow = endNode[0];
-  let endCol = endNode[1];
   let endShift = positionObj.shiftLeft; // 设置货位目标的时候，下沉距离
 
   // 5. 根据goalTable里的起点，接收输入的终点，更新goalTable里的终点，算出总齿数以及action
@@ -47,11 +45,21 @@ export const setGoal = function (rowInput, colInput, SA_ODOM_DOWN_GROUND_AS_REFE
 };
 
 // 2. 目标是拣货台，返回拣货台
-export const goToPickUpSite = function (pickSite, startNode, startShift) {
+export const goToPickUpSite = function (pickSite, rowInput, colInput, SA_ODOM_DOWN_GROUND_AS_REFERENCE, wheel_to_chain, goingUp) {
   // 参数可以是 'SiteA' 'SiteB'.
-  // startNode 是一个二维数组
+  let startOdom = {
+    horizontal_offset_from_nearest_coordinate: 0,
+    vertical_offset_from_nearest_coordinate: wheel_to_chain, //TODO 判断是否为空
+    theoretical_moving_direction: SA_ODOM_DOWN_GROUND_AS_REFERENCE,
+    current_row: rowInput,
+    current_column: colInput,
+    turning: false
+  }; // 生成一个终点的 odom。
+  let positionObj = rowColTransfForStartNode(startOdom);
 
-  const goingUp = false; // 已经转换成向下的位置报告。
+  let startNode = [positionObj.rowSmall, positionObj.colSmall];
+  let startShift = positionObj.shiftLeft; // 设置货位目标的时候，下沉距离
+
   const endNode = pickSitesPosition[pickSite]; // 返回拣货站位置
   const endShift = 0; // 拣货台的终点的偏移量设为 0
 
@@ -91,4 +99,24 @@ export const preShutdownGoDown = async function (startNode, startShift) {
   // 3. 得出结果。
   const pathinfo = calTeethAndPinAction(startNode, endNode, startShift, endShift, goingUp);
   console.info('目标为底部停靠点，规划出的总齿数和动作：', pathinfo);
+};
+
+// 5. 目标是原点
+export const goToOrigin = async function (rowInput, colInput, SA_ODOM_DOWN_GROUND_AS_REFERENCE, wheel_to_chain, goingUp, endNode, endShift) {
+  let startOdom = {
+    horizontal_offset_from_nearest_coordinate: 0,
+    vertical_offset_from_nearest_coordinate: wheel_to_chain, //TODO 判断是否为空
+    theoretical_moving_direction: SA_ODOM_DOWN_GROUND_AS_REFERENCE,
+    current_row: rowInput,
+    current_column: colInput,
+    turning: false
+  }; // 生成一个终点的 odom。
+  let positionObj = rowColTransfForStartNode(startOdom);
+
+  let startNode = [positionObj.rowSmall, positionObj.colSmall];
+  let startShift = positionObj.shiftLeft; // 设置货位目标的时候，下沉距离
+
+  // 3. 得出结果。
+  const pathinfo = calTeethAndPinAction(startNode, endNode, startShift, endShift, goingUp);
+  console.info('目标为原点，规划出的总齿数和动作：', pathinfo);
 };
