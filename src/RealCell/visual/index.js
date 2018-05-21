@@ -19,12 +19,11 @@ import {
   colorSetPath,
 
   timeGap,
-} from '../config';
+} from '../config_priority_V003';
+// } from '../config';
 import {
   A0,
 
-  smallRowNum,
-  smallColNum
 } from '../TestFunction/configDATA';
 
 import * as dispatch from '../dispatch';
@@ -39,7 +38,8 @@ import {
 } from '../TestFunction/RCTransform';
 
 import {
-  CalcPriority
+  CalcPriority,
+  CalcPriorityV3
 } from '../TestFunction/CalcPriority';
 
 // const SpecificActionsEnum = {
@@ -60,6 +60,7 @@ class Visual extends Component {
 
   componentDidMount() {
     console.log('component did mount');
+    // this.calcV3PriorityArray();
 
     this.gridMouseover = d3.select(this.grid)
         .append('svg')
@@ -295,18 +296,20 @@ class Visual extends Component {
     // console.log(BIGCELLTEXT);
 
     //iterate for rows
-    for (let row = 0; row < smallRowNum; row += 1) {
+    for (let row = 0; row < rowNum; row += 1) {
       data.push([]);
       testData.push([]);
-      for (let column = 0; column < smallColNum; column += 1) {
+      for (let column = 0; column < colNum; column += 1) {
         data[row].push({
           x: xpos,
           y: ypos,
-          num: CalcPriority(row, column)
+          num: CalcPriorityV3(row, column)
+          // num: CalcPriority(row, column)
         });
         xpos += 1;
 
-        testData[row].push(CalcPriority(row, column));
+        testData[row].push(CalcPriorityV3(row, column));
+        // testData[row].push(CalcPriority(row, column));
       }
       xpos = 0;
       ypos += 1;
@@ -335,7 +338,6 @@ class Visual extends Component {
             }
         );
   }
-
 
   // 画出 path table 里的规划好的路径。
   drawPath(scales, pathTable) {
@@ -590,7 +592,18 @@ class Visual extends Component {
     console.log(distToStop);
   }
 
+  //计算V3版库格子的 priority
+  calcV3PriorityArray(){
+    const testData = [];
 
+    for (let row = 0; row < rowNum; row += 1) {
+      testData.push([]);
+      for (let column = 0; column < colNum; column += 1) {
+        testData[row].push(CalcPriorityV3(row, column));
+      }
+    }
+    console.log('V3 priority: ', JSON.stringify(testData));
+  }
 
   render() {
     return (
