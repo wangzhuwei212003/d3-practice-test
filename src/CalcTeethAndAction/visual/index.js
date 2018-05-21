@@ -380,11 +380,11 @@ class Visual extends Component {
     upToSingleBox(rowInput, colInput, SpecificActionsEnum["SA_ODOM_DOWN_GROUND_AS_REFERENCE"], wheel_to_chain, goingUp, startNode, startShift);
   }
 
-  testRowColTransfForStartNode(rowInput, colInput, shift){
+  testRowColTransfForStartNode(rowInput, colInput, horizontalShift, verticalShift){
     let goalOdom = {
-      horizontal_offset_from_nearest_coordinate: 0,
-      vertical_offset_from_nearest_coordinate: shift, //TODO 判断是否为空
-      theoretical_moving_direction: SpecificActionsEnum["SA_ODOM_FORWARD_GROUND_AS_REFERENCE"],
+      horizontal_offset_from_nearest_coordinate: horizontalShift,
+      vertical_offset_from_nearest_coordinate: verticalShift, //TODO 判断是否为空
+      theoretical_moving_direction: SpecificActionsEnum["SA_ODOM_DOWN_GROUND_AS_REFERENCE"],
       current_row: rowInput,
       current_column: colInput,
       turning: false
@@ -399,7 +399,7 @@ class Visual extends Component {
         <div ref={ele => this.grid = ele}>
           <p>货位算总齿数、actions，{BIGCELLTEXT.length}行{BIGCELLTEXT[0].length}列</p>
           <Button type="primary" onClick={() => this.APIUpToSingleBox(3,2)}>test</Button>
-          <Button type="primary" onClick={() => this.testRowColTransfForStartNode(7,11,0.003)}>测试顶部位置转换</Button>
+          <Button type="primary" onClick={() => this.testRowColTransfForStartNode(7,12,32.516974999999995, 15.069849999999999)}>测试顶部位置转换</Button>
 
           <Button type="primary" onClick={() => this.startPointToAllBoxPoint()}>起点到{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位</Button>
           <Button type="primary" onClick={() => this.allBoxPointToStartPoint()}>{BIGCELLTEXT.length * BIGCELLTEXT[0].length}个货位到起点</Button>

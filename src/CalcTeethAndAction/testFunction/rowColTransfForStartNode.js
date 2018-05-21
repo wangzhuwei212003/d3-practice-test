@@ -57,7 +57,7 @@ export const rowColTransfForStartNode = function (odom) {
     }else{
       colSmall = 3 + (odom.current_column - 1) * divideCell;
     }
-    
+
     if (
         odom.theoretical_moving_direction.toString() === SpecificActionsEnum['SA_ODOM_FORWARD_GROUND_AS_REFERENCE'].toString() &&
         !odom.turning
@@ -78,6 +78,7 @@ export const rowColTransfForStartNode = function (odom) {
     ) {
       shiftNum = Math.floor(odom.vertical_offset_from_nearest_coordinate / topBoxNormalHeight);
       rowSmall += shiftNum;
+      colSmall += 1; // 如果是 rowSmall 加1，colSmall应该加1.
       shiftLeft = odom.vertical_offset_from_nearest_coordinate - shiftNum * topBoxNormalHeight;
     } else if (odom.turning) {
       shiftLeft = odom.horizontal_offset_from_nearest_coordinate;
