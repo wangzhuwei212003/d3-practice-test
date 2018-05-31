@@ -8,6 +8,9 @@ import {Button} from 'antd';
 import './index.css';
 
 import mapDAO from './Maps/den520d.txt';
+import den520d from './Maps/den520d.txt';
+import ost003d from './Maps/ost003d.txt';
+import brc202d from './Maps/brc202d.txt';
 
 const colorSet = ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D'];
 const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
@@ -30,18 +33,35 @@ class LoadMap extends Component {
         .attr('width', '1000px')
         .attr('height', '1000px');
 
+    this.gridMouseover2 = d3.select(this.grid)
+        .append('svg')
+        .attr('width', '1000px')
+        .attr('height', '1000px');
+    this.gridMouseover3 = d3.select(this.grid)
+        .append('svg')
+        .attr('width', '2000px')
+        .attr('height', '2000px');
+
     this.scales = {
-      x: d3.scaleLinear().domain([0, 256]).range([0, 800]), // 前面是格子数，后面是实际的 pixel 数。
-      y: d3.scaleLinear().domain([0, 256]).range([0, 800]),
+      x: d3.scaleLinear().domain([0, 256]).range([0, 1000]), // 前面是格子数，后面是实际的 pixel 数。
+      y: d3.scaleLinear().domain([0, 256]).range([0, 1000]),
+    };
+
+    this.scales2 = {
+      x: d3.scaleLinear().domain([0, 194]).range([0, 1000]), // 前面是格子数，后面是实际的 pixel 数。
+      y: d3.scaleLinear().domain([0, 194]).range([0, 1000]),
+    };
+    this.scales3 = {
+      x: d3.scaleLinear().domain([0, 530]).range([0, 2000]), // 前面是格子数，后面是实际的 pixel 数。
+      y: d3.scaleLinear().domain([0, 530]).range([0, 2000]),
     };
 
     //component did mount 之后就开始画整个网格的地图
-    this.drawGridNotInteractive(this.gridMouseover, this.scales);
+    this.drawGridNotInteractive(this.gridMouseover, this.scales, den520d);
 
-    this.groups = {
-      path: this.gridMouseover.append('g'),
-      position: this.gridMouseover.append('g')
-    };
+    this.drawGridNotInteractive(this.gridMouseover2, this.scales2, ost003d);
+    this.drawGridNotInteractive(this.gridMouseover3, this.scales3, brc202d);
+
   }
 
   componentDidUpdate() {
@@ -90,25 +110,25 @@ class LoadMap extends Component {
   };
 
   // load Dragon Age Origin map
-  loadDAOMap(){
+  loadDAOMap(mapDAO){
     console.log("loadDAOMap occur");
-    console.log(mapDAO);
+    // console.log(mapDAO);
     const regS = new RegExp("\\@|O|T", "g");
     const regS2 = new RegExp("\\.|G|S|W", "g");
 
     const map2 = mapDAO.replace(regS, 1); // 1 means not passable
     const map3 = map2.replace(regS2, 0); // 1 means not passable
-    console.log(map3);
+    // console.log(map3);
 
     const lines = map3.split('\n');
-    console.log(lines);
-
-    console.log(Array.from(lines[10]));
+    // console.log(lines);
+    // console.log(Array.from(lines[10]));
 
     const result = [];
     for(let startLine = 4; startLine <= lines.length - 1; startLine+=1){
       result.push(Array.from(lines[startLine]));
     }
+    // console.log('0-1矩阵：', result); // result 是 0-1 矩阵，1标识有障碍。
 
     const data = []; // this is preferrable
     let xpos = 1;
@@ -137,10 +157,10 @@ class LoadMap extends Component {
   }
 
   // Just draw the 30 * 30 grid, no more interaction
-  drawGridNotInteractive(gridMouseover, scales) {
+  drawGridNotInteractive(gridMouseover, scales, mapDAO) {
 
     const row = gridMouseover.selectAll('.row')
-        .data(this.loadDAOMap.bind(this, this))
+        .data(this.loadDAOMap.bind(this, mapDAO))
         // .data(this.gridDataMax.bind(this, this))
         .enter()
         .append('g')
@@ -174,6 +194,7 @@ class LoadMap extends Component {
             return '#fff'
           }
         })
+        // .style('stroke', 'none');
         .style('stroke', 'rgb(169,138,58)');
   }
 
