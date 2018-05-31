@@ -18,6 +18,8 @@ import BasicAStar from './MAPF/BasicAStar';
 import Coop4 from './MAPF/Coop4';
 import Coop30 from './MAPF/Coop30';
 
+import LoadMap from './MAPF/LoadMap';
+
 const SubMenu = Menu.SubMenu;
 const {Header, Footer, Sider, Content} = Layout;
 
@@ -54,6 +56,10 @@ class App extends Component {
                     <Icon type="inbox"/>
                     <span><Link to='/MAPF/Coop30'>Coop 30</Link></span>
                   </Menu.Item>
+                  <Menu.Item key="5">
+                    <Icon type="inbox"/>
+                    <span><Link to='/MAPF/LoadMap'>LoadMap</Link></span>
+                  </Menu.Item>
 
 
                 </Menu>
@@ -64,6 +70,8 @@ class App extends Component {
                 <Route path="/MAPF/BasicAStar" component={BasicAStar}/>
                 <Route path="/MAPF/Coop4" component={Coop4}/>
                 <Route path="/MAPF/Coop30" component={Coop30}/>
+
+                <Route path="/MAPF/LoadMap" component={LoadMap}/>
 
               </Content>
             </Layout>
