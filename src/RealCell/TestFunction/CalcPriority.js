@@ -82,7 +82,7 @@ export const CalcPriorityV3 = function (cellRow, cellCol) {
   const btmInterBeginRow = CONFIGV3.smallRowNum - 1 - CONFIGV3.occupyRowConfig; // 底部开始有交汇的行数，开始进入底部的通道 20
   const btmRow = CONFIGV3.smallRowNum - 1; // 最底部一行行数 26
   const lastCol = CONFIGV3.smallColNum - 1; // 最后一列列数 35
-  const occupyRow = CONFIGV3.occupyRowConfig; // 占位的行数 6
+  const occupyRow = CONFIGV3.occupyRowConfig + CONFIGV3.occupyRowConfigUnload; // 占位的行数 6
 
   if (
       cellRow >= 0 && cellRow < pickStationRow &&
