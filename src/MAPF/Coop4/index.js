@@ -6,11 +6,19 @@
  */
 import React, {Component} from 'react';
 import * as d3 from 'd3';
-import {Button} from 'antd';
+import {Button, Collapse} from 'antd';
 import './index.css';
 
 import CoopAstarFinder from '../finders/CoopAstarFinder';
-import Grid from '../core/Grid';
+
+const Panel = Collapse.Panel;
+const customPanelStyle = {
+  background: '#f7f7f7',
+  borderRadius: 4,
+  marginBottom: 24,
+  border: 0,
+  overflow: 'hidden',
+};
 
 const colorSet = ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D'];
 const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
@@ -44,14 +52,9 @@ class Coop extends Component {
     //   [[17, 17], [29, 29]],
     // ];
     // this.goalTable = Array(this.unitsNum).fill(Array(2));
-    this.goalTable = [
-      [],
-      [],
-      [],
-      [],
-    ];
-    this.matrixZero = Array(30).fill(Array(30).fill(0)); // fast way to create dimensional array?
-    this.gridUI = Array(30).fill(Array(30).fill(0));
+    this.goalTable = [];
+    this.matrixZero = Array(rowNum).fill(Array(colNum).fill(0)); // fast way to create dimensional array?
+    this.gridUI = Array(rowNum).fill(Array(colNum).fill(0));
     // 真正事实上的 matrix 是这个 gridUI
   }
 
@@ -92,24 +95,20 @@ class Coop extends Component {
     console.log('component did update')
   }
 
-  // 30 * 30 网格数据
+  // 30 * 30 网格数据 rowNum
   gridDataMax = (reactDom) => {
-    //const data = new Array();
-    console.log(reactDom);
-    //console.log(this);
     const data = []; // this is preferrable
     let xpos = 1;
     let ypos = 1;
     let click = 0;
-    const width = 25;
-    const height = 25;
-    window.aaa = 1;
+    const width = 20; // 格子的 pixel 的大小宽度
+    const height = 20;
     let aa = [];
     //iterate for rows
-    for (let row = 0; row < 30; row += 1) {
+    for (let row = 0; row < rowNum; row += 1) {
       aa[row] = [];
       data.push([]);
-      for (let column = 0; column < 30; column += 1) {
+      for (let column = 0; column < colNum; column += 1) {
         click = 0;
         //click = Math.round(Math.random()*100);
         let obIntheWay = Math.random() < radio;
@@ -126,7 +125,7 @@ class Coop extends Component {
         if (obIntheWay) {
           // window.aaa += 1;
           // this.gridUI[row][column] = 1; // 这个会有bug，得出来的都是乱码
-          aa[row][column] = 1;
+          aa[row][column] = 1; // 1表示有障碍。
 
         } else {
           // do nothing
@@ -138,23 +137,13 @@ class Coop extends Component {
       ypos += height;
     }
     //console.log(aa);
-    this.gridUI = aa;
+    this.gridUI = aa; // 这个是整个地图的 matrix 0-1 矩阵。
 
     return data;
   };
 
   // Just draw the 30 * 30 grid, no more interaction
   drawGridNotInteractive(gridMouseover, scales) {
-    let me = this;
-    let inputGoalTable = [
-      [],
-      [],
-      [],
-      [],
-    ];
-    // let inputGoalTable = Array(this.unitsNum).fill([]); // fill 和这种写法有这么大区别吗？
-    console.log(inputGoalTable);
-    const gridRef = this.grid;
 
     const row = gridMouseover.selectAll('.row')
         .data(this.gridDataMax.bind(this, this))
@@ -163,81 +152,122 @@ class Coop extends Component {
         .attr('class', 'row');
 
     const column = row.selectAll('.square')
-        .data(function (d) {
-          //console.log(d); // this data will be a 1 dimension array of each row .
-          return d;
-        })
-        .enter()
-        .append('rect')
-        .attr('class', 'square')
-        .attr('x', function (d) {
-          //console.log(d); //this data is the only object for each cell. 每一次 enter()之后,数组会降维一次。
-          return d.x;
-        })
-        .attr('y', function (d) {
-          return d.y;
-        })
-        .attr('width', function (d) {
-          return d.width;
-        })
-        .attr('height', function (d) {
-          return d.height;
-        })
-        .style('fill', function (d) {
-          if (d.ob) {
-            return '#221E39'
-          } else {
-            return '#fff'
-          }
-        })
-        .style('stroke', 'rgb(169,138,58)')
-        .on("mousedown", function (d) {
-          console.log('mouse down');
+            .data(function (d) {
+              //console.log(d); // this data will be a 1 dimension array of each row .
+              return d;
+            })
+            .enter()
+            .append('rect')
+            .attr('class', 'square')
+            .attr('x', function (d) {
+              //console.log(d); //this data is the only object for each cell. 每一次 enter()之后,数组会降维一次。
+              return d.x;
+            })
+            .attr('y', function (d) {
+              return d.y;
+            })
+            .attr('width', function (d) {
+              return d.width;
+            })
+            .attr('height', function (d) {
+              return d.height;
+            })
+            .style('fill', function (d) {
+              if (d.ob) {
+                return '#221E39'
+              } else {
+                return '#fff'
+              }
+            })
+            .style('stroke', 'rgb(169,138,58)')
+        /*.on("mousedown", function (d) {
+         console.log('mouse down');
+         if (inputGoalTable[0].length < 2) {
+         d3.select(this).style('fill', colorSetPath[0]);
+         inputGoalTable[0].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
 
-          // let settingGoalIndex = inputGoalTable.findIndex(function (goal) {
-          //   return goal.length < 2;
-          // });
-          //
-          // console.log(settingGoalIndex);
-          // console.log(inputGoalTable[settingGoalIndex]);
-          //
-          // d3.select(this).style('fill', colorSetPath[0]);
-          // inputGoalTable[settingGoalIndex].push([25, 25]); // push 第一个unit起 / 终点 非常神奇，这个 didnt work
-          // // inputGoalTable[settingGoalIndex].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-          //
-          // console.log(inputGoalTable);
+         } else if (inputGoalTable[1].length < 2) {
+         d3.select(this).style('fill', colorSetPath[1]);
+         inputGoalTable[1].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
 
-          // for (let i = 0; i < inputGoalTable.length; i+=1){
-          //   if(inputGoalTable[i].length < 2){
-          //     d3.select(this).style('fill', colorSetPath[0]);
-          //     inputGoalTable[i].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-          //
-          //     return;
-          //     // break; // 跳不出来？
-          //   }
-          // }
-          // console.log(inputGoalTable);
+         } else if (inputGoalTable[2].length < 2) {
+         d3.select(this).style('fill', colorSetPath[2]);
+         inputGoalTable[2].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
 
-          if (inputGoalTable[0].length < 2) {
-            d3.select(this).style('fill', colorSetPath[0]);
-            inputGoalTable[0].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+         } else if (inputGoalTable[3].length < 2) {
+         d3.select(this).style('fill', colorSetPath[3]);
+         inputGoalTable[3].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
 
-          } else if (inputGoalTable[1].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[1].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+         }
+         })*/;
+  }
 
-          } else if (inputGoalTable[2].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[2].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+  randomGoalTable(pairNum = 4) {
+    // 接收一个数字代表多少对起点、终点。改变goalTable
+    // goalTable [
+    // [[startRow, startCol], [goalRow, goalCol]]
+    // ...
+    // ]
+    const _goalTable = [];
+    let newPair = [];
+    // 连着生成pairNum * 2个数，不能有重叠。pairNum 个起点不能重叠，也不能和障碍重叠。pairNum 个终点不能重叠。
+    for (let i = 0; i < pairNum; i += 1) {
+      newPair[0] = this.generateValidPoint(_goalTable, "START");
+      newPair[1] = this.generateValidPoint(_goalTable, "END");
+      if (newPair[0] && newPair[1]) {
+        _goalTable.push(newPair); // 这里会推进来undefined ？
+      }
+    }
+    console.log(_goalTable);
+  }
 
-          } else if (inputGoalTable[3].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[3].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+  generateRandomPoint() {
+    let randomRow = Math.floor(Math.random() * Math.floor(rowNum));
+    let randomCol = Math.floor(Math.random() * Math.floor(colNum)); // Math.random 范围是 【0， 1）。所以这个范围是【0，29】是可以的，就是index
+    console.log([randomRow, randomCol]);
+    return [randomRow, randomCol];
+  }
 
-          }
+  validatePoint(row, col) {
+    // 判断生成的点没有在障碍上
+    if (this.gridUI[row][col] === 1) {
+      return false
+    } else {
+      return true
+    }
+  }
 
-        });
-    this.goalTable = inputGoalTable;
+  generateValidPoint(goalTable, startOrEnd) {
+    // goalTable就是三维数组(已经生成的起点、终点)，startOrEnd可以是 "START""END"
+    let can = this.generateRandomPoint();
+    let overlayOtherUnits = false; // 检测点之间的重叠
+    for (let i = 0; i < goalTable.length; i += 1) {
+      if (startOrEnd === "START") {
+        if (goalTable[i][0][0] === can[0]) {
+          overlayOtherUnits = true; // 起点行数有重叠
+        }
+        if (goalTable[i][0][1] === can[1]) {
+          overlayOtherUnits = true; // 起点列数有重叠
+        }
+      } else if (startOrEnd === "END") {
+        console.log(goalTable[i]);
+        if (goalTable[i][1][0] === can[0]) {
+          overlayOtherUnits = true; // 终点行数有重叠
+        }
+        if (goalTable[i][1][1] === can[1]) {
+          overlayOtherUnits = true; // 终点列数有重叠
+        }
+      } else {
+        console.log('unexpect')
+      }
+    }
+    if (this.validatePoint(can[0], can[1]) && !overlayOtherUnits) {
+      return can;
+    } else {
+      // return false;
+      // this.generateValidPoint(goalTable, startOrEnd); 这种写法会返回 undefined
+      return (this.generateValidPoint(goalTable, startOrEnd));
+    }
   }
 
   // 画出 path table 里的规划好的路径。
@@ -500,7 +530,15 @@ class Coop extends Component {
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
+          <p>关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。 <br/> 换行</p>
+
+          {/*<Collapse>*/}
+          {/*<Panel header="README" key="1" style={customPanelStyle}>*/}
+          {/*<p>{`关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。 \r\n adfasdf  asfsdaf asasdf`}</p>*/}
+          {/*</Panel>*/}
+          {/*</Collapse>*/}
           <Button type="primary" onClick={() => this.testCoop()}>test</Button>
+          <Button type="primary" onClick={() => this.randomGoalTable()}>testtest</Button>
           <br/>
         </div>
 
