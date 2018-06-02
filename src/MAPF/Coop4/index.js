@@ -27,6 +27,10 @@ const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
 
 const rowNum = 30;
 const colNum = 30;
+const gridPixelwidth = 760;
+const gridPixelheight = 760;
+const unitsNum = 30;
+const searchDeepth = 31; // searchDeepth 必须至少比 unitNum 大
 
 class Coop extends Component {
   constructor(props) {
@@ -35,10 +39,9 @@ class Coop extends Component {
     this.initialized = false;
     this.nowTimeStep = 0;
 
-    this.unitsNum = 4;
-    this.searchDeepth = 10; // 至少是 unit 总数 +1？至少为 5
+    this.searchDeepth = searchDeepth; // 至少是 unit 总数 +1？至少为 5
     // this.searchDeepth = 5; // 至少是 unit 总数 +1？
-    this.pathTable = Array(this.unitsNum).fill([]); // test 30 units
+    this.pathTable = Array(unitsNum).fill([]); // test 30 units
     // this.pathTable = [
     //   [],
     //   [],
@@ -51,7 +54,7 @@ class Coop extends Component {
     //   [[29, 29], [17, 17]],
     //   [[17, 17], [29, 29]],
     // ];
-    // this.goalTable = Array(this.unitsNum).fill(Array(2));
+    // this.goalTable = Array(unitsNum).fill(Array(2));
     this.goalTable = [];
     this.matrixZero = Array(rowNum).fill(Array(colNum).fill(0)); // fast way to create dimensional array?
     this.gridUI = Array(rowNum).fill(Array(colNum).fill(0));
@@ -63,12 +66,12 @@ class Coop extends Component {
 
     this.gridMouseover = d3.select(this.grid)
         .append('svg')
-        .attr('width', '760px')
-        .attr('height', '760px');
+        .attr('width', gridPixelwidth+'px')
+        .attr('height', gridPixelheight+'px');
 
     this.scales = {
-      x: d3.scaleLinear().domain([0, 30]).range([0, 750]), // 前面是格子数，后面是实际的 pixel 数。
-      y: d3.scaleLinear().domain([0, 30]).range([0, 750]),
+      x: d3.scaleLinear().domain([0, colNum]).range([0, gridPixelwidth]), // 前面是格子数，后面是实际的 pixel 数。
+      y: d3.scaleLinear().domain([0, rowNum]).range([0, gridPixelheight]),
     };
 
     //component did mount 之后就开始画整个网格的地图
@@ -100,11 +103,11 @@ class Coop extends Component {
   // 30 * 30 网格数据 rowNum
   gridDataMax = (reactDom) => {
     const data = []; // this is preferrable
-    let xpos = 1;
-    let ypos = 1;
+    let xpos = 0;
+    let ypos = 0;
     let click = 0;
-    const width = 25; // 格子的 pixel 的大小宽度
-    const height = 25;
+    const width = 1; // 格子的 pixel 的大小宽度
+    const height = 1;
     let aa = [];
     //iterate for rows
     for (let row = 0; row < rowNum; row += 1) {
@@ -135,7 +138,7 @@ class Coop extends Component {
         }
       }
 
-      xpos = 1;
+      xpos = 0;
       ypos += height;
     }
     //console.log(aa);
@@ -163,16 +166,16 @@ class Coop extends Component {
             .attr('class', 'square')
             .attr('x', function (d) {
               //console.log(d); //this data is the only object for each cell. 每一次 enter()之后,数组会降维一次。
-              return d.x;
+              return scales.x(d.x);
             })
             .attr('y', function (d) {
-              return d.y;
+              return scales.y(d.y);
             })
             .attr('width', function (d) {
-              return d.width;
+              return scales.x(d.width);
             })
             .attr('height', function (d) {
-              return d.height;
+              return scales.y(d.height);
             })
             .style('fill', function (d) {
               if (d.ob) {
@@ -204,7 +207,7 @@ class Coop extends Component {
          })*/;
   }
 
-  randomGoalTable(pairNum = 4) {
+  randomGoalTable(pairNum = unitsNum) {
     // 接收一个数字代表多少对起点、终点。改变goalTable
     // goalTable [
     // [[startRow, startCol], [goalRow, goalCol]]
@@ -535,6 +538,8 @@ class Coop extends Component {
 
       const finder = new CoopAstarFinder();
       // const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
+      // console.log('optIndex', JSON.stringify(optIndex), 'this.goalTable', JSON.stringify(this.goalTable));
+      // debugger;
       const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.gridUI, rowNum, colNum);
 
       path.unshift(this.pathTable[optIndex][0]);
@@ -572,7 +577,8 @@ class Coop extends Component {
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
-          <p>关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。 <br/> 换行</p>
+          <p>关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。 <br/>
+            换行, 如果是要手点手动下任务，就改一改drawGridNotInteractive方法。下面的 coop30的代码和这个一样，没有新的东西</p>
 
           {/*<Collapse>*/}
           {/*<Panel header="README" key="1" style={customPanelStyle}>*/}

@@ -61,6 +61,7 @@ Button{
 
 .positionNumber {
   fill: #000;
+  fill-opacity: 0.5;
   /*fill: #fff;*/
   /*fill: #0E1A9E;*/
   text-anchor: middle;
@@ -72,7 +73,7 @@ Button{
   /*fill: #fff;*/
   /*fill: #0E1A9E;*/
   text-anchor: middle;
-  font-size: 1.5em;
+  font-size: 1.2em;
 }
 
 
@@ -86,5 +87,6 @@ Button{
 
 .path {
   stroke-width: 14px;
-  opacity:0.7;
+  stroke-opacity:0.5;
+  /*opacity: 1; 不管用*/
 }
