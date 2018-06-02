@@ -67,6 +67,15 @@ Button{
   font-size: 1.2em;
 }
 
+.GoalPositionNumber {
+  fill: #3E4A5E;
+  /*fill: #fff;*/
+  /*fill: #0E1A9E;*/
+  text-anchor: middle;
+  font-size: 1.5em;
+}
+
+
 .goalText{
   fill: #222;
   /*fill: #fff;*/

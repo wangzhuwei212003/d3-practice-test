@@ -86,6 +86,8 @@ class Coop extends Component {
 
     this.movingSpot = this.gridMouseover.append('g');
 
+    this.goalTableUI = this.gridMouseover.append('g'); // 这个是画出起点和终点。
+
     // 画完地图之后，开始画 pathTable 里面的路径
     // 以及 根据timestep和pathtable来画出当前的运动的spot。
     // 上述的画路径、移动的点，由 button 触发。
@@ -101,8 +103,8 @@ class Coop extends Component {
     let xpos = 1;
     let ypos = 1;
     let click = 0;
-    const width = 20; // 格子的 pixel 的大小宽度
-    const height = 20;
+    const width = 25; // 格子的 pixel 的大小宽度
+    const height = 25;
     let aa = [];
     //iterate for rows
     for (let row = 0; row < rowNum; row += 1) {
@@ -209,16 +211,22 @@ class Coop extends Component {
     // ...
     // ]
     const _goalTable = [];
-    let newPair = [];
+
     // 连着生成pairNum * 2个数，不能有重叠。pairNum 个起点不能重叠，也不能和障碍重叠。pairNum 个终点不能重叠。
     for (let i = 0; i < pairNum; i += 1) {
+      let newPair = []; // 这个应该在for循环里，这句话放在for循环外面就会导致之前的newPair都变成一样的。
       newPair[0] = this.generateValidPoint(_goalTable, "START");
       newPair[1] = this.generateValidPoint(_goalTable, "END");
-      if (newPair[0] && newPair[1]) {
-        _goalTable.push(newPair); // 这里会推进来undefined ？
-      }
+      // if (newPair[0] && newPair[1]) {
+      _goalTable.push(newPair); // 这里会推进来undefined ？
+      // _goalTable[i] = newPair; //
+      // }
+      console.log('一次找点结束，_goalTable', JSON.stringify(_goalTable), 'newPair:', JSON.stringify(newPair));
+      // debugger;
     }
     console.log(_goalTable);
+    this.goalTable = _goalTable;
+    this.drawGoalTableUI(this.scales, _goalTable);
   }
 
   generateRandomPoint() {
@@ -243,25 +251,25 @@ class Coop extends Component {
     let overlayOtherUnits = false; // 检测点之间的重叠
     for (let i = 0; i < goalTable.length; i += 1) {
       if (startOrEnd === "START") {
-        if (goalTable[i][0][0] === can[0]) {
+        if (goalTable[i][0][0] === can[0] && goalTable[i][0][1] === can[1]) {
+          console.log('起点有重叠', i);
+          console.log('can', can);
+          console.log('goalTable', goalTable);
           overlayOtherUnits = true; // 起点行数有重叠
         }
-        if (goalTable[i][0][1] === can[1]) {
-          overlayOtherUnits = true; // 起点列数有重叠
-        }
       } else if (startOrEnd === "END") {
-        console.log(goalTable[i]);
-        if (goalTable[i][1][0] === can[0]) {
+        if (goalTable[i][1][0] === can[0] && goalTable[i][1][1] === can[1]) {
+          console.log('终点有重叠', i);
+          console.log('can', can);
+          console.log('goalTable', goalTable);
           overlayOtherUnits = true; // 终点行数有重叠
-        }
-        if (goalTable[i][1][1] === can[1]) {
-          overlayOtherUnits = true; // 终点列数有重叠
         }
       } else {
         console.log('unexpect')
       }
     }
     if (this.validatePoint(can[0], can[1]) && !overlayOtherUnits) {
+      console.log('判断是合格的can， 返回', can);
       return can;
     } else {
       // return false;
@@ -270,10 +278,44 @@ class Coop extends Component {
     }
   }
 
+  drawGoalTableUI(scales, goalTable){
+    for (let i = 0; i < goalTable.length; i += 1) {
+      let index = i;
+
+      let textData = this.goalTableUI.append('g').selectAll("text").data(goalTable[index]);
+      // let textData = this.groups.position.append('g').selectAll("text").data(pathTable[index]); .append('g')不能删掉。
+      let texts = textData.enter().append("text");
+      let textAttributes = texts
+          .attr("x", function (d) {
+            return scales.x(d[1] + 0.5);
+          })
+          .attr("y", function (d) {
+            return scales.y(d[0] + 0.5);
+          })
+          .attr("dy", ".5em")
+          // .attr("dy", ".31em")
+          .text(function (d, i, arr) {
+            //console.log('what is this ', arr[i]);
+            //console.log('what is this ', pathTable[index][i]);
+            //console.log('the text ele', d === pathTable[index][i]);
+            //console.log('the text ele', ((i !== 0) && (d === pathTable[index][i-1])));
+
+            // i === 0 表示是起点，i === 1 表示终点。index应该就是标识第几个小车。
+            if(i === 0){
+              return 'S' + index;
+            }else {
+              return 'G' + index;
+            }
+          })
+          .attr("class", "GoalPositionNumber");
+    }
+
+  }
+
   // 画出 path table 里的规划好的路径。
   drawPath(scales, pathTable) {
     // --画路径。。--
-    // 整体的效果就是 线串着中间有是数字的圆圈，数字就是 timestep。
+    // 整体的效果就是 线串着中间有是数字的圆圈，数字就是 timestep。目前是没有圈的。
 
     // 首先这个 path 是有顺序的，
     //const path = [[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7]];
@@ -416,7 +458,7 @@ class Coop extends Component {
         this.initializePathTable();
       }
       const stepStart = Date.now();
-      this.replanNextTimeStep();
+      this.replanNextTimeStep(); // 这个是关键的一步。循环的就是这一步。
       const endStep = Date.now();
       console.log('每一步用时', endStep - stepStart);
       // console.log('next step');
@@ -537,8 +579,8 @@ class Coop extends Component {
           {/*<p>{`关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。 \r\n adfasdf  asfsdaf asasdf`}</p>*/}
           {/*</Panel>*/}
           {/*</Collapse>*/}
-          <Button type="primary" onClick={() => this.testCoop()}>test</Button>
-          <Button type="primary" onClick={() => this.randomGoalTable()}>testtest</Button>
+          <Button type="primary" onClick={() => this.testCoop()}>开始实时寻路，并画出路径和移动的点</Button>
+          <Button type="primary" onClick={() => this.randomGoalTable()}>生成若干个起点终点对，并在图上画出</Button>
           <br/>
         </div>
 
