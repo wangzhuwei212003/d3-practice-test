@@ -25,12 +25,12 @@ const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
 const timeGap = 500;
 const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
 
-const rowNum = 30;
-const colNum = 30;
+const rowNum = 5;
+const colNum = 5;
 const gridPixelwidth = 760;
 const gridPixelheight = 760;
-const unitsNum = 30;
-const searchDeepth = 31; // searchDeepth 必须至少比 unitNum 大
+const unitsNum = 2;
+const searchDeepth = 5; // searchDeepth 必须至少比 unitNum 大
 
 class Coop extends Component {
   constructor(props) {

@@ -17,7 +17,7 @@ function AStarByConflictFinder(opt) {
 
 }
 
-AStarByConflictFinder.prototype.findPath = function (index, goalTable, searchDeepth, constraints, matrix) {
+AStarByConflictFinder.prototype.findPath = function (index, goalTable, searchDeepth, constraints, matrix, offLine) {
   /*
    * 参数：
    * 1. constraints，一维数组，包含了相应unit应该满足的constraint，[{}...]
@@ -85,14 +85,16 @@ AStarByConflictFinder.prototype.findPath = function (index, goalTable, searchDee
     node.closed = true;  // 其实这个地方是 close 了，但是下一个 grid 还是有这个点。所以可以说是一个grid全部都没有了。
 
     // 如果是一次找到一直到终点的路径，这个是要返回的。如果是实时的，就是不返回继续寻找路径。
-    // if (node.row === endRow && node.col === endCol){
-    //   console.log('find the path'); // 如果这个是已经找了，前提是我也不知道endpoint是哪个timestep里的，所以只能这样来判断。
-    //   return Util.backtrace(node);
-    // } //这段注释是因为，即使是到达了终点，也要继续计算。
+    if(offLine){
+      if (node.row === endRow && node.col === endCol){
+        console.log('offLine, find the path'); // 如果这个是已经找了，前提是我也不知道endpoint是哪个timestep里的，所以只能这样来判断。
+        return Util.backtrace(node);
+      } //这段注释是因为，即使是到达了终点，也要继续计算。
+    }
 
     // searchDeepth是总步数，不是从0开始。返回searchDeepth长度的路径
     if (node.t >= searchDeepth - 1) {
-      //console.log(`寻路暂停，beyond the deepth，${searchDeepth}`);
+      console.log(`寻路停止，beyond the deepth，${searchDeepth}`);
       //console.log('规划出来的路径：', Util.backtraceNode(node));
       return Util.backtrace(node);
     }

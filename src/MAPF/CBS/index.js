@@ -30,8 +30,8 @@ const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
 
 const rowNum = 5;
 const colNum = 5;
-const gridPixelwidth = 760;
-const gridPixelheight = 760;
+const gridPixelwidth = 300;
+const gridPixelheight = 300;
 const unitsNum = 2;
 const searchDeepth = 5; // searchDeepth 必须至少比 unitNum 大
 
@@ -455,9 +455,11 @@ class CBS extends Component {
     }, timeGap);
   }
 
-  // 不实时规划了。直接就找到最终的点。
+  // 不实时规划了。直接就找到最终的点。不存在 searchdeepth 的概念。
   planOffline() {
-    const pathTable = initialRoot(this.goalTable, this.searchDeepth, this.gridUI);
+    console.log('planOffLine occur')
+    const offLine = true;
+    const pathTable = initialRoot(this.goalTable, this.searchDeepth, this.gridUI, offLine);
     console.log(pathTable);
   }
 

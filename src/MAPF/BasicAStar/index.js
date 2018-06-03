@@ -16,7 +16,7 @@ class BasicAStar extends Component {
     this.inputData = {
       startPoint: null, //[row, col]
       endPoint: null, //[row, col]
-      grid:[], // 是 0-1 矩阵，1代表有障碍
+      grid: [], // 是 0-1 矩阵，1代表有障碍
     }; // 这句话要放在 constructor 里，componentDidMount 里是执行顺序不对，得出 undefined。
 
     this.nowTimeStep = 0;
@@ -42,7 +42,7 @@ class BasicAStar extends Component {
     //console.log(this.gridMouseover);
     this.drawGridMouseover(this.gridMouseover);
 
-    this.groups= {
+    this.groups = {
       path: this.gridMouseover.append('g'),
       position: this.gridMouseover.append('g')
     };
@@ -155,17 +155,17 @@ class BasicAStar extends Component {
             // console.log(d);
             // console.log('x: ', (d.x -1)/25, 'y: ', (d.y - 1)/25); // row = y 这里是包含0的，其实是index的意思
 
-            if(!me.inputData.startPoint){
+            if (!me.inputData.startPoint) {
               d.click = 1;
               d3.select(this).style('fill', 'green');
               // 如果是已经有 start point 的话，就不会再次去改变了。即是第一次设置 起始点算话，其他都不算。
-              me.inputData.startPoint = [(d.y - 1)/25, (d.x -1)/25];
-            }else if(!me.inputData.endPoint){
+              me.inputData.startPoint = [(d.y - 1) / 25, (d.x - 1) / 25];
+            } else if (!me.inputData.endPoint) {
               d.click = 2;
               d3.select(this).style('fill', 'red');
               // 如果是已经有 start point 的话，就不会再次去改变了。即是第一次设置 起始点算话，其他都不算。
-              me.inputData.endPoint = [(d.y - 1)/25, (d.x -1)/25];
-            }else{
+              me.inputData.endPoint = [(d.y - 1) / 25, (d.x - 1) / 25];
+            } else {
               console.log('已经设置好了起始点/end 点。如果需要重新设置，直接刷新界面。')
             }
 
@@ -175,12 +175,12 @@ class BasicAStar extends Component {
             // console.log('change to red');
             // console.log(d);
 
-            if(!me.inputData.endPoint){
+            if (!me.inputData.endPoint) {
               d.click = 2;
               d3.select(this).style('fill', 'red');
               // 如果是已经有 start point 的话，就不会再次去改变了。即是第一次设置 起始点算话，其他都不算。
-              me.inputData.endPoint = [(d.y - 1)/25, (d.x -1)/25];
-            }else{
+              me.inputData.endPoint = [(d.y - 1) / 25, (d.x - 1) / 25];
+            } else {
               console.log('已经设置好了end点。如果需要重新设置，直接刷新界面。')
             }
 
@@ -189,7 +189,7 @@ class BasicAStar extends Component {
             d3.select(this).style('fill', '#fff');
             console.log('change to white');
 
-            me.inputData.grid[(d.y - 1)/25][(d.x -1)/25] = 0; // 0 代表没有有障碍
+            me.inputData.grid[(d.y - 1) / 25][(d.x - 1) / 25] = 0; // 0 代表没有有障碍
           }
 
         })
@@ -202,7 +202,7 @@ class BasicAStar extends Component {
             d.click += 3;
             if (d.click % 6 === 0) {
               d3.select(this).style('fill', '#fff');
-              me.inputData.grid[(d.y - 1)/25][(d.x -1)/25] = 0; // 0 代表没有有障碍
+              me.inputData.grid[(d.y - 1) / 25][(d.x - 1) / 25] = 0; // 0 代表没有有障碍
             }
             if (d.click % 6 === 1) {
               d3.select(this).style('fill', '#F56C4E')
@@ -213,7 +213,7 @@ class BasicAStar extends Component {
             if (d.click % 6 === 3) {
               d3.select(this).style('fill', '#838690');
 
-              me.inputData.grid[(d.y - 1)/25][(d.x -1)/25] = 1; // 1 代表有障碍
+              me.inputData.grid[(d.y - 1) / 25][(d.x - 1) / 25] = 1; // 1 代表有障碍
             }
           }
         });
@@ -229,10 +229,6 @@ class BasicAStar extends Component {
     // animate the path moving
   }
 
-  animateMoving() {
-
-  }
-
   drawPath(groups, scales, path) {
     // 首先这个 path 是有顺序的，
     //const path = [[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7]];
@@ -241,8 +237,12 @@ class BasicAStar extends Component {
     groups.path.selectAll('.path').remove();
 
     const lineFunction = d3.line()
-        .x(function (d) {return scales.x(d[1] + 0.5);}) // 这个里面要有一点变化的是，x 对应的是 col，y 对应的是 row。
-        .y(function (d) {return scales.y(d[0] + 0.5);})
+        .x(function (d) {
+          return scales.x(d[1] + 0.5);
+        }) // 这个里面要有一点变化的是，x 对应的是 col，y 对应的是 row。
+        .y(function (d) {
+          return scales.y(d[0] + 0.5);
+        })
         .curve(d3.curveLinear);
 
     const lineGraph = groups.path.append('path')
@@ -255,9 +255,15 @@ class BasicAStar extends Component {
     circleData.exit().remove();
     const circles = circleData.enter().append('circle');
     const circleAttributes = circles
-        .attr("cx", function (d) { return scales.x(d[1] + 0.5); })
-        .attr("cy", function (d) { return scales.y(d[0] + 0.5); })
-        .attr("r", function (d) { return 10; })
+        .attr("cx", function (d) {
+          return scales.x(d[1] + 0.5);
+        })
+        .attr("cy", function (d) {
+          return scales.y(d[0] + 0.5);
+        })
+        .attr("r", function (d) {
+          return 10;
+        })
         .attr("class", "position");
 
     // position number
@@ -266,25 +272,30 @@ class BasicAStar extends Component {
 
     const texts = textData.enter().append("text");
     const textAttributes = texts
-        .attr("x", function (d) { return scales.x(d[1] + 0.5); })
-        .attr("y", function (d) { return scales.y(d[0] + 0.5); })
+        .attr("x", function (d) {
+          return scales.x(d[1] + 0.5);
+        })
+        .attr("y", function (d) {
+          return scales.y(d[0] + 0.5);
+        })
         .attr("dy", ".31em")
-        .text(function(d,i) { return i; })
+        .text(function (d, i) {
+          return i;
+        })
         .attr("class", "positionNumber");
   }
 
-  getInputData(){
+  getInputData() {
 
-    if(!this.inputData.startPoint || !this.inputData.endPoint){
+    if (!this.inputData.startPoint || !this.inputData.endPoint) {
       //console.log('no start point or end point');
       return
     }
-    console.log(Date.now());
     const starTime = Date.now();
-    console.log(Date.now());
+    console.log('Date.now()', Date.now());
     this.calculatePath();
     const endTime = Date.now();
-    console.log(Date.now());
+    console.log('Date.now()', Date.now());
     console.log('计算用时： ', endTime - starTime);
 
     //this.drawPath(this.groups, this.scales);
@@ -295,7 +306,7 @@ class BasicAStar extends Component {
     // console.log(startPoint); 本来是想 通过 style 来选出相对应的格子，但是有点陌生，以后有时间再花在这个上面吧
   }
 
-  calculatePath(){
+  calculatePath() {
     // 现在目前来是实现 A star
     const startRow = this.inputData.startPoint[0],
         startCol = this.inputData.startPoint[1],
@@ -318,7 +329,7 @@ class BasicAStar extends Component {
     this.drawPath(this.groups, this.scales, path);
   }
 
-  nextStep(nowTimeStep, scales, reservationTable, duration = 1000){
+  nextStep(nowTimeStep, scales, reservationTable, duration = 1000) {
     console.log('next step');
     // 想了一下，整个的数据应该是一个 三维数组
     // const reservationTable = [
@@ -327,7 +338,7 @@ class BasicAStar extends Component {
     // ];
 
     //判断传进来的参数 timeStep 的合法性
-    if(nowTimeStep >= reservationTable[0].length){
+    if (nowTimeStep >= reservationTable[0].length) {
       console.log('this timeStep is beyond the total timeStep');
       return;
     }
@@ -336,20 +347,30 @@ class BasicAStar extends Component {
 
     // 然后是根据path，路径来模拟出一步步的动画效果。也就是上面的 reservation table。
 
-    if(nowTimeStep === 0){
+    if (nowTimeStep === 0) {
       this.movingSpot.selectAll('circle').data(reservationTable)
           .enter().append('circle')
-          .attr("cx", function (d) { return scales.x(d[nowTimeStep][1] + 0.5); })
-          .attr("cy", function (d) { return scales.y(d[nowTimeStep][0] + 0.5); })
-          .attr("r", function (d) { return 10; })
+          .attr("cx", function (d) {
+            return scales.x(d[nowTimeStep][1] + 0.5);
+          })
+          .attr("cy", function (d) {
+            return scales.y(d[nowTimeStep][0] + 0.5);
+          })
+          .attr("r", function (d) {
+            return 10;
+          })
           .attr("class", "movingSpot");
 
       this.nowTimeStep += 1;
-    }else{
+    } else {
       this.movingSpot.selectAll('circle').data(reservationTable)
           .transition()
-          .attr("cx", function (d) { return scales.x(d[nowTimeStep][1] + 0.5); })
-          .attr("cy", function (d) { return scales.y(d[nowTimeStep][0] + 0.5); })
+          .attr("cx", function (d) {
+            return scales.x(d[nowTimeStep][1] + 0.5);
+          })
+          .attr("cy", function (d) {
+            return scales.y(d[nowTimeStep][0] + 0.5);
+          })
           .duration(duration);
 
       this.nowTimeStep += 1;
@@ -357,19 +378,19 @@ class BasicAStar extends Component {
 
   }
 
-  startAnimate(){
+  startAnimate() {
     this.timer = setTimeout(() => {
       this.nextStep(this.nowTimeStep, this.scales, [this.path], 500);
       this.startAnimate();
 
-      if(this.nowTimeStep >= this.path.length){
+      if (this.nowTimeStep >= this.path.length) {
         console.log('this timeStep is beyond the total timeStep');
         window.clearTimeout(this.timer);
       }
     }, 500);
   }
 
-  resetTimeStep(scales, reservationTable){
+  resetTimeStep(scales, reservationTable) {
     // const reservationTable = [
     //   [[3,4],[3,5],[3,6]], // 第一辆小车的路径，每次横纵坐标增加一格。
     //   [[13,4],[13,5],[13,6]], // 第二辆小车的路径
@@ -378,24 +399,33 @@ class BasicAStar extends Component {
     this.nowTimeStep = 0;
     this.movingSpot.selectAll('circle').data(reservationTable)
         .transition()
-        .attr("cx", function (d) { return scales.x(d[0][1] + 0.5); })
-        .attr("cy", function (d) { return scales.y(d[0][0] + 0.5); })
+        .attr("cx", function (d) {
+          return scales.x(d[0][1] + 0.5);
+        })
+        .attr("cy", function (d) {
+          return scales.y(d[0][0] + 0.5);
+        })
         .duration(500);
   }
 
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
-          {/*<textarea readOnly rows="8" cols="50" defaultValue={"Instructions:\n" +*/}
-          {/*"green cell -> start point, 点击空白格子改变颜色\n" +*/}
-          {/*"red cell -> destination，点击绿色格子改变颜色\n" +*/}
-          {/*"white -> click the white cell and drag to draw obstacles\n\n" +*/}
-          {/*"Click start button to start the animation."}>*/}
-        {/*</textarea>*/}
-          <Button type="primary" onClick={() => this.getInputData()} >Search And draw path</Button>
-          <Button type="primary" onClick={() => this.startAnimate()} >Start Animate</Button>
-          <Button type="primary" onClick={() => this.nextStep(this.nowTimeStep, this.scales, [this.path])} >Next Step</Button>
-          <Button type="primary" onClick={() => this.resetTimeStep(this.scales, [this.path])} >Reset Time Step</Button>
+          <textarea readOnly rows="8" cols="50" defaultValue={"Instructions:\n" +
+          "green cell -> start point, red cell -> destination，white -> click the white cell and drag to draw obstacles\n" +
+          "Click start button to start the animation.\n 先设置好起点、终点、障碍，然后开始寻路。Search And draw path"}>
+          </textarea>
+          {/*<p>直接就是随机下起点、终点。 <br/>
+           换行, </p>
+           <p>{"Instructions:\n" +
+           "green cell -> start point, red cell -> destination，white -> click the white cell and drag to draw obstacles\n" +
+           "这种没有效果."}</p>*/}
+
+          <Button type="primary" onClick={() => this.getInputData()}>Search And draw path</Button>
+          <Button type="primary" onClick={() => this.startAnimate()}>Start Animate</Button>
+          <Button type="primary" onClick={() => this.nextStep(this.nowTimeStep, this.scales, [this.path])}>Next
+            Step</Button>
+          <Button type="primary" onClick={() => this.resetTimeStep(this.scales, [this.path])}>Reset Time Step</Button>
         </div>
 
     );

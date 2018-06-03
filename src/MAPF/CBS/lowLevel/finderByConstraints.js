@@ -10,7 +10,7 @@
  */
 import AStarByConflictFinder from '../../finders/AStarByConflictFinder';
 
-export const findPathByConstraint = function (constriants, goalTable, searchDeepth, matrix) {
+export const findPathByConstraint = function (constriants, goalTable, searchDeepth, matrix, offLine) {
   // constraints [{optIndex:, timeIndex:, row:, col:},{}, ...]
   // optIndex 是小车在数组中的 index
 
@@ -24,7 +24,7 @@ export const findPathByConstraint = function (constriants, goalTable, searchDeep
   for (let i = 0; i < constriants.length; i += 1) {
     const singleConstraints = constriants[i];
     const finder = new AStarByConflictFinder();
-    const path = finder.findPath(i, goalTable, searchDeepth, singleConstraints, matrix);
+    const path = finder.findPath(i, goalTable, searchDeepth, singleConstraints, matrix, offLine);
     if(path.length === 0){
       console.warn('没有找到路径，i：', i);
     }
