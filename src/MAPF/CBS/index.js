@@ -28,12 +28,12 @@ const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
 const timeGap = 500;
 const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
 
-const rowNum = 5;
-const colNum = 5;
-const gridPixelwidth = 300;
-const gridPixelheight = 300;
-const unitsNum = 2;
-const searchDeepth = 5; // searchDeepth 必须至少比 unitNum 大
+const rowNum = 30;
+const colNum = 30;
+const gridPixelwidth = 600;
+const gridPixelheight = 600;
+const unitsNum = 14;
+const searchDeepth = 60; // searchDeepth 必须至少比 unitNum 大
 
 class CBS extends Component {
   constructor(props) {
@@ -101,8 +101,8 @@ class CBS extends Component {
       for (let column = 0; column < colNum; column += 1) {
         click = 0;
         //click = Math.round(Math.random()*100);
-        let obIntheWay = false;
-        // let obIntheWay = Math.random() < radio;
+        // let obIntheWay = false;
+        let obIntheWay = Math.random() < radio;
         data[row].push({
           x: xpos,
           y: ypos,
@@ -407,8 +407,16 @@ class CBS extends Component {
   drawNextStepMovingSpot(nowTimeStep, scales, pathTable, duration = timeGap) {
     //console.log('next step');
 
+    // 如果是offline，那么就是要遍历pathTable最长的路径的长度。
+    let maxStep = 0;
+    for (let iUnit = 0; iUnit < pathTable.length; iUnit += 1) {
+      if (maxStep < pathTable[iUnit].length) {
+        maxStep = pathTable[iUnit].length;
+      }
+    }
+
     //判断传进来的参数 timeStep 的合法性
-    if (nowTimeStep >= pathTable[0].length) {
+    if (nowTimeStep >= maxStep) {
       console.log('this timeStep is beyond the total timeStep');
       return;
     }
@@ -416,9 +424,15 @@ class CBS extends Component {
     this.movingSpot.selectAll('circle').data(pathTable)
         .enter().append('circle')
         .attr("cx", function (d) {
+          if(nowTimeStep > d.length - 1){
+            return scales.x(d[d.length - 1][1] + 0.5);
+          }
           return scales.x(d[nowTimeStep][1] + 0.5);
         })
         .attr("cy", function (d) {
+          if(nowTimeStep > d.length - 1){
+            return scales.y(d[d.length - 1][0] + 0.5);
+          }
           return scales.y(d[nowTimeStep][0] + 0.5);
         })
         .attr("r", function (d) {
@@ -432,39 +446,46 @@ class CBS extends Component {
     this.movingSpot.selectAll('circle').data(pathTable)
         .transition()
         .attr("cx", function (d) {
+          if(nowTimeStep > d.length - 1){
+            return scales.x(d[d.length - 1][1] + 0.5);
+          }
           return scales.x(d[nowTimeStep][1] + 0.5);
         })
         .attr("cy", function (d) {
+          if(nowTimeStep > d.length - 1){
+            return scales.y(d[d.length - 1][0] + 0.5);
+          }
           return scales.y(d[nowTimeStep][0] + 0.5);
         })
         .duration(duration);
 
   }
 
-  testCoop() {
-    this.CoopTimer = setTimeout(() => {
+  testAnimate() {
+    this.CBSTimer = setTimeout(() => {
 
       const stepStart = Date.now();
-      this.replanNextTimeStep(); // 这个是关键的一步。循环的就是这一步。
+      this.drawNextTimeStep();
       const endStep = Date.now();
       console.log('每一步用时', endStep - stepStart);
       // console.log('next step');
       //console.log(this.pathTable);
       //debugger;
-      this.testCoop();
+      this.testAnimate();
     }, timeGap);
   }
 
   // 不实时规划了。直接就找到最终的点。不存在 searchdeepth 的概念。
   planOffline() {
-    console.log('planOffLine occur')
+    console.log('planOffLine occur');
     const offLine = true;
     const pathTable = initialRoot(this.goalTable, this.searchDeepth, this.gridUI, offLine);
-    console.log(pathTable);
+
+    this.pathTable = pathTable; // 更新前端的 pathTable。
   }
 
 
-  replanNextTimeStep() {
+  drawNextTimeStep() {
     // 显示动画的时候有点用
     // 画点，画路径.
     this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
@@ -472,8 +493,6 @@ class CBS extends Component {
     this.drawPath(this.scales, this.pathTable);
 
     this.nowTimeStep += 1;
-
-    this.nowTimeStep = 0;
   }
 
   render() {
@@ -489,9 +508,10 @@ class CBS extends Component {
           {/*<p>{`关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。 \r\n adfasdf  asfsdaf asasdf`}</p>*/}
           {/*</Panel>*/}
           {/*</Collapse>*/}
-          <Button type="primary" onClick={() => this.testCoop()}>开始实时寻路，并画出路径和移动的点</Button>
           <Button type="primary" onClick={() => this.randomGoalTable()}>生成若干个起点终点对，并在图上画出</Button>
-          <Button type="primary" onClick={() => this.planOffline()}>CBS test</Button>
+          <Button type="primary" onClick={() => this.planOffline()}>CBS offline 一次性寻路，规划出到终点的所有路径。</Button>
+          <Button type="primary" onClick={() => this.testAnimate()}>根据路径画出路径和移动的点</Button>
+
           <br/>
         </div>
 
