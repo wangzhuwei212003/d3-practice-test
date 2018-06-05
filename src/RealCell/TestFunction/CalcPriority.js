@@ -79,10 +79,14 @@ export const CalcPriorityV3 = function (cellRow, cellCol) {
   const firstGoDownCol = 8; // 开始下降的第一列列数 8
   const lastGoDownCol = CONFIGV3.smallColNum - 12; // 开始下降的有货位的最后一列列数 24
   const lastGoDownPickCol = CONFIGV3.smallColNum - 4; // 下降列拣货台的列数 32
-  const btmInterBeginRow = CONFIGV3.smallRowNum - 1 - CONFIGV3.occupyRowConfig; // 底部开始有交汇的行数，开始进入底部的通道 20
+  const btmInterBeginRow = CONFIGV3.smallRowNum - 1 - CONFIGV3.occupyRowConfig - CONFIGV3.occupyRowConfigUnload; // 底部开始有交汇的行数，开始进入底部的通道 20
   const btmRow = CONFIGV3.smallRowNum - 1; // 最底部一行行数 26
   const lastCol = CONFIGV3.smallColNum - 1; // 最后一列列数 35
   const occupyRow = CONFIGV3.occupyRowConfig + CONFIGV3.occupyRowConfigUnload; // 占位的行数 6
+
+  const divideCell = CONFIGV3.divideCell;
+  const occupyColConfig = CONFIGV3.occupyColConfig;
+
 
   if (
       cellRow >= 0 && cellRow < pickStationRow &&
@@ -101,7 +105,7 @@ export const CalcPriorityV3 = function (cellRow, cellCol) {
     // 最小：pickStationRow + firstGoDownCol， 21 + 8 = 29，
     // 最大：pickStationRow + lastGoDownCol， 21 + 36 - 12 = 45
   } else if (
-      cellRow > 0 && cellRow <= btmInterBeginRow &&
+      cellRow > 0 && cellRow < btmInterBeginRow &&
       cellCol >= firstGoDownCol && cellCol <= lastGoDownCol
   ) {
     // 中间货位，不存在和底部横向的小车交汇的区域，不包括顶部一行。
@@ -109,7 +113,7 @@ export const CalcPriorityV3 = function (cellRow, cellCol) {
     // 最小：pickStationRow + lastGoDownCol + 1 + (lastGoDownCol) * 1 - lastGoDownCol, 46，
     // 最大：pickStationRow + lastGoDownCol + 1 + (lastGoDownCol) * btmInterBeginRow - firstGoDownCol，46 + 24*(26-7) - 8 = 494
   } else if (
-      cellRow >= 0 && cellRow <= btmInterBeginRow &&
+      cellRow >= 0 && cellRow < btmInterBeginRow &&
       cellCol <= lastCol && cellCol > lastGoDownCol
   ) {
     // 下降列 + 一小段水平轨道。
@@ -117,25 +121,39 @@ export const CalcPriorityV3 = function (cellRow, cellCol) {
     // 最小：pickStationRow + （lastGoDownCol + 1） + 0， 46，
     // 最大：pickStationRow + （lastGoDownPickCol） + btmInterBeginRow，21 + 32 + （27 - 1 - 7）= 72
   } else if (
-      cellRow <= btmRow && cellRow > btmInterBeginRow &&
+      cellRow <= btmRow && cellRow >= btmInterBeginRow &&
       cellCol <= lastCol && cellCol >= firstGoDownCol
   ) {
-    // 中间货位，底部 occupyRow 行数的空间。
-    // 从右到左是减小，从上往下，priority 是变大。
-    return pickStationRow + lastGoDownCol + 1 + (lastGoDownCol) * btmInterBeginRow - firstGoDownCol
-        + cellRow + (lastGoDownPickCol - cellCol) * occupyRow;
-    // 最小：494 + （btmInterBeginRow + 1） + (lastGoDownPickCol - （lastGoDownPickCol)) * CONFIG.occupyRowConfig，494+(20) = 514，
-    // 最大：494 + （smallRowNum - 1） + (lastGoDownPickCol - 8) * CONFIG.occupyRowConfig = 688，
+    // 这里面一个for循环。这里应该构造一个区域就是 occupyRow 高，occupyColConfig宽的一个区域。同样进来的点优先级应该一样。
+    if (cellCol === lastGoDownPickCol) {
+      return pickStationRow + lastGoDownCol + 1 + (lastGoDownCol) * btmInterBeginRow - firstGoDownCol
+          + cellCol + cellRow;
+    } else if (cellRow === btmRow) {
+      return pickStationRow + lastGoDownCol + 1 + (lastGoDownCol) * btmInterBeginRow - firstGoDownCol
+          + lastGoDownPickCol + btmRow
+          + lastGoDownPickCol - cellCol;
+    } else if ((cellCol - firstGoDownCol) % divideCell === 0) {
+      // 刚进入 interSection 区域时，优先级是一样的。这个区域的高度：btmInterBeginRow决定，宽度：occupyColConfig
+      return pickStationRow + lastGoDownCol + 1 + (lastGoDownCol) * btmInterBeginRow - firstGoDownCol
+          + lastGoDownPickCol + btmRow
+          + lastGoDownPickCol - cellCol
+          - occupyColConfig + 1 // 让 intersection 区域的区域，和occupyColConfig区域的优先级一样。
+          + (occupyColConfig - 1) * (cellRow - btmInterBeginRow) / (btmRow - btmInterBeginRow);
+    } else {
+      return 0; //阴影部分
+    }
+    // 最大：pickStationRow + lastGoDownCol + 1 + (lastGoDownCol) * btmInterBeginRow - firstGoDownCol
+    //+ lastGoDownPickCol + btmRow
+    //+ lastGoDownPickCol - firstGoDownCol
   } else if (
       cellRow <= btmRow && cellRow >= pickStationRow &&
       cellCol >= 0 && cellCol < firstGoDownCol
   ) {
     // 最后到拣货台部分
     return pickStationRow + lastGoDownCol + 1 + (lastGoDownCol) * btmInterBeginRow - firstGoDownCol
-        + btmRow + (lastGoDownPickCol - firstGoDownCol) * occupyRow
+        + lastGoDownPickCol + btmRow
+        + lastGoDownPickCol - firstGoDownCol
         + firstGoDownCol - cellCol + (btmRow - cellRow);
-    // 最小：688 + 8 - 7 + 0 = 689，
-    // 最大：688 + 8 - 0 + 26 - 21 = 701，
   } else {
     console.log('some scenario not considered! 行列数超出范围。');
   }

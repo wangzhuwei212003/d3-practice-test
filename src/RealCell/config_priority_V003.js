@@ -6,7 +6,10 @@ module.exports = {
   smallColNum: 52,
   smallRowNum: 27,
   occupyRowConfig: 6,
+  occupyColConfig:7,
   occupyRowConfigUnload:4,
+
+  divideCell:4,
 
   shuttleAmount:4,
   rowNum: 27,
