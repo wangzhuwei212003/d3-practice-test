@@ -138,7 +138,8 @@ export const CalcPriorityV3 = function (cellRow, cellCol) {
           + lastGoDownPickCol + btmRow
           + lastGoDownPickCol - cellCol
           - occupyColConfig + 1 // 让 intersection 区域的区域，和occupyColConfig区域的优先级一样。
-          + (occupyColConfig - 1) * (cellRow - btmInterBeginRow) / (btmRow - btmInterBeginRow);
+          + (occupyColConfig - 1) * Math.floor(2 * (cellRow - btmInterBeginRow) / (btmRow - btmInterBeginRow)); //要么是0要么是1
+      // + (occupyColConfig - 1) * (cellRow - btmInterBeginRow) / (btmRow - btmInterBeginRow);
     } else {
       return 0; //阴影部分
     }
