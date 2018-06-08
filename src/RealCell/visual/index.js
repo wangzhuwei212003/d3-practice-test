@@ -87,7 +87,7 @@ class Visual extends Component {
     // this.drawAuxiliary(this.scales);
 
     this.priority = this.gridMouseover.append('g');
-    // this.drawPriority(this.scales); // 这一步是画优先级。
+    this.drawPriority(this.scales); // 这一步是画优先级。
   }
 
   componentDidUpdate() {
