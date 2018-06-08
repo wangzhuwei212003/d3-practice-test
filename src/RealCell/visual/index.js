@@ -87,7 +87,7 @@ class Visual extends Component {
     // this.drawAuxiliary(this.scales);
 
     this.priority = this.gridMouseover.append('g');
-    this.drawPriority(this.scales);
+    // this.drawPriority(this.scales); // 这一步是画优先级。
   }
 
   componentDidUpdate() {
@@ -608,8 +608,12 @@ class Visual extends Component {
   render() {
     return (
         <div ref={ele => this.grid = ele}>
-          <p>格子里是对应的 priority</p>
-          {/*<Button type="primary" onClick={() => this.testInterval()}> 连续的向前模拟 </Button>*/}
+          <p>格子里是对应的 priority <br/>
+          点击图中的空白格子，设置goaltable，然后点击testIntereval，开始寻路。<br/>
+            注意鼠标点击选择4对起点终点。
+          </p>
+          <Button type="primary" onClick={() => this.testInterval()}> 连续的向前模拟 </Button>
+
           {/*<Button type="primary" onClick={() => this.testOneStep()}> 向前模拟一步 </Button>*/}
 
           {/*<Button type="primary" onClick={() => this.calcTeethTest()}> calc teeth and pin action </Button>*/}
