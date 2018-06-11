@@ -22,15 +22,15 @@ const customPanelStyle = {
 
 const colorSet = ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D'];
 const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
-const timeGap = 500;
-const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
+const timeGap = 100;
+const radio = 0.2; // 一定的几率出现障碍，生成地图的时候
 
-const rowNum = 5;
-const colNum = 5;
+const rowNum = 30;
+const colNum = 30;
 const gridPixelwidth = 760;
 const gridPixelheight = 760;
-const unitsNum = 2;
-const searchDeepth = 5; // searchDeepth 必须至少比 unitNum 大
+const unitsNum = 5;
+const searchDeepth = 16; // searchDeepth 必须至少比 unitNum 大
 
 class Coop extends Component {
   constructor(props) {
@@ -55,10 +55,18 @@ class Coop extends Component {
     //   [[17, 17], [29, 29]],
     // ];
     // this.goalTable = Array(unitsNum).fill(Array(2));
+    // [
+    // [start, end],
+    // [start, end],
+    // ...
+    // ]
     this.goalTable = [];
     this.matrixZero = Array(rowNum).fill(Array(colNum).fill(0)); // fast way to create dimensional array?
     this.gridUI = Array(rowNum).fill(Array(colNum).fill(0));
     // 真正事实上的 matrix 是这个 gridUI
+    this.makespan = 0;
+    this.sumCost = 0;
+    this.movingArr = Array(unitsNum).fill(1); // 1表示在移动。一开始的时候，每一个车都是在运动的。sum cost是会增加的。
   }
 
   componentDidMount() {
@@ -66,8 +74,8 @@ class Coop extends Component {
 
     this.gridMouseover = d3.select(this.grid)
         .append('svg')
-        .attr('width', gridPixelwidth+'px')
-        .attr('height', gridPixelheight+'px');
+        .attr('width', gridPixelwidth + 'px')
+        .attr('height', gridPixelheight + 'px');
 
     this.scales = {
       x: d3.scaleLinear().domain([0, colNum]).range([0, gridPixelwidth]), // 前面是格子数，后面是实际的 pixel 数。
@@ -281,7 +289,7 @@ class Coop extends Component {
     }
   }
 
-  drawGoalTableUI(scales, goalTable){
+  drawGoalTableUI(scales, goalTable) {
     for (let i = 0; i < goalTable.length; i += 1) {
       let index = i;
 
@@ -304,9 +312,9 @@ class Coop extends Component {
             //console.log('the text ele', ((i !== 0) && (d === pathTable[index][i-1])));
 
             // i === 0 表示是起点，i === 1 表示终点。index应该就是标识第几个小车。
-            if(i === 0){
+            if (i === 0) {
               return 'S' + index;
-            }else {
+            } else {
               return 'G' + index;
             }
           })
@@ -456,18 +464,22 @@ class Coop extends Component {
   }
 
   testCoop() {
-    this.CoopTimer = setTimeout(() => {
+    this.CoopTimer = setTimeout(async () => {
       if (!this.initialized) {
         this.initializePathTable();
       }
       const stepStart = Date.now();
+      const res = await this.replanNextTimeStep();
+      if(res) {
+        this.testCoop();
+      }
       this.replanNextTimeStep(); // 这个是关键的一步。循环的就是这一步。
       const endStep = Date.now();
       console.log('每一步用时', endStep - stepStart);
       // console.log('next step');
       //console.log(this.pathTable);
       //debugger;
-      this.testCoop();
+      //this.testCoop();
     }, timeGap);
   }
 
@@ -558,27 +570,67 @@ class Coop extends Component {
 
       this.nowTimeStep += 1;
       // timestep 增加为 1 的时候，unit 已经到上面 path 的起点了。此时 path 已经算好。
+      this.makespan += 1; // timestep 加一的时候，makespan也加一。
       //
       // 把所有的path切掉一个，更新optindex的path。timestep 设为 0.
+      return true
     } else if (this.nowTimeStep === 1) {
       // 更新 pathtable
       for (let i = 0; i < this.pathTable.length; i += 1) {
+        // 如果是第一个点已经到达终点了。就认为是已经结束了一个 cost 的累加。
+        if (
+            this.goalTable[i][0][0] === this.goalTable[i][1][0] &&
+            this.goalTable[i][0][1] === this.goalTable[i][1][1]
+        ) {
+          this.movingArr[i] = 0;
+          console.log(this.movingArr);
+        }
+
+        this.sumCost += this.movingArr[i];
+
         this.pathTable[i].shift(); // 去掉第一个点
+      }
+
+
+      // console.log(this.checkAllGoalReached());
+      // 判断一下，如果是所有agent已经到达终点，那么
+      if (this.checkAllGoalReached()) {
+        console.log('end ');
+        console.log('this.makespan', this.makespan, 'this.sumCost', this.sumCost);
+        clearTimeout(this.CoopTimer);
+        return false
       }
 
       this.nowTimeStep = 0;
 
       // 画点，画路径，timestep 为 0 的点，以及路径。
       this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+
+      return true
     }
 
+  }
+
+  checkAllGoalReached() {
+    // console.log(this.pathTable, this.goalTable);
+    for (let i = 0; i < this.pathTable.length; i += 1) {
+      if (
+          this.goalTable[i][0][0] !== this.goalTable[i][1][0] ||
+          this.goalTable[i][0][1] !== this.goalTable[i][1][1]
+      ) {
+        return false; // 每一个 agent 的第一个点。[start, end]
+      }
+    }
+    return true;
   }
 
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
           <p>关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。 <br/>
-            换行, 如果是要手点手动下任务，就改一改drawGridNotInteractive方法。下面的 coop30的代码和这个一样，没有新的东西</p>
+            换行, 如果是要手点手动下任务，就改一改drawGridNotInteractive方法。下面的 coop30的代码和这个一样，没有新的东西 <br/>
+            直接改代码 class 上面的几个参数。就能够得到实验数据。TODO：sum of cost 和 makespan 需要计算。
+          </p>
 
           {/*<Collapse>*/}
           {/*<Panel header="README" key="1" style={customPanelStyle}>*/}
