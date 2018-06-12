@@ -26,13 +26,13 @@ const customPanelStyle = {
 const colorSet = ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D'];
 const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
 const timeGap = 500;
-const radio = 0.05; // 一定的几率出现障碍，生成地图的时候
+const radio = 0.2; // 一定的几率出现障碍，生成地图的时候
 
 const rowNum = 30;
 const colNum = 30;
 const gridPixelwidth = 600;
 const gridPixelheight = 600;
-const unitsNum = 14;
+const unitsNum = 30;
 const searchDeepth = 60; // searchDeepth 必须至少比 unitNum 大
 
 class CBS extends Component {
@@ -49,6 +49,9 @@ class CBS extends Component {
     this.goalTable = [];
     this.gridUI = Array(rowNum).fill(Array(colNum).fill(0));
     // 真正事实上的 matrix 是这个 gridUI
+    this.runningtime = 0;
+    this.makespan = 0;
+    this.sumcost = 0;
   }
 
   componentDidMount() {
@@ -418,19 +421,19 @@ class CBS extends Component {
     //判断传进来的参数 timeStep 的合法性
     if (nowTimeStep >= maxStep) {
       console.log('this timeStep is beyond the total timeStep');
-      return;
+      return true;
     }
     // 这一句是刚开始添加圆圈的时候，其他时候都是下面的一段，没有enter（）的
     this.movingSpot.selectAll('circle').data(pathTable)
         .enter().append('circle')
         .attr("cx", function (d) {
-          if(nowTimeStep > d.length - 1){
+          if (nowTimeStep > d.length - 1) {
             return scales.x(d[d.length - 1][1] + 0.5);
           }
           return scales.x(d[nowTimeStep][1] + 0.5);
         })
         .attr("cy", function (d) {
-          if(nowTimeStep > d.length - 1){
+          if (nowTimeStep > d.length - 1) {
             return scales.y(d[d.length - 1][0] + 0.5);
           }
           return scales.y(d[nowTimeStep][0] + 0.5);
@@ -446,13 +449,13 @@ class CBS extends Component {
     this.movingSpot.selectAll('circle').data(pathTable)
         .transition()
         .attr("cx", function (d) {
-          if(nowTimeStep > d.length - 1){
+          if (nowTimeStep > d.length - 1) {
             return scales.x(d[d.length - 1][1] + 0.5);
           }
           return scales.x(d[nowTimeStep][1] + 0.5);
         })
         .attr("cy", function (d) {
-          if(nowTimeStep > d.length - 1){
+          if (nowTimeStep > d.length - 1) {
             return scales.y(d[d.length - 1][0] + 0.5);
           }
           return scales.y(d[nowTimeStep][0] + 0.5);
@@ -462,45 +465,60 @@ class CBS extends Component {
   }
 
   testAnimate() {
-    this.CBSTimer = setTimeout(() => {
+    this.CBSTimer = setTimeout(async () => {
 
       const stepStart = Date.now();
-      this.drawNextTimeStep();
+      const res = await this.drawNextTimeStep();
       const endStep = Date.now();
-      console.log('每一步用时', endStep - stepStart);
       // console.log('next step');
       //console.log(this.pathTable);
       //debugger;
-      this.testAnimate();
+      if (!res) {
+        // this.testAnimate();
+      }
     }, timeGap);
   }
 
   // 不实时规划了。直接就找到最终的点。不存在 searchdeepth 的概念。
   planOffline() {
     console.log('planOffLine occur');
+    const startTime = Date.now();
+
     const offLine = true;
     const pathTable = initialRoot(this.goalTable, this.searchDeepth, this.gridUI, offLine);
-
     this.pathTable = pathTable; // 更新前端的 pathTable。
+
+    const endTime = Date.now();
+    console.log('running time:', endTime - startTime);
+    this.runningtime = endTime - startTime;
+    // console.log(pathTable);
+    for (let i = 0; i < pathTable.length; i += 1) {
+      this.sumcost += pathTable[i].length;
+      if(pathTable[i].length > this.makespan){
+        this.makespan = pathTable[i].length;
+      }
+    }
+    console.log('this.runningtime', this.runningtime, 'this.sumcost', this.sumcost, 'this.makespan', this.makespan);
   }
 
-
-  drawNextTimeStep() {
+  drawNextTimeStep = async () => {
     // 显示动画的时候有点用
     // 画点，画路径.
-    this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+    const res = await this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
 
+    if (res) {
+      return true;
+    }
     this.drawPath(this.scales, this.pathTable);
 
     this.nowTimeStep += 1;
-  }
+  };
 
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
-          <p>关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。 <br/>
-            换行, 如果是要手点手动下任务，就改一改drawGridNotInteractive方法。下面的 coop30的代码和这个一样，没有新的东西 <br/>
-            使用方法：1. 生成若干个起点终点对；2. 开始实时寻路，并画出路径和移动的点
+          <p>Conflict based search algorithm <br/>
+            使用方法：1. 生成若干个起点终点对；2. CBS offline 一次性寻路，规划出到终点的所有路径; 3. 开始实时寻路，并画出路径和移动的点 <br/>
           </p>
 
           {/*<Collapse>*/}

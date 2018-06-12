@@ -22,15 +22,15 @@ const customPanelStyle = {
 
 const colorSet = ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D'];
 const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
-const timeGap = 100;
+const timeGap = 200;
 const radio = 0.2; // 一定的几率出现障碍，生成地图的时候
 
 const rowNum = 30;
 const colNum = 30;
 const gridPixelwidth = 760;
 const gridPixelheight = 760;
-const unitsNum = 5;
-const searchDeepth = 16; // searchDeepth 必须至少比 unitNum 大
+const unitsNum = 40;
+const searchDeepth = 50; // searchDeepth 必须至少比 unitNum 大
 
 class Coop extends Component {
   constructor(props) {
@@ -471,7 +471,7 @@ class Coop extends Component {
       const stepStart = Date.now();
       const res = await this.replanNextTimeStep();
       if(res) {
-        this.testCoop();
+        // this.testCoop();
       }
       this.replanNextTimeStep(); // 这个是关键的一步。循环的就是这一步。
       const endStep = Date.now();
@@ -579,8 +579,8 @@ class Coop extends Component {
       for (let i = 0; i < this.pathTable.length; i += 1) {
         // 如果是第一个点已经到达终点了。就认为是已经结束了一个 cost 的累加。
         if (
-            this.goalTable[i][0][0] === this.goalTable[i][1][0] &&
-            this.goalTable[i][0][1] === this.goalTable[i][1][1]
+            this.pathTable[i][0][0] === this.goalTable[i][1][0] &&
+            this.pathTable[i][0][1] === this.goalTable[i][1][1]
         ) {
           this.movingArr[i] = 0;
           console.log(this.movingArr);
@@ -591,6 +591,10 @@ class Coop extends Component {
         this.pathTable[i].shift(); // 去掉第一个点
       }
 
+      this.nowTimeStep = 0;
+
+      // 画点，画路径，timestep 为 0 的点，以及路径。
+      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
 
       // console.log(this.checkAllGoalReached());
       // 判断一下，如果是所有agent已经到达终点，那么
@@ -601,11 +605,6 @@ class Coop extends Component {
         return false
       }
 
-      this.nowTimeStep = 0;
-
-      // 画点，画路径，timestep 为 0 的点，以及路径。
-      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
-
       return true
     }
 
@@ -615,8 +614,8 @@ class Coop extends Component {
     // console.log(this.pathTable, this.goalTable);
     for (let i = 0; i < this.pathTable.length; i += 1) {
       if (
-          this.goalTable[i][0][0] !== this.goalTable[i][1][0] ||
-          this.goalTable[i][0][1] !== this.goalTable[i][1][1]
+          this.pathTable[i][0][0] !== this.goalTable[i][1][0] ||
+          this.pathTable[i][0][1] !== this.goalTable[i][1][1]
       ) {
         return false; // 每一个 agent 的第一个点。[start, end]
       }
