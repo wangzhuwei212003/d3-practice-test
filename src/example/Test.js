@@ -182,6 +182,9 @@ class Test extends Component {
   }
 
   // 这个是供下载成 csv Excel文件的功能。
+  // JSONData 是一个数组，里面的元素都是object，object里的键值对都是一个observation的属性。
+  // title 是一个文件名称。
+  // showLabel 是一个bool值，true标识在最终的文件中保留属性作为第一行。
   JSON2CSV(JSONData, title, showLabel) {
     const arrData = typeof JSONData !== 'object' ? JSON.parse(JSONData) : JSONData;
 
