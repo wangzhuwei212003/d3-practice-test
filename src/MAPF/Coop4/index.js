@@ -29,12 +29,15 @@ const rowNum = 30;
 const colNum = 30;
 const gridPixelwidth = 760;
 const gridPixelheight = 760;
-const unitsNum = 40;
+const unitsNum = 5;
 const searchDeepth = 50; // searchDeepth 必须至少比 unitNum 大
 
 class Coop extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      result: []
+    };
 
     this.initialized = false;
     this.nowTimeStep = 0;
@@ -470,7 +473,7 @@ class Coop extends Component {
       }
       const stepStart = Date.now();
       const res = await this.replanNextTimeStep();
-      if(res) {
+      if (res) {
         // this.testCoop();
       }
       this.replanNextTimeStep(); // 这个是关键的一步。循环的就是这一步。
@@ -487,7 +490,7 @@ class Coop extends Component {
     for (let i = 0; i < this.pathTable.length; i += 1) {
       // 假设，pathTable 是一个全空的数组。
       const finder = new CoopAstarFinder();
-      // console.log(this.goalTable);
+      console.log(this.goalTable);
       // console.log(this.pathTable);
       // console.log(this.gridUI);
       //
@@ -500,7 +503,7 @@ class Coop extends Component {
     this.initialized = true;
   }
 
-  replanNextTimeStep() {
+  replanNextTimeStep(stepStart = 0) {
     // 这个方法里，前提是已经 initialize 过了，假设一个 timestep 的时间留给单个 unit 的 replanning（500 毫秒能算完吗？）。也就是：
     // 1. initialize 整个 path table 之后，timestep为 0；
     // 2. timestep 为0的时候，开始重新规划，单个 unit规划时间暂定为 1个timestep
@@ -583,7 +586,7 @@ class Coop extends Component {
             this.pathTable[i][0][1] === this.goalTable[i][1][1]
         ) {
           this.movingArr[i] = 0;
-          console.log(this.movingArr);
+          // console.log(this.movingArr);
         }
 
         this.sumCost += this.movingArr[i];
@@ -600,14 +603,26 @@ class Coop extends Component {
       // 判断一下，如果是所有agent已经到达终点，那么
       if (this.checkAllGoalReached()) {
         console.log('end ');
-        console.log('this.makespan', this.makespan, 'this.sumCost', this.sumCost);
+
+        console.log('this.makespan', this.makespan, 'this.sumCost', this.sumCost, 'eachStepTimeCost:', Date.now() - stepStart);
+        this.state.result.push({
+          unitNum: this.goalTable.length,
+          finder: "HCA",
+          makespan: this.makespan,
+          sumCost: this.sumCost,
+          eachStepTimeCost: Date.now() - stepStart
+        });
         clearTimeout(this.CoopTimer);
+
+        // reset the count data per run
+        this.makespan = 0;
+        this.sumCost = 0;
+        this.movingArr = Array(this.goalTable.length).fill(1); // 1表示在移动。一开始的时候，每一个车都是在运动的。sum cost是会增加的。
+
         return false
       }
-
       return true
     }
-
   }
 
   checkAllGoalReached() {
@@ -623,12 +638,49 @@ class Coop extends Component {
     return true;
   }
 
-  generateDataSet(totalObservation){
+  generateDataSet = async (totalObservation = 10, maxStep = 100, unitsNum = 5) => {
     // 自动生成实验结果，需要的实验数据。totalObservation 条记录。
+    // maxStep 判断失败的最长步数限制
 
+    for (let obIndex = 0; obIndex < totalObservation; obIndex += 1) {
+      // 1. 生成若干个起点终点对
+      this.randomGoalTable(unitsNum);
 
+      // 2. 开始实时寻路。有一个总的路数的上限，比如10000
+      for (let step = 0; step < maxStep; step += 1) {
 
-  }
+        if (!this.initialized) {
+          this.initializePathTable(); // 不需要units参数
+        }
+        const stepStart = Date.now();
+        const res = await this.replanNextTimeStep(stepStart);
+        if (res) {
+          if(step === maxStep - 1){
+            // 最后的一步都还是没有走到
+            console.log('失败一次');
+            this.state.result.push({
+              unitNum: unitsNum,
+              finder: "HCA",
+              makespan: 'NA',
+              sumCost: 'NA',
+              eachStepTimeCost: 'NA'
+            });
+
+            // reset the count data per run
+            this.makespan = 0;
+            this.sumCost = 0;
+            this.movingArr = Array(unitsNum).fill(1); // 1表示在移动。一开始的时候，每一个车都是在运动的。sum cost是会增加的。
+          }
+          continue
+        } else {
+          break
+        }
+      }
+// console.log('teste')
+
+      // 3. 添加一个observation
+    }
+  };
 
   // 这个是供下载成 csv Excel文件的功能。
   // JSONData 是一个数组，里面的元素都是object，object里的键值对都是一个observation的属性。
@@ -697,6 +749,10 @@ class Coop extends Component {
 
   }
 
+  download() {
+    this.JSON2CSV(this.state.result, 'Coop4_result', true);
+  }
+
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
@@ -710,8 +766,10 @@ class Coop extends Component {
           {/*<p>{`关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。 \r\n adfasdf  asfsdaf asasdf`}</p>*/}
           {/*</Panel>*/}
           {/*</Collapse>*/}
-          <Button type="primary" onClick={() => this.testCoop()}>开始实时寻路，并画出路径和移动的点</Button>
           <Button type="primary" onClick={() => this.randomGoalTable()}>生成若干个起点终点对，并在图上画出</Button>
+          <Button type="primary" onClick={() => this.testCoop()}>开始实时寻路，并画出路径和移动的点</Button>
+          <Button type="primary" onClick={() => this.generateDataSet()}>teste</Button>
+          <Button type="primary" onClick={() => this.download()}>Download</Button>
           <br/>
         </div>
 
