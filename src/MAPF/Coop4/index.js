@@ -623,6 +623,13 @@ class Coop extends Component {
     return true;
   }
 
+  generateDataSet(totalObservation){
+    // 自动生成实验结果，需要的实验数据。totalObservation 条记录。
+
+
+
+  }
+
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
