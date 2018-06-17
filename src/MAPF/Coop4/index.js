@@ -240,7 +240,7 @@ class Coop extends Component {
     }
     console.log(_goalTable);
     this.goalTable = _goalTable;
-    this.drawGoalTableUI(this.scales, _goalTable);
+    // this.drawGoalTableUI(this.scales, _goalTable);
   }
 
   generateRandomPoint() {
@@ -566,9 +566,9 @@ class Coop extends Component {
       // 画点，画路径.
       //console.log(this.pathTable);
       //debugger;
-      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+      // this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
 
-      this.drawPath(this.scales, this.pathTable);
+      // this.drawPath(this.scales, this.pathTable);
 
 
       this.nowTimeStep += 1;
@@ -597,7 +597,7 @@ class Coop extends Component {
       this.nowTimeStep = 0;
 
       // 画点，画路径，timestep 为 0 的点，以及路径。
-      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+      // this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
 
       // console.log(this.checkAllGoalReached());
       // 判断一下，如果是所有agent已经到达终点，那么
