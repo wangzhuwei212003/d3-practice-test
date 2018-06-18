@@ -32,7 +32,7 @@ const rowNum = 30;
 const colNum = 30;
 const gridPixelwidth = 600;
 const gridPixelheight = 600;
-const unitsNum = 30;
+const unitsNum = 10;
 const searchDeepth = 60; // searchDeepth 必须至少比 unitNum 大
 
 class CBS extends Component {
@@ -224,7 +224,7 @@ class CBS extends Component {
   generateRandomPoint() {
     let randomRow = Math.floor(Math.random() * Math.floor(rowNum));
     let randomCol = Math.floor(Math.random() * Math.floor(colNum)); // Math.random 范围是 【0， 1）。所以这个范围是【0，29】是可以的，就是index
-    console.log([randomRow, randomCol]);
+    // console.log([randomRow, randomCol]);
     return [randomRow, randomCol];
   }
 
@@ -261,7 +261,7 @@ class CBS extends Component {
       }
     }
     if (this.validatePoint(can[0], can[1]) && !overlayOtherUnits) {
-      console.log('判断是合格的can， 返回', can);
+      // console.log('判断是合格的can， 返回', can);
       return can;
     } else {
       // return false;
@@ -486,19 +486,22 @@ class CBS extends Component {
 
     const offLine = true;
     const pathTable = initialRoot(this.goalTable, this.searchDeepth, this.gridUI, offLine);
-    this.pathTable = pathTable; // 更新前端的 pathTable。
-
-    const endTime = Date.now();
-    console.log('running time:', endTime - startTime);
-    this.runningtime = endTime - startTime;
-    // console.log(pathTable);
-    for (let i = 0; i < pathTable.length; i += 1) {
-      this.sumcost += pathTable[i].length;
-      if(pathTable[i].length > this.makespan){
-        this.makespan = pathTable[i].length;
+    // this.pathTable = pathTable; // 更新前端的 pathTable。
+    if(!pathTable){
+      console.log('exceeding the time limit')
+    }else{
+      const endTime = Date.now();
+      console.log('running time:', endTime - startTime);
+      this.runningtime = endTime - startTime;
+      // console.log(pathTable);
+      for (let i = 0; i < pathTable.length; i += 1) {
+        this.sumcost += pathTable[i].length;
+        if(pathTable[i].length > this.makespan){
+          this.makespan = pathTable[i].length;
+        }
       }
+      console.log('this.runningtime', this.runningtime, 'this.sumcost', this.sumcost, 'this.makespan', this.makespan);
     }
-    console.log('this.runningtime', this.runningtime, 'this.sumcost', this.sumcost, 'this.makespan', this.makespan);
   }
 
   drawNextTimeStep = async () => {
