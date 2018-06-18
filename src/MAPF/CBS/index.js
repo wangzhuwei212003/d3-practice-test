@@ -545,7 +545,7 @@ class CBS extends Component {
     }
   };
 
-  generateDataSet = async (totalObservation = 10, unitsNum = 10) => {
+  generateDataSet = async (totalObservation = 10, unitsNum = 15) => {
     // 自动生成实验结果，需要的实验数据。totalObservation 条记录。
     // maxStep 判断失败的最长步数限制
 
