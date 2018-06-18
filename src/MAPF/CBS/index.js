@@ -32,12 +32,15 @@ const rowNum = 30;
 const colNum = 30;
 const gridPixelwidth = 600;
 const gridPixelheight = 600;
-const unitsNum = 10;
-const searchDeepth = 60; // searchDeepth 必须至少比 unitNum 大
+const unitsNum = 15;
+const searchDeepth = 90; // searchDeepth 必须至少比 unitNum 大
 
 class CBS extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      result: []
+    };
 
     this.initialized = false;
     this.nowTimeStep = 0;
@@ -218,7 +221,7 @@ class CBS extends Component {
     }
     console.log(_goalTable);
     this.goalTable = _goalTable;
-    this.drawGoalTableUI(this.scales, _goalTable);
+    // this.drawGoalTableUI(this.scales, _goalTable);
   }
 
   generateRandomPoint() {
@@ -480,15 +483,22 @@ class CBS extends Component {
   }
 
   // 不实时规划了。直接就找到最终的点。不存在 searchdeepth 的概念。
-  planOffline() {
+  planOffline = async () => {
     console.log('planOffLine occur');
     const startTime = Date.now();
 
     const offLine = true;
-    const pathTable = initialRoot(this.goalTable, this.searchDeepth, this.gridUI, offLine);
+    const pathTable = await initialRoot(this.goalTable, this.searchDeepth, this.gridUI, offLine);
     // this.pathTable = pathTable; // 更新前端的 pathTable。
     if(!pathTable){
       console.log('exceeding the time limit')
+      this.state.result.push({
+        unitNum: this.goalTable.length,
+        finder: "CBS",
+        makespan: 'NA',
+        sumCost: 'NA',
+        eachStepTimeCost: 'NA'
+      });
     }else{
       const endTime = Date.now();
       console.log('running time:', endTime - startTime);
@@ -501,8 +511,19 @@ class CBS extends Component {
         }
       }
       console.log('this.runningtime', this.runningtime, 'this.sumcost', this.sumcost, 'this.makespan', this.makespan);
+      this.state.result.push({
+        unitNum: this.goalTable.length,
+        finder: "CBS",
+        makespan: this.makespan,
+        sumCost: this.sumcost,
+        eachStepTimeCost: this.runningtime
+      });
+
+      this.runningtime = 0;
+      this.sumcost = 0;
+      this.makespan = 0;
     }
-  }
+  };
 
   drawNextTimeStep = async () => {
     // 显示动画的时候有点用
@@ -516,6 +537,100 @@ class CBS extends Component {
 
     this.nowTimeStep += 1;
   };
+
+  generateAllData = async (totalObservation = 10) => {
+    // 生成 5、10、15、20、25、30、35、40、unitNum的case
+    for (let unitsNum = 5; unitsNum <= 40; unitsNum += 5) {
+      await this.generateDataSet(totalObservation, unitsNum)
+    }
+  };
+
+  generateDataSet = async (totalObservation = 10, unitsNum = 10) => {
+    // 自动生成实验结果，需要的实验数据。totalObservation 条记录。
+    // maxStep 判断失败的最长步数限制
+
+    for (let obIndex = 0; obIndex < totalObservation; obIndex += 1) {
+      // 1. 生成若干个起点终点对
+      await this.randomGoalTable(unitsNum);
+
+      // 2. 开始寻路。有一个总的路数的上限，比如10000
+      await this.planOffline();
+// console.log('teste')
+
+      // 3. 添加一个observation
+    }
+  };
+
+  // 这个是供下载成 csv Excel文件的功能。
+  // JSONData 是一个数组，里面的元素都是object，object里的键值对都是一个observation的属性。
+  // title 是一个文件名称。
+  // showLabel 是一个bool值，true标识在最终的文件中保留属性作为第一行。
+  JSON2CSV(JSONData, title, showLabel) {
+    const arrData = typeof JSONData !== 'object' ? JSON.parse(JSONData) : JSONData;
+
+    let CSV = '';
+
+    //CSV += title + '\r\n\n';
+
+    if (showLabel) {
+      let row = '';
+
+      for (let property in arrData[0]) {
+        row += property + ',';
+      }
+
+      row = row.slice(0, -1); // 最后一个逗号去掉。截取
+
+      // append label row with line break
+      CSV += row + '\r\n';
+    }
+
+    // 1st loop to extract each row
+    for (let i = 0; i < arrData.length; i += 1) {
+      let row = '';
+
+      // 2nd loop to extract each column and convert it in string comma-seprated
+      for (let index in arrData[i]) {
+        row += '"' + arrData[i][index] + '",';
+      }
+
+      row.slice(0, row.length - 1);
+
+      // add a line break after each row
+      CSV += row + '\r\n';
+    }
+
+    if (CSV === '') {
+      alert('invalid data');
+      return;
+    }
+
+    //Generate a file name
+    let fileName = 'MyReport_';
+    fileName += title.replace(/ /g, "_");
+
+    // initialize file format you want csv or xls
+    //let uri = 'data:text/csv;charset=utf-8,' + escape(CSV); // 这里为什么会提示 deprecated symbol escape ？
+    //let uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(CSV); // 这里为什么会提示 deprecated symbol escape ？
+    let uri = 'data:text/csv;charset=utf-8,' + encodeURI(CSV); // 这里为什么会提示 deprecated symbol escape ？
+
+    var link = document.createElement("a");
+    link.href = uri;
+
+    //set the visibility hidden so it will not effect on your web-layout
+    link.style = "visibility:hidden";
+    link.download = fileName + ".csv";
+
+    //this part will append the anchor tag and remove it after automatic click
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+  }
+
+  download() {
+    this.JSON2CSV(this.state.result, 'CBS_result', true);
+  }
 
   render() {
     return (
@@ -532,6 +647,8 @@ class CBS extends Component {
           <Button type="primary" onClick={() => this.randomGoalTable()}>生成若干个起点终点对，并在图上画出</Button>
           <Button type="primary" onClick={() => this.planOffline()}>CBS offline 一次性寻路，规划出到终点的所有路径。</Button>
           <Button type="primary" onClick={() => this.testAnimate()}>根据路径画出路径和移动的点</Button>
+          <Button type="primary" onClick={() => this.generateDataSet()}>generateDataSet 5 unitNum</Button>
+          <Button type="primary" onClick={() => this.download()}>下载CBS实验数据csv文件</Button>
 
           <br/>
         </div>

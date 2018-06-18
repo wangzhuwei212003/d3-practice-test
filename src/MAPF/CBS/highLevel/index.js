@@ -5,13 +5,14 @@ import TreeNode from '../TreeNode';
 import {findPathByConstraint} from '../lowLevel/finderByConstraints';
 import Heap from 'heap';
 
-export const initialRoot = function (goalTable, searchDeepth, matrix, offLine, executeTime = 10) {
+export const initialRoot = async function (goalTable, searchDeepth, matrix, offLine, executeTime = 60000) {
 
   let timesup = false;
-  let limit = setTimeout(() => {
-    timesup = true;
-    console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$, timesup')
-  }, executeTime);
+  let timestart = Date.now();
+  // let limit = setTimeout(() => {
+  //   timesup = true;
+  //   console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$, timesup')
+  // }, executeTime);
 
   // let test = setInterval(() => {
   //   console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$, timesup', timesup)
@@ -27,7 +28,7 @@ export const initialRoot = function (goalTable, searchDeepth, matrix, offLine, e
   // 1
   const constraints = Array(goalTable.length).fill([]);
   const rootNode = new TreeNode(constraints);
-  rootNode.solution = findPathByConstraint(constraints, goalTable, searchDeepth, matrix, offLine);
+  rootNode.solution = await findPathByConstraint(constraints, goalTable, searchDeepth, matrix, offLine);
   // console.log(rootNode.solution);
   rootNode.cost = calcSIC(rootNode.solution);
   // console.log(rootNode);
@@ -38,20 +39,42 @@ export const initialRoot = function (goalTable, searchDeepth, matrix, offLine, e
   });
   openList.push(rootNode);
 
-  while (!openList.empty()) {
-    console.log(timesup);
-    if(timesup){
-      return false;
-    }
+  // while (!openList.empty()) {
+  //   console.log(timesup);
+  //   if(timesup){
+  //     return false;
+  //   }
+  //
+  //   const curTreeNode = openList.pop();
+  //   const pathTable = curTreeNode.solution;
+  //
+  //   let newConstraint = validateNode(pathTable, searchDeepth, offLine);
+  //   if (newConstraint.length === 0) {
+  //     console.log('没有冲突了，这个就是最终的结果', pathTable);
+  //     clearTimeout(limit);
+  //     console.log('clearTimeout limit');
+  //     return pathTable; // 没有冲突了，这个就是最终的结果。
+  //   }
+  //
+  //   // 有新的conflict，生成新的 treeNode，并更新constraints
+  //   newConstraint.forEach(function (constraint) {
+  //     curTreeNode.constraints[constraint['optIndex']].push(constraint['optConstraint']);
+  //     let newTreeNode = new TreeNode(curTreeNode.constraints);
+  //     newTreeNode.solution = findPathByConstraint(curTreeNode.constraints, goalTable, searchDeepth, matrix, offLine);
+  //     newTreeNode.cost = calcSIC(newTreeNode.solution);
+  //     openList.push(newTreeNode);
+  //   })
+  // }
 
+  const innerWhile = async () => {
     const curTreeNode = openList.pop();
     const pathTable = curTreeNode.solution;
 
-    let newConstraint = validateNode(pathTable, searchDeepth, offLine);
+    let newConstraint = await validateNode(pathTable, searchDeepth, offLine);
     if (newConstraint.length === 0) {
       console.log('没有冲突了，这个就是最终的结果', pathTable);
-      clearTimeout(limit);
-      console.log('clearTimeout limit');
+      // clearTimeout(limit);
+      // console.log('clearTimeout limit');
       return pathTable; // 没有冲突了，这个就是最终的结果。
     }
 
@@ -63,7 +86,26 @@ export const initialRoot = function (goalTable, searchDeepth, matrix, offLine, e
       newTreeNode.cost = calcSIC(newTreeNode.solution);
       openList.push(newTreeNode);
     })
-  }
+  };
+
+  const fakeWhile = async () => {
+    if(!openList.empty() && Date.now() - timestart < executeTime){
+      console.log('not timesup, continue while');
+      let res = await innerWhile();
+      if(res){
+        console.log('innerWhile 找到路径了', res);
+        return res
+      }else{
+        // setTimeout(fakeWhile());
+        await fakeWhile();
+      }
+    }else{
+      console.log('超时，return false');
+      return false
+    }
+  };
+  let res = await fakeWhile();
+  return res;
 };
 
 const validateNode = function (pathTable, searchDeepth, offLine) {
@@ -132,11 +174,14 @@ const validateNode = function (pathTable, searchDeepth, offLine) {
         let oppositeDirectionUnitIndex = thisStepPosition.findIndex((ele, index) => {
           if (!ele) {
             return false; // 这个数组里可能有undefined的值
+          }else{
+            return !!ele &&
+                !!nextPosition &&
+                ele[0] === nextPosition[0] &&
+                ele[1] === nextPosition[1] &&
+                nextStepPosition[index][0] === position[0] &&
+                nextStepPosition[index][1] === position[1]
           }
-          return ele[0] === nextPosition[0] &&
-              ele[1] === nextPosition[1] &&
-              nextStepPosition[index][0] === position[0] &&
-              nextStepPosition[index][1] === position[1]
         });
         if (oppositeDirectionUnitIndex === -1) {
           // 如果是等于 -1 就是说没有找到互换位置的点。
@@ -179,7 +224,7 @@ const validateNode = function (pathTable, searchDeepth, offLine) {
           // 如果是等于 -1 就是说没有找到这一个时刻相同占位的点。
         } else {
           // 有相同占位的 unit。冲突1
-          console.log('有相同占位的冲突，在pathtable里的index是：', iUnit, anotherUnitIndex);
+          // console.log('有相同占位的冲突，在pathtable里的index是：', iUnit, anotherUnitIndex);
           return [{
             optIndex: iUnit,
             optConstraint: {timeIndex: iStep, row: position[0], col: position[1]}

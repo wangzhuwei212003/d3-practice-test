@@ -687,7 +687,7 @@ class Coop extends Component {
     for (let unitsNum = 5; unitsNum <= 40; unitsNum += 5) {
       await this.generateDataSet(totalObservation, maxStep, unitsNum)
     }
-  }
+  };
 
   // 这个是供下载成 csv Excel文件的功能。
   // JSONData 是一个数组，里面的元素都是object，object里的键值对都是一个observation的属性。

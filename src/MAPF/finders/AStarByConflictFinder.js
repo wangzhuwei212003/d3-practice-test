@@ -87,7 +87,7 @@ AStarByConflictFinder.prototype.findPath = function (index, goalTable, searchDee
     // 如果是一次找到一直到终点的路径，这个是要返回的。如果是实时的，就是不返回继续寻找路径。
     if(offLine){
       if (node.row === endRow && node.col === endCol){
-        console.log('offLine, find the path'); // 如果这个是已经找了，前提是我也不知道endpoint是哪个timestep里的，所以只能这样来判断。
+        // console.log('offLine, find the path'); // 如果这个是已经找了，前提是我也不知道endpoint是哪个timestep里的，所以只能这样来判断。
         return Util.backtrace(node);
       } //这段注释是因为，即使是到达了终点，也要继续计算。
     }
