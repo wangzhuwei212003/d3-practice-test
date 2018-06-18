@@ -638,7 +638,7 @@ class Coop extends Component {
     return true;
   }
 
-  generateDataSet = async (totalObservation = 10, maxStep = 100, unitsNum = 5) => {
+  generateDataSet = async (totalObservation = 100, maxStep = 100, unitsNum = 5) => {
     // 自动生成实验结果，需要的实验数据。totalObservation 条记录。
     // maxStep 判断失败的最长步数限制
 
@@ -655,7 +655,7 @@ class Coop extends Component {
         const stepStart = Date.now();
         const res = await this.replanNextTimeStep(stepStart);
         if (res) {
-          if(step === maxStep - 1){
+          if (step === maxStep - 1) {
             // 最后的一步都还是没有走到
             console.log('失败一次');
             this.state.result.push({
@@ -681,6 +681,13 @@ class Coop extends Component {
       // 3. 添加一个observation
     }
   };
+
+  generateAllData = async (totalObservation = 100, maxStep = 100) => {
+    // 生成 5、10、15、20、25、30、35、40、unitNum的case
+    for (let unitsNum = 5; unitsNum <= 40; unitsNum += 5) {
+      await this.generateDataSet(totalObservation, maxStep, unitsNum)
+    }
+  }
 
   // 这个是供下载成 csv Excel文件的功能。
   // JSONData 是一个数组，里面的元素都是object，object里的键值对都是一个observation的属性。
@@ -768,7 +775,8 @@ class Coop extends Component {
           {/*</Collapse>*/}
           <Button type="primary" onClick={() => this.randomGoalTable()}>生成若干个起点终点对，并在图上画出</Button>
           <Button type="primary" onClick={() => this.testCoop()}>开始实时寻路，并画出路径和移动的点</Button>
-          <Button type="primary" onClick={() => this.generateDataSet()}>teste</Button>
+          <Button type="primary" onClick={() => this.generateDataSet()}>generate_5_unitsNumData</Button>
+          <Button type="primary" onClick={() => this.generateAllData()}>generateAllData</Button>
           <Button type="primary" onClick={() => this.download()}>Download</Button>
           <br/>
         </div>
