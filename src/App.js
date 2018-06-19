@@ -18,6 +18,7 @@ import BasicAStar from './MAPF/BasicAStar';
 import Coop4 from './MAPF/Coop4';
 import Coop4Highway from './MAPF/Coop4Highway';
 import CBS from './MAPF/CBS';
+import CBSReal from './MAPF/CBSReal';
 // import Coop30 from './MAPF/Coop30'; 30和4其实仅仅是配置的不同
 
 import LoadMap from './MAPF/LoadMap';
@@ -58,6 +59,10 @@ class App extends Component {
                     <Icon type="inbox"/>
                     <span><Link to='/MAPF/CBS'>CBS</Link></span>
                   </Menu.Item>
+                  <Menu.Item key="4-1">
+                    <Icon type="inbox"/>
+                    <span><Link to='/MAPF/CBSReal'>CBSReal</Link></span>
+                  </Menu.Item>
                   {/*<Menu.Item key="4">*/}
                     {/*<Icon type="inbox"/>*/}
                     {/*<span><Link to='/MAPF/Coop30'>Coop 30</Link></span>*/}
@@ -81,6 +86,7 @@ class App extends Component {
                 <Route path="/MAPF/Coop4" component={Coop4}/>
                 <Route path="/MAPF/Coop4Highway" component={Coop4Highway}/>
                 <Route path="/MAPF/CBS" component={CBS}/>
+                <Route path="/MAPF/CBSReal" component={CBSReal}/>
                 {/*<Route path="/MAPF/Coop30" component={Coop30}/>*/}
 
                 <Route path="/MAPF/LoadMap" component={LoadMap}/>
