@@ -653,6 +653,11 @@ class Coop extends Component {
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
+          <p>
+            This is noob copy of coop4 tab.<br/>
+            The only difference is that you need click 30 times to select 30 pairs of start cell and goal cell，<br/>
+            3. 最后点击 test 按钮开始寻路并且开始动画模拟. <br/>
+          </p>
           <Button type="primary" onClick={() => this.testCoop()}>test</Button>
           <br/>
         </div>

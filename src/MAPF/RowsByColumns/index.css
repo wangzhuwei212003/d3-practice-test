@@ -1,6 +1,6 @@
 .BGRowByCol{
   /*background-color: #C5D86D;*/
-  background-image: url("../../image/real.jpg");
+  /*background-image: url("../../image/real.jpg");*/
   background-repeat: no-repeat;
   background-position: 8px 130px;
   background-size: calc(-10px + 23 * 50px) calc(27 * 30px);

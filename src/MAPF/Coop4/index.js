@@ -500,6 +500,10 @@ class Coop extends Component {
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
+          <p>1. 刷新网页会出现一张有随机障碍的地图，<br/>
+            2. 鼠标依次点击地图中的空白点，确定4对起点、终点，<br/>
+            3. 最后点击 test 按钮开始寻路并且开始动画模拟. <br/>
+          </p>
           <Button type="primary" onClick={() => this.testCoop()}>test</Button>
           <br/>
         </div>

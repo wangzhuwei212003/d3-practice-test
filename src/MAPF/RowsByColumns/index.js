@@ -529,6 +529,10 @@ class RowsByColumn extends Component {
   render() {
     return (
         <div ref={ele => this.grid = ele} className="BGRowByCol">
+          <p> 和 coop4 类似，是一个换了地图的 coop4 版本. <br/>
+            1. 鼠标点击依次选择起点、终点<br/>
+            2. 最后点击 test 按钮开始寻路并且开始动画模拟. <br/>
+          </p>
           <Button type="primary" onClick={() => this.testCoop()}>test</Button>
           <br/>
         </div>

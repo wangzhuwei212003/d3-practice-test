@@ -19,6 +19,8 @@ class Home extends Component {
             <h1 className="App-title">Welcome to React</h1>
           </header>
           <p className="App-intro">
+            这是一个项目，包含了basic A star算法、cooperative path finding算法、不成熟的模拟立体库的算法；<br/>
+            包含了一些移植到react里的使用 D3 库的项目，有关路径模拟的。<br/>
             To get started, edit <code>src/App.js</code> and save to reload.
           </p>
           <div className="svg-outer">
