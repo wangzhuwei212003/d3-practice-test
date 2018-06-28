@@ -18,6 +18,7 @@ import CellVisual from './RealCell/visual';
 import OdomForShow from './OdomForShow/visual';
 import calcTeeth from './CalcTeethAndAction/visual';
 import findParkingGoal from './FindParkingGoal/visual';
+import FivemokuPriority from './FivemokuPriority';
 
 const SubMenu = Menu.SubMenu;
 const {Header, Footer, Sider, Content} = Layout;
@@ -44,10 +45,18 @@ class App extends Component {
                     <span><Link to='/'>Home</Link></span>
                   </Menu.Item>
 
-                  <Menu.Item key="7">
-                    <Icon type="inbox"/>
-                    <span><Link to='/Cell/visual'>priority可视化</Link></span>
-                  </Menu.Item>
+
+                  <SubMenu key="sub1-practice" title={<span><Icon type="mail"/><span>Priority</span></span>}>
+                    <Menu.Item key="7">
+                      <Icon type="inbox"/>
+                      <span><Link to='/Cell/visual'>priority可视化</Link></span>
+                    </Menu.Item>
+                    <Menu.Item key="FivemokuPriority">
+                      <Icon type="inbox"/>
+                      <span><Link to='/FivemokuPriority'>FivemokuPriority</Link></span>
+                    </Menu.Item>
+                  </SubMenu>
+
                   <Menu.Item key="8">
                     <Icon type="inbox"/>
                     <span><Link to='/OdomForShow'>percent for frontUI</Link></span>
@@ -61,6 +70,7 @@ class App extends Component {
                     <span><Link to='/findParkingGoal'>findParkingGoal</Link></span>
                   </Menu.Item>
 
+
                 </Menu>
               </Sider>
               <Content>
@@ -70,6 +80,7 @@ class App extends Component {
                 <Route path="/OdomForShow" component={OdomForShow}/>
                 <Route path="/calcTeeth" component={calcTeeth}/>
                 <Route path="/findParkingGoal" component={findParkingGoal}/>
+                <Route path="/FivemokuPriority" component={FivemokuPriority}/>
 
 
               </Content>
