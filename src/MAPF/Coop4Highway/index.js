@@ -29,7 +29,7 @@ const colNum = 54;
 const gridPixelwidth = 1080;
 const gridPixelheight = 440;
 const unitsNum = 5;
-const searchDeepth = 50; // searchDeepth 必须至少比 unitNum 大
+const searchDeepth = 10; // searchDeepth 必须至少比 unitNum 大
 
 class CoopHighway extends Component {
   constructor(props) {
@@ -233,7 +233,7 @@ class CoopHighway extends Component {
     }
     console.log(_goalTable);
     this.goalTable = _goalTable;
-    // this.drawGoalTableUI(this.scales, _goalTable);
+    this.drawGoalTableUI(this.scales, _goalTable);
   }
 
   generateRandomPoint() {
@@ -465,11 +465,10 @@ class CoopHighway extends Component {
         this.initializePathTable();
       }
       const stepStart = Date.now();
-      const res = await this.replanNextTimeStep();
+      const res = await this.replanNextTimeStep(); // this.replanNextTimeStep(); // 这个是关键的一步。循环的就是这一步。
       if (res) {
-        // this.testCoop();
+        this.testCoop(); // 如果上面的函数返回的是 true 就表示要继续寻路。
       }
-      this.replanNextTimeStep(); // 这个是关键的一步。循环的就是这一步。
       const endStep = Date.now();
       console.log('每一步用时', endStep - stepStart);
       // console.log('next step');
@@ -559,10 +558,9 @@ class CoopHighway extends Component {
       // 画点，画路径.
       //console.log(this.pathTable);
       //debugger;
-      // this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
 
-      // this.drawPath(this.scales, this.pathTable);
-
+      this.drawPath(this.scales, this.pathTable);
 
       this.nowTimeStep += 1;
       // timestep 增加为 1 的时候，unit 已经到上面 path 的起点了。此时 path 已经算好。
@@ -590,7 +588,7 @@ class CoopHighway extends Component {
       this.nowTimeStep = 0;
 
       // 画点，画路径，timestep 为 0 的点，以及路径。
-      // this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
 
       // console.log(this.checkAllGoalReached());
       // 判断一下，如果是所有agent已经到达终点，那么
@@ -768,9 +766,9 @@ class CoopHighway extends Component {
           {/*</Collapse>*/}
           <Button type="primary" onClick={() => this.randomGoalTable()}>生成若干个起点终点对，并在图上画出</Button>
           <Button type="primary" onClick={() => this.testCoop()}>开始实时寻路，并画出路径和移动的点</Button>
-          <Button type="primary" onClick={() => this.generateDataSet()}>generate_5_unitsNumData</Button>
-          <Button type="primary" onClick={() => this.generateAllData()}>generateAllData</Button>
-          <Button type="primary" onClick={() => this.download()}>Download</Button>
+          <Button disabled type="primary" onClick={() => this.generateDataSet()}>generate_5_unitsNumData(直接生成 5 个unit的实验结果数据，生成完之后能直接点击Download下载。没有动画效果)</Button>
+          <Button disabled type="primary" onClick={() => this.generateAllData()}>generateAllData(直接生成 5 - 40 个unit的实验结果数据，生成完之后能直接点击Download下载。没有动画效果)</Button>
+          <Button disabled type="primary" onClick={() => this.download()}>Download</Button>
           <br/>
         </div>
 
