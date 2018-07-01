@@ -67,10 +67,10 @@ class App extends Component {
                     {/*<Icon type="inbox"/>*/}
                     {/*<span><Link to='/MAPF/Coop30'>Coop 30</Link></span>*/}
                   {/*</Menu.Item>*/}
-                  <Menu.Item key="5">
+                  {/*<Menu.Item key="5">
                     <Icon type="inbox"/>
                     <span><Link to='/MAPF/LoadMap'>LoadMap</Link></span>
-                  </Menu.Item>
+                  </Menu.Item>*/}
                   <Menu.Item key="5-1">
                     <Icon type="inbox"/>
                     <span><Link to='/MAPF/Coop4Highway'>Coop4Highway</Link></span>
