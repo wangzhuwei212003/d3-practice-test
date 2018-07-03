@@ -1,13 +1,11 @@
 /**
  * Created by zhuweiwang on 19/03/2018.
  */
-/**
- * Created by zhuweiwang on 12/03/2018.
- */
 import React, {Component} from 'react';
 import * as d3 from 'd3';
 import {Button, Collapse} from 'antd';
 import './index.css';
+import map from './img/highwayMap.png';
 
 import CoopAstarFinder from '../finders/CoopAstarFinder';
 
@@ -28,7 +26,7 @@ const rowNum = 22;
 const colNum = 54;
 const gridPixelwidth = 1080;
 const gridPixelheight = 440;
-const unitsNum = 5;
+const unitsNum = 15;
 const searchDeepth = 10; // searchDeepth 必须至少比 unitNum 大
 
 class CoopHighway extends Component {
@@ -770,6 +768,8 @@ class CoopHighway extends Component {
           <Button disabled type="primary" onClick={() => this.generateAllData()}>generateAllData(直接生成 5 - 40 个unit的实验结果数据，生成完之后能直接点击Download下载。没有动画效果)</Button>
           <Button disabled type="primary" onClick={() => this.download()}>Download</Button>
           <br/>
+
+          <img src={map} style={{height: 450}} className="map" alt="map"/>
         </div>
 
     );
