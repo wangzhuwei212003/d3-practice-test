@@ -26,7 +26,7 @@ const rowNum = 22;
 const colNum = 54;
 const gridPixelwidth = 1080;
 const gridPixelheight = 440;
-const unitsNum = 15;
+const unitsNum = 5;
 const searchDeepth = 10; // searchDeepth 必须至少比 unitNum 大
 
 class CoopHighway extends Component {
