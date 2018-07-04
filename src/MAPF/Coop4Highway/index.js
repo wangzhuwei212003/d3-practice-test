@@ -26,8 +26,8 @@ const rowNum = 22;
 const colNum = 54;
 const gridPixelwidth = 1080;
 const gridPixelheight = 440;
-const unitsNum = 5;
-const searchDeepth = 10; // searchDeepth 必须至少比 unitNum 大
+const unitsNum = 15; // 在这个算法中，searchDeepth 必须至少比 unitNum 大
+const searchDeepth = 20; // searchDeepth 必须至少比 unitNum 大
 
 class CoopHighway extends Component {
   constructor(props) {
@@ -143,7 +143,7 @@ class CoopHighway extends Component {
       xpos = 0;
       ypos += height;
     }
-    //console.log(aa);
+    console.log(aa);
     this.gridUI = aa; // 这个是整个地图的 matrix 0-1 矩阵。
 
     return data;
@@ -207,6 +207,30 @@ class CoopHighway extends Component {
 
          }
          })*/;
+
+    const columnText = row.selectAll('.text')
+        .data(function (d) {
+          //console.log(d); // this data will be a 1 dimension array of each row .
+          return d;
+        })
+        .enter()
+        .append('text')
+        .attr('x', function (d) {
+          //console.log(d); //this data is the only object for each cell. 每一次 enter()之后,数组会降维一次。
+          return scales.x(d.x);
+        })
+        .attr('y', function (d) {
+          return scales.y(d.y + 0.6);
+        })
+        .text(function (d, i) {
+          if (d.x === 0) {
+            return d.y;
+          }
+          else if (d.y === 0) {
+            return d.x;
+          }
+          // return d.x + ',' + d.y;
+        });
   }
 
   randomGoalTable(pairNum = unitsNum) {
@@ -545,6 +569,8 @@ class CoopHighway extends Component {
       // const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
       // console.log('optIndex', JSON.stringify(optIndex), 'this.goalTable', JSON.stringify(this.goalTable));
       // debugger;
+
+
       const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.gridUI, rowNum, colNum);
 
       path.unshift(this.pathTable[optIndex][0]);
@@ -764,8 +790,10 @@ class CoopHighway extends Component {
           {/*</Collapse>*/}
           <Button type="primary" onClick={() => this.randomGoalTable()}>生成若干个起点终点对，并在图上画出</Button>
           <Button type="primary" onClick={() => this.testCoop()}>开始实时寻路，并画出路径和移动的点</Button>
-          <Button disabled type="primary" onClick={() => this.generateDataSet()}>generate_5_unitsNumData(直接生成 5 个unit的实验结果数据，生成完之后能直接点击Download下载。没有动画效果)</Button>
-          <Button disabled type="primary" onClick={() => this.generateAllData()}>generateAllData(直接生成 5 - 40 个unit的实验结果数据，生成完之后能直接点击Download下载。没有动画效果)</Button>
+          <Button disabled type="primary" onClick={() => this.generateDataSet()}>generate_5_unitsNumData(直接生成 5
+            个unit的实验结果数据，生成完之后能直接点击Download下载。没有动画效果)</Button>
+          <Button disabled type="primary" onClick={() => this.generateAllData()}>generateAllData(直接生成 5 - 40
+            个unit的实验结果数据，生成完之后能直接点击Download下载。没有动画效果)</Button>
           <Button disabled type="primary" onClick={() => this.download()}>Download</Button>
           <br/>
 
