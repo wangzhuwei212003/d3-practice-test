@@ -26,8 +26,8 @@ const rowNum = 22;
 const colNum = 54;
 const gridPixelwidth = 1080;
 const gridPixelheight = 440;
-const unitsNum = 15; // 在这个算法中，searchDeepth 必须至少比 unitNum 大
-const searchDeepth = 20; // searchDeepth 必须至少比 unitNum 大
+const unitsNum = 40; // 在这个算法中，searchDeepth 必须至少比 unitNum 大
+const searchDeepth = 45; // searchDeepth 必须至少比 unitNum 大
 
 class CoopHighway extends Component {
   constructor(props) {
@@ -571,7 +571,11 @@ class CoopHighway extends Component {
       // debugger;
 
 
-      const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.gridUI, rowNum, colNum);
+      let path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.gridUI, rowNum, colNum);
+
+      if(path.length === 0){
+        path = Array(searchDeepth).fill(startNode);
+      }
 
       path.unshift(this.pathTable[optIndex][0]);
       this.pathTable[optIndex] = path;

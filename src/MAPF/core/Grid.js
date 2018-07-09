@@ -49,7 +49,7 @@ function Grid(width_or_matrix, height, matrix) {
  *     the walkable status of the nodes.
  * @see Grid
  */
-Grid.prototype._buildNodes = function(width, height, matrix) {
+Grid.prototype._buildNodes = function (width, height, matrix) {
   let i, j,
       nodes = new Array(height);
 
@@ -75,21 +75,64 @@ Grid.prototype._buildNodes = function(width, height, matrix) {
     throw new Error('Matrix size does not fit');
   }
 
-  for (i = 0; i < height; i+=1) {
-    for (j = 0; j < width; j+=1) {
+  for (i = 0; i < height; i += 1) {
+    for (j = 0; j < width; j += 1) {
       if (matrix[i][j]) {
         // 0, false, null will be walkable
         // while others will be un-walkable， 1 或者 true 代表有障碍
         nodes[i][j].walkable = false;
       }
-      nodes[i][j].unitWalkable = true;
+
+      // 如果是 highway 的地图，就加上方向属性。和其他地图兼容，首先要判断是 highway 的地图。22 * 54 格子
+      if (height === 22 && width === 54) {
+        // 如果是 highway 的地图。
+        // console.log('build node 的时候添加 allowDirection');
+        // 这里 i，j 就是对应的行列数。
+        if (j <= 3 || j >= 50) {
+          // 是能够四个方向走的
+          nodes[i][j].allowDirections = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
+        }
+        if (
+            i > 0 &&
+            (j === 4 || j === 22 || j === 40)) {
+          nodes[i][j].allowDirections.push('UP');
+        }
+        if (
+            i < 21 &&
+            (j === 13 || j === 31 || j === 49)) {
+          nodes[i][j].allowDirections.push('DOWN');
+        }
+        if (
+            (i === 0 || i === 6 || i === 12 || i === 18 ) &&
+            (j >= 4 && j < 49)
+        ) {
+          nodes[i][j].allowDirections.push('RIGHT');
+        }
+        if (
+            ( i === 3 || i === 9 || i === 15 || i === 21) &&
+            (j > 4 && j <= 49)
+        ) {
+          nodes[i][j].allowDirections.push('LEFT');
+        }
+
+        // 剩下的关键点，可能有两个方向的点 Highway map 里的，两边的点里还是应该能够向两边空白地方走的。
+        if (j === 49) {
+          nodes[i][j].allowDirections.push('RIGHT');
+        }
+        if (j === 4) {
+          nodes[i][j].allowDirections.push('LEFT');
+        }
+
+
+      }
+
     }
   }
 
   return nodes;
 };
 
-Grid.prototype.getNodeAt = function(row, col) {
+Grid.prototype.getNodeAt = function (row, col) {
   return this.nodes[row][col];
 };
 
@@ -101,15 +144,9 @@ Grid.prototype.getNodeAt = function(row, col) {
  * @param {number} y - The y coordinate of the node.
  * @return {boolean} - The walkability of the node.
  */
-Grid.prototype.isWalkableAt = function(row, col) {
+Grid.prototype.isWalkableAt = function (row, col) {
   return this.isInside(row, col) && this.nodes[row][col].walkable;
 };
-
-Grid.prototype.isUnitWalkableAt = function(row, col) {
-  //console.log(this.nodes[row][col].unitWalkable);
-  return this.isInside(row, col) && this.nodes[row][col].unitWalkable;
-};
-
 
 /**
  * Determine whether the position is inside the grid.
@@ -120,7 +157,7 @@ Grid.prototype.isUnitWalkableAt = function(row, col) {
  * @param {number} y
  * @return {boolean}
  */
-Grid.prototype.isInside = function(row, col) {
+Grid.prototype.isInside = function (row, col) {
   return (col >= 0 && col < this.width) && (row >= 0 && row < this.height);
 };
 
@@ -131,7 +168,7 @@ Grid.prototype.isInside = function(row, col) {
  * @param {number} y - The y coordinate of the node.
  * @param {boolean} walkable - Whether the position is walkable.
  */
-Grid.prototype.setWalkableAt = function(row, col, walkable) {
+Grid.prototype.setWalkableAt = function (row, col, walkable) {
   this.nodes[row][col].walkable = walkable;
 };
 
@@ -148,7 +185,7 @@ Grid.prototype.setWalkableAt = function(row, col, walkable) {
  *  |   | 2 |   |    | 3 |   | 2 |
  *  +---+---+---+    +---+---+---+ 这里删掉了 diagnose 不考虑对角线的走法
  */
-Grid.prototype.getNeighbors = function(node) {
+Grid.prototype.getNeighbors = function (node) {
   const row = node.row,
       col = node.col,
       neighbors = [],
@@ -156,213 +193,63 @@ Grid.prototype.getNeighbors = function(node) {
 
   //仅考虑 上下左右 四个方向
   // ↑
-  if (this.isWalkableAt(row-1, col)) {
+  if (this.isWalkableAt(row - 1, col)) {
     neighbors.push(nodes[row - 1][col]);
   }
   // →
-  if (this.isWalkableAt(row, col +1)) {
+  if (this.isWalkableAt(row, col + 1)) {
     neighbors.push(nodes[row][col + 1]);
   }
   // ↓
-  if (this.isWalkableAt(row +1, col)) {
-    neighbors.push(nodes[row +1][col]);
+  if (this.isWalkableAt(row + 1, col)) {
+    neighbors.push(nodes[row + 1][col]);
   }
   // ←
-  if (this.isWalkableAt(row, col-1)) {
+  if (this.isWalkableAt(row, col - 1)) {
     neighbors.push(nodes[row][col - 1]);
   }
 
   return neighbors;
 };
 
-Grid.prototype.HCgetNeighbors = function (node, prohibit = false) {
+Grid.prototype.getNeighborsHighway = function (node) {
+  // 针对现在的 highway map 以及确定好的 highway，来找到相应的 neighbors
+  // 结合图片上的行列数，可以根据行列数精确到点的控制。
   const row = node.row,
       col = node.col,
       neighbors = [],
-      nodes = this.nodes;
-
-  //添加特殊情况：如果目标不是中间货位，不允许从中间货位穿
-  if(prohibit){
-    // 如果不允许，那么走到最上面一行就只有水平方向。
-    // →
-    if (this.isWalkableAt(row, col +1)) {
-      neighbors.push(nodes[row][col + 1]);
-    }
-    // ←
-    if (this.isWalkableAt(row, col-1)) {
-      neighbors.push(nodes[row][col - 1]);
-    }
-  }else {
-    //仅考虑 上下左右 四个方向
-    // ↑
-    if (this.isWalkableAt(row-1, col)) {
-      neighbors.push(nodes[row - 1][col]);
-    }
-    // →
-    if (this.isWalkableAt(row, col +1)) {
-      neighbors.push(nodes[row][col + 1]);
-    }
-    // ↓
-    if (this.isWalkableAt(row +1, col)) {
-      neighbors.push(nodes[row +1][col]);
-    }
-    // ←
-    if (this.isWalkableAt(row, col-1)) {
-      neighbors.push(nodes[row][col - 1]);
-    }
-  }
-  return neighbors;
-};
-
-Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
-  const row = node.row,
-      col = node.col,
-      neighbors = [],
-      nodes = this.nodes;
+      nodes = this.nodes,
+      directions = node.allowDirections; // ['UP', 'DOWN', 'LEFT', 'RIGHT']
 
   let twoWalkable = true;
   let falseExit = false;
+  let allowDirection;
 
-  // 大多数位置只允许一个运动方向
-  if(allowDirection === 'UP'){
-    // ↑
-    if (this.isWalkableAt(row-1, col)) {
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -4, col-1+occupyCol);
-        if(twoWalkable === false){
-          return []; // 只要有一个阻挡，就不能移动，返回 【】
-        }
-      }
-      // 如果执行完了，没有 return，就没有阻挡，return 一个可走的地方
-      neighbors.push(nodes[row - 1][col]);
-    }
-  }else if(allowDirection === 'DOWN'){
-    // ↓
-    if (this.isWalkableAt(row +1, col)) {
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row +1, col-1+occupyCol);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          //console.log('向下有阻挡');
-          return []; // 只要有一个阻挡，就不能移动，返回 【】
-        }
-      }
-      neighbors.push(nodes[row +1][col]);
-      //console.log(neighbors);
-    }
-  }else if(allowDirection === 'LEFT'){
-    // ←
-    if (this.isWalkableAt(row, col-1)) {
-
-      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col - 1 -1);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          //console.log('向zuo有阻挡');
-          //debugger;
-          return neighbors; //
-        }
-      }
-      neighbors.push(nodes[row][col - 1]);
-    }
-  }else if(allowDirection === 'RIGHT'){
-    // →
-    if (this.isWalkableAt(row, col +1)) {
-      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          //console.log('向下有阻挡');
-          return neighbors; //
-        }
-      }
-      neighbors.push(nodes[row][col + 1]);
-    }
-  }else if(allowDirection === 'UPDOWN'){
-    // ↑
-    if (this.isWalkableAt(row-1, col)) {
-
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -4, col-1+occupyCol);
-        if(twoWalkable === false){
-          falseExit = true;
-          break
-        }
-      }
-
-      if(falseExit){
-        // 如果是因为错误跳出循环 do nothing
-      }else{
+  // 首先分开，哪些点是对应的哪些方向，这个是知道的，这个是和现在实际项目里的做法一样的，通过点的位置，决定方向。
+  // allowDirection 方向枚举：UP，DOWN，LEFT，RIGHT，
+  // 在 buildNode 时就在 node 加上 this.allowDirection = ['UP','RIGHT'] // 方向之类的
+  for (let i = 0; i < directions.length; i += 1) {
+    // 大多数位置只允许一个运动方向
+    if (directions[i] === 'UP') {
+      // ↑
+      if (this.isWalkableAt(row - 1, col)) {
         neighbors.push(nodes[row - 1][col]);
       }
-    }
-    // ↓
-    if (this.isWalkableAt(row +1, col)) {
-
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row +1, col-1+occupyCol);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          //console.log('向下有阻挡');
-          return neighbors; //
-        }
+    } else if (directions[i] === 'DOWN') {
+      // ↓
+      if (this.isWalkableAt(row + 1, col)) {
+        neighbors.push(nodes[row + 1][col]);
       }
-      neighbors.push(nodes[row +1][col]);
-    }
-  }else if(allowDirection === 'UPRIGHT'){
-    // →
-    if (this.isWalkableAt(row, col +1)) {
-      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
-        console.log(twoWalkable);
-        if(twoWalkable === false){
-          falseExit = true;
-          //debugger;
-          break
-        }
+    } else if (directions[i] === 'LEFT') {
+      // ←
+      if (this.isWalkableAt(row, col - 1)) {
+        neighbors.push(nodes[row][col - 1]);
       }
-      if(falseExit){
-        // 如果是因为错误跳出循环 do nothing
-      }else{
+    } else if (directions[i] === 'RIGHT') {
+      // →
+      if (this.isWalkableAt(row, col + 1)) {
         neighbors.push(nodes[row][col + 1]);
       }
-    }
-    // ↑
-    if (this.isWalkableAt(row-1, col)) {
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row -4, col-1+occupyCol);
-        if(twoWalkable === false){
-          return neighbors; // 只要有一个阻挡，就不能移动，返回 【】
-        }
-      }
-      neighbors.push(nodes[row - 1][col]);
-    }
-  }else if(allowDirection === 'DOWNRIGHT'){
-    // →
-    if (this.isWalkableAt(row, col +1)) {
-      for(let occupyRow = 0; occupyRow < 4; occupyRow += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row - occupyRow, col +1 +1);
-        //console.log(twoWalkable);
-        if(twoWalkable === false){
-          falseExit = true;
-          break
-        }
-      }
-      if(falseExit){
-        // 如果是因为错误跳出循环 do nothing
-      }else{
-        neighbors.push(nodes[row][col + 1]);
-      }
-    }
-    // ↓
-    if (this.isWalkableAt(row +1, col)) {
-      for(let occupyCol = 0; occupyCol < 3; occupyCol += 1){
-        twoWalkable = twoWalkable && this.isUnitWalkableAt(row +1, col-1+occupyCol);
-        if(twoWalkable === false){
-          return neighbors; // 只要有一个阻挡，就不能移动，返回 【】
-        }
-      }
-      neighbors.push(nodes[row +1][col]);
     }
   }
 
@@ -374,7 +261,7 @@ Grid.prototype.HCgetNeighborsOneDirection = function (node, allowDirection) {
  * Get a clone of this grid.
  * @return {Grid} Cloned grid.
  */
-Grid.prototype.clone = function() {
+Grid.prototype.clone = function () {
   let i, j,
 
       width = this.width,

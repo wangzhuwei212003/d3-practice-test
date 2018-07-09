@@ -21,6 +21,8 @@ function Node(row, col, walkable) {
    * @type boolean
    */
   this.walkable = (walkable === undefined ? true : walkable);
+
+  this.allowDirections = []; // 这个是highway里的用到的。
 }
 
 module.exports = Node;

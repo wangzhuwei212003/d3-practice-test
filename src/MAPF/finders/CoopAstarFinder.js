@@ -74,6 +74,8 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
   } // end for loop。
   // reservation table ready ！！！
 
+  // console.log(reservationTable);
+
   // 1. Heap 还是 heap，push、pop 都是要用到的。
   // 2. 有5种 action，上下左右以及停止. 所有的 action 每一步的cost都是 1，和一个timestep相对应。
   // 3. 一个动作合法，意味着符合一些规则，没有障碍，没有别的小车再占用，还有没有其他小车的互换位置。这些规则还要增加。
@@ -143,7 +145,8 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
     nodeNextStep = gridNextStep.getNodeAt(node.row, node.col); // 得到下一个grid里的相同位置的node
     // 当前的点不一定能够 wait，因为可能别的小车要过来。这样的情况就要其他的小车让路了。
 
-    neighbors = gridNextStep.getNeighbors(nodeNextStep); // 得到下一个 grid 里的node。
+    // neighbors = gridNextStep.getNeighbors(nodeNextStep); // 得到下一个 grid 里的node。
+    neighbors = gridNextStep.getNeighborsHighway(nodeNextStep); // 得到下一个 grid 里的node。
 
     let testArray = [];
     for(i = 0, l = neighbors.length; i < l; ++i){
