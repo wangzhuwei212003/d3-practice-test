@@ -9,6 +9,8 @@
 import React, {Component} from 'react';
 import {Table, InputNumber, Button} from 'antd';
 
+const moshu = 4;
+
 //首尾距离
 const headTail = 37;
 
@@ -341,12 +343,12 @@ class Test extends Component {
     const temp = [];
 
     for (let horizontalDiv = 37; horizontalDiv <= 40; horizontalDiv += 1) {
-      const horizontalDist = horizontalDiv * 5 * Math.PI;
+      const horizontalDist = horizontalDiv * moshu * Math.PI;
       for (let degree = 65; degree <= 80; degree += 0.01) {
         // degree [30, 70]
         const radian = degree * Math.PI / 180; // 将角度转为弧度，以下 Math 三角函数参数是弧度。
-        for (let radius_1 = 100; radius_1 <= 300; radius_1 += 2.5) {
-          for (let radius_2 = 100; radius_2 <= 300; radius_2 += 2.5) {
+        for (let radius_1 = 100; radius_1 <= 300; radius_1 += moshu/2) {
+          for (let radius_2 = 100; radius_2 <= 300; radius_2 += moshu/2) {
             // 直径被5整除，就是半径被2.5整除。
             let sample = self.calcBy3(radius_1, radius_2, radian, horizontalDist);
             if (
@@ -381,16 +383,16 @@ class Test extends Component {
     // 4. 整个的竖直高度；
 
     let arc_1 = r1 * radian;
-    let remainder_1 = arc_1 % (5 * Math.PI); // 第一段弧长除以 5 pi 的余数
+    let remainder_1 = arc_1 % (moshu * Math.PI); // 第一段弧长除以 moshu pi 的余数
 
     let arc_2 = r2 * radian;
-    let remainder_2 = arc_2 % (5 * Math.PI); // 第二段弧长除以 5 pi 的余数
+    let remainder_2 = arc_2 % (moshu * Math.PI); // 第二段弧长除以 moshu pi 的余数
 
     let slash = (horizontalDist - r1 + r1 * Math.cos(radian) - r2 + r2 * Math.cos(radian)) / Math.sin(radian); // 中间倾斜的长条
-    let slash_remainder = slash % (5 * Math.PI); // 斜条余数
+    let slash_remainder = slash % (moshu * Math.PI); // 斜条余数
 
     let verticalDist = r1 * Math.sin(radian) + r2 * Math.sin(radian) + slash * Math.cos(radian);
-    let verticalDist_remainder = verticalDist % (5 * Math.PI); // 整个的竖直高度余数
+    let verticalDist_remainder = verticalDist % (moshu * Math.PI); // 整个的竖直高度余数
 
     let tableKey = radian + '-' + r1 + '-' + r2;
     let degree = radian * 180 / Math.PI;
@@ -430,6 +432,9 @@ class Test extends Component {
           {/*<svg ref={node => this.node = node}*/}
           {/*width={500} height={500}*/}
           {/*></svg>*/}
+          <p>Instruction</p>
+          <p>数字输入框中标识允许误差，startCalc：调用 calc 和 calcBy3 方法</p>
+          <p>根据模数以及开贵的要求凑齿数</p>
           <p>允许误差</p>
           {/*<InputNumber min={0} max={10} defaultValue={0} step={0.1} onChange={this.inputNumChange} />*/}
           <InputNumber min={0} max={10} defaultValue={0} step={0.1} onChange={this.S_inputNumChange}/>
