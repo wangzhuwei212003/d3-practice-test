@@ -145,8 +145,8 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
     nodeNextStep = gridNextStep.getNodeAt(node.row, node.col); // 得到下一个grid里的相同位置的node
     // 当前的点不一定能够 wait，因为可能别的小车要过来。这样的情况就要其他的小车让路了。
 
-    // neighbors = gridNextStep.getNeighbors(nodeNextStep); // 得到下一个 grid 里的node。
-    neighbors = gridNextStep.getNeighborsHighway(nodeNextStep); // 得到下一个 grid 里的node。
+    neighbors = gridNextStep.getNeighbors(nodeNextStep); // 得到下一个 grid 里的node。
+    // neighbors = gridNextStep.getNeighborsHighway(nodeNextStep); // 得到下一个 grid 里的node。
 
     let testArray = [];
     for(i = 0, l = neighbors.length; i < l; ++i){
@@ -169,16 +169,16 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
       testArray.push(test);
     } // end for
 
-    // 然后 探索下一个 grid 里的这些选出来的点。
-    // 这里所有的点都是根据上面 pop 出来的点得出的一系列的相关的点。
-    if(nodeNextStep.walkable && testArray.length === 0){
-      testArray.push(nodeNextStep); // 如果待在原地是合法的话。来一剂猛药，且没有其他可走的点了
-      //neighbors.unshift(nodeNextStep); // 如果待在原地是合法的话。unshift 会不会有改变
-      nodeNextStep.t = node.t + 1;
-    }else if(nodeNextStep.walkable && endRow === node.row && endCol === node.col ){
-      testArray.push(nodeNextStep); // 如果待在原地是合法的 且已到达终点
-      nodeNextStep.t = node.t + 1;
-    }
+    // // 然后 探索下一个 grid 里的这些选出来的点。
+    // // 这里所有的点都是根据上面 pop 出来的点得出的一系列的相关的点。
+    // if(nodeNextStep.walkable && testArray.length === 0){
+    //   testArray.push(nodeNextStep); // 如果待在原地是合法的话。来一剂猛药，且没有其他可走的点了
+    //   //neighbors.unshift(nodeNextStep); // 如果待在原地是合法的话。unshift 会不会有改变
+    //   nodeNextStep.t = node.t + 1;
+    // }else if(nodeNextStep.walkable && endRow === node.row && endCol === node.col ){
+    //   testArray.push(nodeNextStep); // 如果待在原地是合法的 且已到达终点
+    //   nodeNextStep.t = node.t + 1;
+    // }
 
     for(i = 0, l = testArray.length; i < l; ++i){
       // 探索所有的合法的点。此时 neighbors 里的点都是下一步没有占用的点

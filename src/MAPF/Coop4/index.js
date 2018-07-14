@@ -23,20 +23,21 @@ const customPanelStyle = {
 const colorSet = ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D'];
 const colorSetPath = ['#E16171', '#F78B6C', '#67637E', '#59B4AA', '#D4E294'];
 const timeGap = 200;
-const radio = 0.2; // 一定的几率出现障碍，生成地图的时候
+const radio = 0; // 一定的几率出现障碍，生成地图的时候
 
 const rowNum = 30;
 const colNum = 30;
 const gridPixelwidth = 760;
 const gridPixelheight = 760;
 const unitsNum = 5;
-const searchDeepth = 50; // searchDeepth 必须至少比 unitNum 大
+const searchDeepth = 2; // searchDeepth 必须至少比 unitNum 大
 
 class Coop extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      result: []
+      result: [],
+      testData: [],
     };
 
     this.initialized = false;
@@ -240,12 +241,12 @@ class Coop extends Component {
     }
     console.log(_goalTable);
     this.goalTable = _goalTable;
-    // this.drawGoalTableUI(this.scales, _goalTable);
+    this.drawGoalTableUI(this.scales, _goalTable);
   }
 
   generateRandomPoint() {
-    let randomRow = Math.floor(Math.random() * Math.floor(rowNum));
-    let randomCol = Math.floor(Math.random() * Math.floor(colNum)); // Math.random 范围是 【0， 1）。所以这个范围是【0，29】是可以的，就是index
+    let randomRow = Math.floor(Math.random() * Math.floor(rowNum/2));
+    let randomCol = Math.floor(Math.random() * Math.floor(colNum/2)); // Math.random 范围是 【0， 1）。所以这个范围是【0，29】是可以的，就是index
     console.log([randomRow, randomCol]);
     return [randomRow, randomCol];
   }
@@ -476,7 +477,7 @@ class Coop extends Component {
       if (res) {
         // this.testCoop();
       }
-      this.replanNextTimeStep(); // 这个是关键的一步。循环的就是这一步。
+      // this.replanNextTimeStep(); // 这个是关键的一步。循环的就是这一步。
       const endStep = Date.now();
       console.log('每一步用时', endStep - stepStart);
       // console.log('next step');
@@ -498,7 +499,8 @@ class Coop extends Component {
       const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.gridUI, rowNum, colNum);
       // const path = finder.findPath(i, this.goalTable, this.searchDeepth, this.pathTable, this.matrixZero);
 
-      this.pathTable[i] = path.slice(0, path.length - i); // 当 i = 0 的时候，就是整个 path
+      // this.pathTable[i] = path.slice(0, path.length - i); // 当 i = 0 的时候，就是整个 path
+      this.pathTable[i] = path.slice(0, path.length); // 当 i = 0 的时候，就是整个 path
     } // end for loop 所以 searchDeepth 必须要比 unit 的个数多。
     this.initialized = true;
   }
@@ -513,7 +515,8 @@ class Coop extends Component {
     if (this.nowTimeStep === 0) {
       // it is time to replanning for unit with the shortest path
       let searchDeepth = this.searchDeepth;
-      let optIndex = 0;
+
+      /*let optIndex = 0;
 
       let optPath = this.pathTable.reduce(function (p, c, cIndex) {
         //optIndex += 1; 这样写不行，会一直都是 index = 3
@@ -525,7 +528,7 @@ class Coop extends Component {
         }
 
         return p.length > c.length ? c : p;
-      }, {length: searchDeepth});
+      }, {length: searchDeepth});*/
       // 已经找到了需要 replanning 的 path；
 
       // console.log(this.pathTable);
@@ -546,19 +549,25 @@ class Coop extends Component {
       // console.log(JSON.parse(JSON.stringify(_pathTable)));
       // debugger;
 
-      // 更新 goalTable，更新 startnode
-      let startNode = this.pathTable[optIndex][1]; // 把后面一个点当做 start node 来计算。即是 timestep为 1 的点。
+      for(let optIndex = 0; optIndex < this.pathTable.length; optIndex += 1){
+        // 更新 goalTable，更新 startnode
+        let startNode = this.pathTable[optIndex][1]; // 把后面一个点当做 start node 来计算。即是 timestep为 1 的点。
 
-      this.goalTable[optIndex][0] = startNode; // 更新 goalTable 中的起点。
+        this.goalTable[optIndex][0] = startNode; // 更新 goalTable 中的起点。
 
-      const finder = new CoopAstarFinder();
-      // const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
-      // console.log('optIndex', JSON.stringify(optIndex), 'this.goalTable', JSON.stringify(this.goalTable));
-      // debugger;
-      const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.gridUI, rowNum, colNum);
+        const finder = new CoopAstarFinder();
+        // const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.matrixZero);
+        // console.log('optIndex', JSON.stringify(optIndex), 'this.goalTable', JSON.stringify(this.goalTable));
+        // debugger;
+        const path = finder.findPath(optIndex, this.goalTable, searchDeepth, _pathTable, this.gridUI, rowNum, colNum);
+        // console.log(this.goalTable);
+        // console.log(path);
 
-      path.unshift(this.pathTable[optIndex][0]);
-      this.pathTable[optIndex] = path;
+        path.unshift(this.pathTable[optIndex][0]);
+        this.pathTable[optIndex] = path;
+      }
+
+
 
       // UI 这一步还是画path table路径，以及显示 timestep 为0 的点。
       // 这个时候是没有改变 timestep 为 0 的位置的
@@ -566,9 +575,8 @@ class Coop extends Component {
       // 画点，画路径.
       //console.log(this.pathTable);
       //debugger;
-      // this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
-
-      // this.drawPath(this.scales, this.pathTable);
+      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+      this.drawPath(this.scales, this.pathTable);
 
 
       this.nowTimeStep += 1;
@@ -597,7 +605,8 @@ class Coop extends Component {
       this.nowTimeStep = 0;
 
       // 画点，画路径，timestep 为 0 的点，以及路径。
-      // this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+      this.drawNextStepMovingSpot(this.nowTimeStep, this.scales, this.pathTable, timeGap);
+      // console.log(this.pathTable);
 
       // console.log(this.checkAllGoalReached());
       // 判断一下，如果是所有agent已经到达终点，那么
@@ -760,12 +769,37 @@ class Coop extends Component {
     this.JSON2CSV(this.state.result, 'Coop4_result', true);
   }
 
+  generateTestData() {
+    // 生成面试数据
+    let testData = [];
+    for (let x = 1; x < 1000; x += 1) {
+      let noise = Math.random() * 10;
+      let y = 2 * x + 3 + noise;
+
+      testData.push({
+        x: x,
+        y: y,
+      });
+    }
+
+
+    this.JSON2CSV(testData, 'testData_result', true);
+
+  }
+
   render() {
     return (
         <div ref={ele => this.grid = ele} className="instruction">
-          <p>关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。 <br/>
-            换行, 如果是要手点手动下任务，就改一改drawGridNotInteractive方法。下面的 coop30的代码和这个一样，没有新的东西 <br/>
-            直接改代码 class 上面的几个参数。就能够得到实验数据。TODO：sum of cost 和 makespan 需要计算。
+          <p>关闭了点击网格面板设置起点、终点的功能。（没有找到比较好的写法）。直接就是随机下起点、终点。
+            <br/><br/>
+            暂时不考虑手动点下任务。drawGridNotInteractive。coop30的代码和这个一样，没有新的东西
+            <br/><br/>
+            不需要动画显示，generateDataSet 是得到一定数量的agents的observation。
+            generateAllData 是得到5-40小车数量的若干的情况。
+            <br/><br/>
+            generateTestData 是得到 interview 的测试的数据。
+            <br/><br/>
+            现在是要模拟 LRA* 的一个截图。1. 点击生成
           </p>
 
           {/*<Collapse>*/}
@@ -778,6 +812,7 @@ class Coop extends Component {
           <Button type="primary" onClick={() => this.generateDataSet()}>generate_5_unitsNumData</Button>
           <Button type="primary" onClick={() => this.generateAllData()}>generateAllData</Button>
           <Button type="primary" onClick={() => this.download()}>Download</Button>
+          <Button type="primary" onClick={() => this.generateTestData()}>generateTestData</Button>
           <br/>
         </div>
 
