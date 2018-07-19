@@ -385,7 +385,12 @@ class MakeGrid extends Component {
 
   render() {
     return (
-        <div ref={ele => this.grid = ele}></div>
+        <div ref={ele => this.grid = ele}>
+          <textarea readOnly rows="8" cols="50" defaultValue={"鼠标点击或者拖拽\n" +
+          "能够改变格子的颜色" }>
+            </textarea>
+          <br/>
+        </div>
     );
   }
 }

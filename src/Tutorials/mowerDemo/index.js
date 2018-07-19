@@ -45,16 +45,6 @@ class MowerDemo extends Component {
 
   componentDidMount() {
     console.log('didmount occurred');
-    //console.log(this.state);
-    //this.createBarChart();
-
-    // setTimeout(() => {
-    //   //console.log(this.state)
-    //   this.setState({
-    //     data: [30, 86, 168, 281, 303, 100]
-    //   });
-    //   console.log('change the state')
-    // }, 1000);
 
     this.svgSize = this.getSvgSize(gridSize, squareLength);
     this.map = this.buildMap(gridSize, ratios);
@@ -110,13 +100,13 @@ class MowerDemo extends Component {
 
   getNext(map, current, command){
     switch(command){
-      case "U":
+      case "W":
         return map.grid[current.x][current.y - 1];
-      case "D":
+      case "S":
         return map.grid[current.x][current.y + 1];
-      case "R":
+      case "D":
         return map.grid[current.x + 1][current.y];
-      case "L":
+      case "A":
         return map.grid[current.x - 1][current.y];
       default:
         throw 'unexpected command : ' + command;
@@ -217,7 +207,7 @@ class MowerDemo extends Component {
     //console.log('command value', e.target.value);
 
     let content = e.target.value;
-    content = content.toUpperCase().replace(/[^UDRL]/g, ""); // 不包含 UDRL 的字符串。
+    content = content.toUpperCase().replace(/[^WASD]/g, ""); // 不包含 UDRL 的字符串。
     console.log(content);
     console.log(typeof content);
     console.log(content.length);
@@ -264,10 +254,10 @@ class MowerDemo extends Component {
           <div className="control">
             <textarea readOnly rows="8" cols="50"
                       defaultValue={"Type commands in the input below in order to move the mower.\n" +
-                      "U : move up\n" +
-                      "D : move down\n" +
-                      "R : move right\n" +
-                      "L : move left"}>
+                      "W : move up\n" +
+                      "S : move down\n" +
+                      "D : move right\n" +
+                      "A : move left"}>
             </textarea>
             <br/>
             <textarea id="commands" rows="8" cols="50"
