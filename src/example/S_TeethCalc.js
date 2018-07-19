@@ -342,7 +342,7 @@ class Test extends Component {
 
     const temp = [];
 
-    for (let horizontalDiv = 37; horizontalDiv <= 40; horizontalDiv += 1) {
+    for (let horizontalDiv = 42; horizontalDiv <= 42; horizontalDiv += 1) {
       const horizontalDist = horizontalDiv * moshu * Math.PI;
       for (let degree = 65; degree <= 80; degree += 0.01) {
         // degree [30, 70]
