@@ -2,6 +2,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 And this is a collection of d3 examples used in react.
 
+使用方法：
+
+1. 先写一个误差，一般是 0.1 或者 0.2，单位是毫米
+2. 点击 calc 按钮，开始计算，最好是把开发者调试窗口 console 打开。
+3. 计算完成之后，点击 Download 按钮下载一个 csv 文件。
+
 使用说明：
 
 1. test 算总齿数
