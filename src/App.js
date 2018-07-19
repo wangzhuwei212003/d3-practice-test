@@ -48,8 +48,8 @@ class App extends Component {
             <Layout>
               <Sider>
                 <Menu
-                    defaultSelectedKeys={['1']}
-                    defaultOpenKeys={['sub1']}
+                    defaultSelectedKeys={['9']}
+                    defaultOpenKeys={['sub3-data-visualization']}
                     mode="inline"
                     theme="light"
                     inlineCollapsed={false}
@@ -82,11 +82,14 @@ class App extends Component {
                     <Menu.Item key="8-1"><Link to='/Tutorials/Tetris'>Tetris</Link></Menu.Item>
                   </SubMenu>
                   <SubMenu key="sub2" title={<span><Icon type="appstore"/><span>D3 Util</span></span>}>
-                    <Menu.Item key="9">Option 9</Menu.Item>
-                    <Menu.Item key="10">Option 10</Menu.Item>
-                    <SubMenu key="sub3" title="Mouseover">
-                      <Menu.Item key="11"></Menu.Item>
-                      <Menu.Item key="12">Option 12</Menu.Item>
+
+                    <SubMenu key="sub3-data-visualization" title="Data Visualization (CONTINUED...)">
+                      <Menu.Item key="9">Option 9</Menu.Item>
+                      <Menu.Item key="10">Option 10</Menu.Item>
+                    </SubMenu>
+                    <SubMenu key="sub3" title="Transitions (TOBE CONTINUED...)">
+                      <Menu.Item key="11">TOBE CONTINUED... 11</Menu.Item>
+                      <Menu.Item key="12">TOBE CONTINUED... 12</Menu.Item>
                     </SubMenu>
                   </SubMenu>
                 </Menu>
