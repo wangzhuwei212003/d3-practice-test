@@ -87,6 +87,13 @@ export const CalcPriorityV3 = function (cellRow, cellCol) {
   const divideCell = CONFIGV3.divideCell;
   const occupyColConfig = CONFIGV3.occupyColConfig;
 
+  // 强行把拣货台的位置优先级拉低。
+  if(
+      cellRow === pickStationRow &&
+      cellCol === 0
+  ){
+    return 0;
+  }
 
   if (
       cellRow >= 0 && cellRow < pickStationRow &&
