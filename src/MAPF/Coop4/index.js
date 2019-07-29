@@ -4,9 +4,9 @@
 /**
  * Created by zhuweiwang on 12/03/2018.
  */
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import * as d3 from 'd3';
-import {Button} from 'antd';
+import { Button } from 'antd';
 import './index.css';
 
 import CoopAstarFinder from '../finders/CoopAstarFinder';
@@ -28,7 +28,7 @@ class Coop extends Component {
     this.nowTimeStep = 0;
 
     this.unitsNum = 4;
-    this.searchDeepth = 10; // 至少是 unit 总数 +1？至少为 5
+    this.searchDeepth = 100; // 至少是 unit 总数 +1？至少为 5
     // this.searchDeepth = 5; // 至少是 unit 总数 +1？
     this.pathTable = Array(this.unitsNum).fill([]); // test 30 units
     // this.pathTable = [
@@ -59,9 +59,9 @@ class Coop extends Component {
     console.log('component did mount');
 
     this.gridMouseover = d3.select(this.grid)
-        .append('svg')
-        .attr('width', '760px')
-        .attr('height', '760px');
+      .append('svg')
+      .attr('width', '760px')
+      .attr('height', '760px');
 
     this.scales = {
       x: d3.scaleLinear().domain([0, 30]).range([0, 750]), // 前面是格子数，后面是实际的 pixel 数。
@@ -92,6 +92,21 @@ class Coop extends Component {
     console.log('component did update')
   }
 
+  // 为了生成梳子形状的障碍，地图上部分奇数列为空，偶数列为障碍，地图下部分为空一行，剩下全空
+  combGrid = (row, col, totalRow, totalCol) => {
+    if (row < totalRow / 2) {
+      if (col % 2 === 0) {
+        return false;
+      } else {
+        return true;
+      }
+    } else if (row === totalRow / 2) {
+      return false;
+    } else {
+      return true; // true 代表有障碍
+    }
+  }
+
   // 30 * 30 网格数据
   gridDataMax = (reactDom) => {
     //const data = new Array();
@@ -112,7 +127,8 @@ class Coop extends Component {
       for (let column = 0; column < 30; column += 1) {
         click = 0;
         //click = Math.round(Math.random()*100);
-        let obIntheWay = Math.random() < radio;
+        // let obIntheWay = Math.random() < radio;
+        let obIntheWay = this.combGrid(row, column, 30, 30);
         data[row].push({
           x: xpos,
           y: ypos,
@@ -157,86 +173,86 @@ class Coop extends Component {
     const gridRef = this.grid;
 
     const row = gridMouseover.selectAll('.row')
-        .data(this.gridDataMax.bind(this, this))
-        .enter()
-        .append('g')
-        .attr('class', 'row');
+      .data(this.gridDataMax.bind(this, this))
+      .enter()
+      .append('g')
+      .attr('class', 'row');
 
     const column = row.selectAll('.square')
-        .data(function (d) {
-          //console.log(d); // this data will be a 1 dimension array of each row .
-          return d;
-        })
-        .enter()
-        .append('rect')
-        .attr('class', 'square')
-        .attr('x', function (d) {
-          //console.log(d); //this data is the only object for each cell. 每一次 enter()之后,数组会降维一次。
-          return d.x;
-        })
-        .attr('y', function (d) {
-          return d.y;
-        })
-        .attr('width', function (d) {
-          return d.width;
-        })
-        .attr('height', function (d) {
-          return d.height;
-        })
-        .style('fill', function (d) {
-          if (d.ob) {
-            return '#221E39'
-          } else {
-            return '#fff'
-          }
-        })
-        .style('stroke', 'rgb(169,138,58)')
-        .on("mousedown", function (d) {
-          console.log('mouse down');
+      .data(function (d) {
+        //console.log(d); // this data will be a 1 dimension array of each row .
+        return d;
+      })
+      .enter()
+      .append('rect')
+      .attr('class', 'square')
+      .attr('x', function (d) {
+        //console.log(d); //this data is the only object for each cell. 每一次 enter()之后,数组会降维一次。
+        return d.x;
+      })
+      .attr('y', function (d) {
+        return d.y;
+      })
+      .attr('width', function (d) {
+        return d.width;
+      })
+      .attr('height', function (d) {
+        return d.height;
+      })
+      .style('fill', function (d) {
+        if (d.ob) {
+          return '#221E39'
+        } else {
+          return '#fff'
+        }
+      })
+      .style('stroke', 'rgb(169,138,58)')
+      .on("mousedown", function (d) {
+        console.log('mouse down');
 
-          // let settingGoalIndex = inputGoalTable.findIndex(function (goal) {
-          //   return goal.length < 2;
-          // });
-          //
-          // console.log(settingGoalIndex);
-          // console.log(inputGoalTable[settingGoalIndex]);
-          //
-          // d3.select(this).style('fill', colorSetPath[0]);
-          // inputGoalTable[settingGoalIndex].push([25, 25]); // push 第一个unit起 / 终点 非常神奇，这个 didnt work
-          // // inputGoalTable[settingGoalIndex].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-          //
-          // console.log(inputGoalTable);
+        // let settingGoalIndex = inputGoalTable.findIndex(function (goal) {
+        //   return goal.length < 2;
+        // });
+        //
+        // console.log(settingGoalIndex);
+        // console.log(inputGoalTable[settingGoalIndex]);
+        //
+        // d3.select(this).style('fill', colorSetPath[0]);
+        // inputGoalTable[settingGoalIndex].push([25, 25]); // push 第一个unit起 / 终点 非常神奇，这个 didnt work
+        // // inputGoalTable[settingGoalIndex].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+        //
+        // console.log(inputGoalTable);
 
-          // for (let i = 0; i < inputGoalTable.length; i+=1){
-          //   if(inputGoalTable[i].length < 2){
-          //     d3.select(this).style('fill', colorSetPath[0]);
-          //     inputGoalTable[i].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
-          //
-          //     return;
-          //     // break; // 跳不出来？
-          //   }
-          // }
-          // console.log(inputGoalTable);
+        // for (let i = 0; i < inputGoalTable.length; i+=1){
+        //   if(inputGoalTable[i].length < 2){
+        //     d3.select(this).style('fill', colorSetPath[0]);
+        //     inputGoalTable[i].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+        //
+        //     return;
+        //     // break; // 跳不出来？
+        //   }
+        // }
+        // console.log(inputGoalTable);
 
-          if (inputGoalTable[0].length < 2) {
-            d3.select(this).style('fill', colorSetPath[0]);
-            inputGoalTable[0].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+        if (inputGoalTable[0].length < 2) {
+          d3.select(this).style('fill', colorSetPath[0]);
+          inputGoalTable[0].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
 
-          } else if (inputGoalTable[1].length < 2) {
-            d3.select(this).style('fill', colorSetPath[1]);
-            inputGoalTable[1].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+        } else if (inputGoalTable[1].length < 2) {
+          d3.select(this).style('fill', colorSetPath[1]);
+          inputGoalTable[1].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
 
-          } else if (inputGoalTable[2].length < 2) {
-            d3.select(this).style('fill', colorSetPath[2]);
-            inputGoalTable[2].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+        } else if (inputGoalTable[2].length < 2) {
+          d3.select(this).style('fill', colorSetPath[2]);
+          inputGoalTable[2].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
 
-          } else if (inputGoalTable[3].length < 2) {
-            d3.select(this).style('fill', colorSetPath[3]);
-            inputGoalTable[3].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
+        } else if (inputGoalTable[3].length < 2) {
+          d3.select(this).style('fill', colorSetPath[3]);
+          inputGoalTable[3].push([(d.y - 1) / 25, (d.x - 1) / 25]); // push 第一个unit起 / 终点
 
-          }
+        }
 
-        });
+      });
     this.goalTable = inputGoalTable;
   }
 
@@ -250,13 +266,13 @@ class Coop extends Component {
     //path = [[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7]];
 
     const lineFunction = d3.line()
-        .x(function (d) {
-          return scales.x(d[1] + 0.5);
-        }) // 这个里面要有一点变化的是，x 对应的是 col，y 对应的是 row。
-        .y(function (d) {
-          return scales.y(d[0] + 0.5);
-        })
-        .curve(d3.curveLinear);
+      .x(function (d) {
+        return scales.x(d[1] + 0.5);
+      }) // 这个里面要有一点变化的是，x 对应的是 col，y 对应的是 row。
+      .y(function (d) {
+        return scales.y(d[0] + 0.5);
+      })
+      .curve(d3.curveLinear);
 
     // 这里的 Group 是d3 select 后面加上 append('g')；首先是删除掉之前所有的 path。
     this.groups.path.selectAll('.path').remove();
@@ -270,12 +286,12 @@ class Coop extends Component {
       let index = i;
 
       let lineGraph = this.groups.path.append('path')
-          .attr('d', lineFunction(pathTable[index]))
-          .attr('class', 'path')
-          .attr('fill', 'none')
-          .style("stroke", function (d) {
-            return colorSetPath[index]
-          });
+        .attr('d', lineFunction(pathTable[index]))
+        .attr('class', 'path')
+        .attr('fill', 'none')
+        .style("stroke", function (d) {
+          return colorSetPath[index]
+        });
 
       // let circleData = this.groups.position.append('g').selectAll('circle').data(pathTable[index]);
       // let circles = circleData.enter().append('circle');
@@ -317,28 +333,28 @@ class Coop extends Component {
       let textData = this.groups.position.append('g').selectAll("text").data(pathTable[index]);
       let texts = textData.enter().append("text");
       let textAttributes = texts
-          .attr("x", function (d) {
-            return scales.x(d[1] + 0.5);
-          })
-          .attr("y", function (d) {
-            return scales.y(d[0] + 0.5);
-          })
-          .attr("dy", ".5em")
-          // .attr("dy", ".31em")
-          .text(function (d, i, arr) {
-            //console.log('what is this ', arr[i]);
-            //console.log('what is this ', pathTable[index][i]);
-            //console.log('the text ele', d === pathTable[index][i]);
-            //console.log('the text ele', ((i !== 0) && (d === pathTable[index][i-1])));
-            if ((i !== 0) && (d[0] === pathTable[index][i - 1][0]) && (d[1] === pathTable[index][i - 1][1])) {
-              return;
-              // return i-1;
-            } else {
-              return i;
-              // return i;
-            }
-          })
-          .attr("class", "positionNumber");
+        .attr("x", function (d) {
+          return scales.x(d[1] + 0.5);
+        })
+        .attr("y", function (d) {
+          return scales.y(d[0] + 0.5);
+        })
+        .attr("dy", ".5em")
+        // .attr("dy", ".31em")
+        .text(function (d, i, arr) {
+          //console.log('what is this ', arr[i]);
+          //console.log('what is this ', pathTable[index][i]);
+          //console.log('the text ele', d === pathTable[index][i]);
+          //console.log('the text ele', ((i !== 0) && (d === pathTable[index][i-1])));
+          if ((i !== 0) && (d[0] === pathTable[index][i - 1][0]) && (d[1] === pathTable[index][i - 1][1])) {
+            return;
+            // return i-1;
+          } else {
+            return i;
+            // return i;
+          }
+        })
+        .attr("class", "positionNumber");
     }
   }
 
@@ -353,30 +369,30 @@ class Coop extends Component {
     }
     // 这一句是刚开始添加圆圈的时候，其他时候都是下面的一段，没有enter（）的
     this.movingSpot.selectAll('circle').data(pathTable)
-        .enter().append('circle')
-        .attr("cx", function (d) {
-          return scales.x(d[nowTimeStep][1] + 0.5);
-        })
-        .attr("cy", function (d) {
-          return scales.y(d[nowTimeStep][0] + 0.5);
-        })
-        .attr("r", function (d) {
-          return 10;
-        })
-        .attr("class", "movingSpot")
-        .style("fill", function (d, i) {
-          return colorSet[i]
-        });
+      .enter().append('circle')
+      .attr("cx", function (d) {
+        return scales.x(d[nowTimeStep][1] + 0.5);
+      })
+      .attr("cy", function (d) {
+        return scales.y(d[nowTimeStep][0] + 0.5);
+      })
+      .attr("r", function (d) {
+        return 10;
+      })
+      .attr("class", "movingSpot")
+      .style("fill", function (d, i) {
+        return colorSet[i]
+      });
 
     this.movingSpot.selectAll('circle').data(pathTable)
-        .transition()
-        .attr("cx", function (d) {
-          return scales.x(d[nowTimeStep][1] + 0.5);
-        })
-        .attr("cy", function (d) {
-          return scales.y(d[nowTimeStep][0] + 0.5);
-        })
-        .duration(duration);
+      .transition()
+      .attr("cx", function (d) {
+        return scales.x(d[nowTimeStep][1] + 0.5);
+      })
+      .attr("cy", function (d) {
+        return scales.y(d[nowTimeStep][0] + 0.5);
+      })
+      .duration(duration);
 
   }
 
@@ -435,7 +451,7 @@ class Coop extends Component {
         }
 
         return p.length > c.length ? c : p;
-      }, {length: searchDeepth});
+      }, { length: searchDeepth });
       // 已经找到了需要 replanning 的 path；
 
       // console.log(this.pathTable);
@@ -499,14 +515,14 @@ class Coop extends Component {
 
   render() {
     return (
-        <div ref={ele => this.grid = ele} className="instruction">
-          <p>1. 刷新网页会出现一张有随机障碍的地图，<br/>
-            2. 鼠标依次点击地图中的空白点，确定4对起点、终点，<br/>
-            3. 最后点击 test 按钮开始寻路并且开始动画模拟. <br/>
-          </p>
-          <Button type="primary" onClick={() => this.testCoop()}>test</Button>
-          <br/>
-        </div>
+      <div ref={ele => this.grid = ele} className="instruction">
+        <p>1. 刷新网页会出现一张有随机障碍的地图，<br />
+          2. 鼠标依次点击地图中的空白点，确定4对起点、终点，<br />
+          3. 最后点击 test 按钮开始寻路并且开始动画模拟. <br />
+        </p>
+        <Button type="primary" onClick={() => this.testCoop()}>test</Button>
+        <br />
+      </div>
 
     );
   }

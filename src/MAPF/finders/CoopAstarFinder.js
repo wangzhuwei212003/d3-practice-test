@@ -72,7 +72,7 @@ CoopAstarFinder.prototype.findPath = function (index, goalTable, searchDeepth, p
       //console.log(reservedNode);
     }
   } // end for loop。
-  // reservation table ready ！！！
+  // reservation table ready ！！！这里存在一个优先级的问题。如果是优先级高的车先到达终点，就会出现一辆车永远到不了终点的情况。
 
   // 1. Heap 还是 heap，push、pop 都是要用到的。
   // 2. 有5种 action，上下左右以及停止. 所有的 action 每一步的cost都是 1，和一个timestep相对应。
