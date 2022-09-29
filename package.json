@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "antd": "^3.2.1",
-    "d3": "^4.12.2",
+    "d3": "^7.6.1",
     "heap": "^0.2.6",
     "react": "^16.2.0",
     "react-dom": "^16.13.1",
